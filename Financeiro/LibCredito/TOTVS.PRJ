@@ -1,0 +1,34 @@
+Group Totvs
+   Version=7.0
+   VSSDB=
+   HasProperties=1
+   Properties
+      BeforeApply=
+      AfterApply=
+      Icon=
+      ID=
+      Version=
+      PalmName=
+      OutPut=
+   End
+   ProjectsCount=1
+   Project Financeiro
+      FoldersCount=1
+      Folder libCredito
+         VSSPath=Fontes
+         FilesCount=4
+         File \Clientes\Imdepa\Projetos\Financeiro\LibCredito\PE_MTA440C9.PRW
+             Type=T
+         End
+         File \Clientes\Imdepa\Projetos\Financeiro\LibCredito\FATXFUN.PRX
+             Type=T
+         End
+         File \Clientes\Imdepa\Projetos\Financeiro\LibCredito\PE_MaAvCrPr.prw
+             Type=T
+         End
+         File \Clientes\Imdepa\Projetos\Financeiro\LibCredito\IMDF260.PRW
+             Type=T
+         End
+      End
+   End
+End

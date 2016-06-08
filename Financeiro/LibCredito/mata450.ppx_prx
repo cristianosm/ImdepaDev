@@ -1,0 +1,1730 @@
+#line 1 "D:\Microsiga\IncludeP10\protheus.ch"
+#line 1 "D:\Microsiga\IncludeP10\dialog.ch"
+#line 27 "protheus.ch"
+#line 1 "D:\Microsiga\IncludeP10\font.ch"
+#line 28 "protheus.ch"
+#line 1 "D:\Microsiga\IncludeP10\ptmenu.ch"
+#line 30 "protheus.ch"
+#line 1 "D:\Microsiga\IncludeP10\print.ch"
+#line 32 "protheus.ch"
+#line 1 "D:\Microsiga\IncludeP10\colors.ch"
+#line 34 "protheus.ch"
+#line 1 "D:\Microsiga\IncludeP10\folder.ch"
+#line 36 "protheus.ch"
+#line 1 "D:\Microsiga\IncludeP10\msobject.ch"
+#line 37 "protheus.ch"
+#line 1 "D:\Microsiga\IncludeP10\vkey.ch"
+#line 41 "protheus.ch"
+#line 1 "D:\Microsiga\IncludeP10\winapi.ch"
+#line 43 "protheus.ch"
+#line 1 "D:\Microsiga\IncludeP10\fwcommand.ch"
+#line 47 "protheus.ch"
+#line 4 "D:\Clientes\Imdepa\Projetos\Financeiro\LibCredito\mata450.prx"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Function U_I_MATA450()
+
+
+
+Local aArea     := GetArea()
+Local cFilSC9   := ""
+Local cCondicao := ""
+Local aIndSC9   := {}
+
+
+
+
+
+
+Local aCores    := {{"C9_BLCRED=='  ' .And. Iif(SC9->((FieldPos('C9_BLTMS') > 0)), Empty(C9_BLTMS), .T.)","ENABLE" },	{ "(C9_BLCRED=='10'.And.C9_BLEST=='10').Or.(C9_BLCRED=='ZZ'.And.C9_BLEST=='ZZ')","DISABLE"},	{ "!C9_BLCRED=='  ' .And.C9_BLCRED <> '09' .And. C9_BLCRED<>'10' .And. C9_BLCRED<>'ZZ'","BR_AZUL"},	{ "C9_BLCRED=='09'","BR_MARROM"},	{ "!C9_BLEST=='  '.And. C9_BLEST<>'10'.And.C9_BLEST<>'ZZ'","BR_PRETO"},	{ "C9_BLWMS<='05'.And.!C9_BLWMS=='  '","BR_AMARELO"},	{ "Iif(SC9->((FieldPos('C9_BLTMS') > 0)), !Empty(C9_BLTMS), .F.)"  ,"BR_LARANJA"}}
+
+Private bFiltraBrw := {|| Nil}
+
+If VerSenha(136)
+	If cPaisLoc $ "ARG|POR|EUA"
+		Private aArrayAE:={}
+	EndIf
+	Private cCadastro := OemToAnsi("Libera‡„o de Cr‚dito")
+	Private aRotina   := MenuDef()
+
+
+
+
+	IF (Existblock("M450LEG"))
+		aCores := ExecBlock("M450LEG", .F. , .F. ,aCores)
+	EndIf
+
+
+
+
+	If Pergunte("MTA451", .T. )
+		IF (Existblock("M450FIL"))
+			cFilSC9 := ExecBlock("M450FIL", .f. , .f. )
+		EndIf
+
+
+
+		If SuperGetMv("MV_FATDIST") == "S"
+			D450LibCg(@cFilSC9)
+		EndIf
+		If ( MV_PAR01 == 1 .Or.  mv_par01 == 3 .Or.  !Empty(cFilSC9) )
+			cFilSC9  := If(Empty(cFilSC9),".T.",cFilSC9)
+			If ( mv_par01 == 1 )
+				cCondicao:='C9_FILIAL=="'+xFilial("SC9")+'".And.'
+				cCondicao+='(C9_BLCRED=="01".Or.C9_BLCRED=="04").And.'
+			ElseIf (mv_par01 == 3)
+				cCondicao:='C9_FILIAL=="'+xFilial("SC9")+'".And.'
+				cCondicao+='(C9_BLCRED=="01".Or.C9_BLCRED=="04".Or. C9_BLCRED == "09" ).And.'
+			Endif
+			cCondicao+=cFilSC9
+		EndIf
+
+
+
+		bFiltraBrw := {|| FilBrowse("SC9",@aIndSC9,@cCondicao) }
+		Eval(bFiltraBrw)
+
+		dbSelectArea("SC9")
+		mBrowse( 7, 4,20,74,"SC9",,,,,,aCores)
+
+
+
+
+		dbSelectArea("SC9")
+		RetIndex("SC9")
+		dbClearFilter()
+		aEval(aIndSc9,{|x| Ferase(x[1]+OrdBagExt())})
+		RestArea(aArea)
+	EndIf
+Else
+	HELP(" ",1,"SEMPERM")
+Endif
+Return( .T. )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Function Ma450Proces(cAlias,lAvCred,lAvEst,lEnd,lEmpresa,lAvWMS)
+
+Local aArea     := GetArea()
+Local aAreaSM0  := SM0->(GetArea())
+Local aRegSC6   := {}
+Local bWhile    := {|| !Eof()}
+Local lQuery    := .F. 
+Local lCredito  := .F. 
+Local lEstoque  := .F. 
+Local lMvAvalEst:= SuperGetMV("MV_AVALEST")==2
+Local lBlqEst   := SuperGetMV("MV_AVALEST")==3 .And.  !lAvEst
+Local lMta450T2 := (ExistBlock("MTA450T2"))
+Local lMt450End := (ExistBlock("MT450END"))
+Local lMta450T  := (ExistBlock("MTA450T"))
+Local lMa450Ped := (ExistBlock("MA450PED"))
+Local lMTValAvC := (ExistBlock("MTVALAVC"))
+Local lMT450Ite := (ExistBlock("MT450ITE"))
+Local lMT450TpLi:= (ExistBlock("MT450TPLI"))
+Local nValAV	 := 0
+Local lLibPedCr := .T. 
+Local cBlqCred  := ""
+Local cQuery    := ""
+Local cIndSC9   := ""
+Local cAliasSC9 := "MA450PROC"
+Local cMensagem := ""
+Local cEmpresa  := cEmpAnt
+Local cSavFil   := cFilAnt
+Local cTipLib   := ""
+Local cQuebra   := ""
+Local nValItPed 	:= 0
+Local nMvTipCrd 	:= SuperGetMV("MV_TIPACRD", .F. , 1)
+Local nVlrTitAbe	:= 0
+Local nVlrTitAtr	:= 0
+
+lEmpresa := If( lEmpresa == nil, .F. , lEmpresa ) ;
+lAvWMS := If( lAvWMS == nil, .F. , lAvWMS ) ;
+
+
+Private aLibSDB	:= {}
+Private aWmsAviso:= {}
+
+
+
+
+ProcRegua(SC9->(LastRec()))
+
+
+
+If lEmpresa
+	cEmpresa := cEmpAnt
+	bWhile   := {|| !Eof() .And.  SM0->M0_CODIGO == cEmpresa }
+Else
+	cEmpresa := cEmpAnt+cFilAnt
+	bWhile   := {|| !Eof() .And.  SM0->M0_CODIGO+Iif ( FindFunction("FWCODFIL"), FWCodFil(), SM0->M0_CODFIL) == cEmpresa }
+EndIf
+dbSelectArea("SM0")
+dbSetOrder(1)
+MsSeek(cEmpresa)
+While Eval(bWhile)
+
+
+
+	cFilAnt := Iif ( FindFunction("FWCODFIL"), FWCodFil(), SM0->M0_CODFIL)
+	If lEmpresa
+		cMensagem := "("+Iif ( FindFunction("FWCODFIL"), FWCodFil(), SM0->M0_CODFIL)+"/"+SM0->M0_FILIAL+") "+RetTitle("C6_NUM")
+	Else
+		cMensagem := RetTitle("C6_NUM")
+	EndIf
+
+
+
+	dbSelectArea("SC9")
+	dbSetOrder(1)
+
+		If (TcSrvType()<>"AS/400")
+			lQuery := .T. 
+			cQuery := "SELECT SC9.R_E_C_N_O_ RECNO, SC9.C9_FILIAL,SC9.C9_PEDIDO,SC9.C9_ITEM,SC9.C9_BLCRED,SC5.C5_TIPLIB,SC6.R_E_C_N_O_ SC6RECNO "
+			cQuery += "FROM "+RetSqlName("SC9")+" SC9,"
+			cQuery += RetSqlName("SC5")+" SC5,"
+			cQuery += RetSqlName("SC6")+" SC6 "
+			cQuery += "WHERE SC9.C9_FILIAL = '"+xFilial("SC9")+"' AND "
+			cQuery += "SC9.C9_PEDIDO  >= '"+MV_PAR01+"' AND "
+			cQuery += "SC9.C9_PEDIDO  <= '"+MV_PAR02+"' AND "
+			cQuery += "SC9.C9_CLIENTE >= '"+MV_PAR03+"' AND "
+			cQuery += "SC9.C9_CLIENTE <= '"+MV_PAR04+"' AND "
+			cQuery += "SC9.C9_NFISCAL = '"+Space(Len(SC9->C9_NFISCAL))+"' AND "
+			cQuery += "SC9.D_E_L_E_T_ <> '*' AND "
+			cQuery += "SC5.C5_FILIAL  = '"+xFilial("SC5")+"' AND "
+			cQuery += "SC5.C5_NUM     = SC9.C9_PEDIDO AND "
+			cQuery += "SC5.D_E_L_E_T_ <> '*' AND "
+			cQuery += "SC6.C6_FILIAL  = '"+xFilial("SC6")+"' AND "
+			cQuery += "SC6.C6_NUM     = SC9.C9_PEDIDO AND "
+			cQuery += "SC6.C6_ITEM    = SC9.C9_ITEM AND "
+			cQuery += "SC6.C6_PRODUTO = SC9.C9_PRODUTO AND "
+			cQuery += "SC6.C6_ENTREG  >= '"+Dtos(MV_PAR05)+"' AND "
+			cQuery += "SC6.C6_ENTREG  <= '"+Dtos(MV_PAR06)+"' AND "
+			cQuery += "SC6.D_E_L_E_T_ <> '*' "
+
+			If ( lAvCred .And.  !lAvEst )
+				cQuery += "AND (SC9.C9_BLCRED IN ('01','04') ) "
+			EndIf
+			If ( lAvEst .And.  !lAvCred )
+				cQuery += "AND ( SC9.C9_BLEST = '02' OR SC9.C9_BLWMS='03' ) AND SC9.C9_BLCRED='  ' "
+			EndIf
+			If ( lAvEst .And.  lAvCred )
+				cQuery += "AND (SC9.C9_BLEST = '02' OR SC9.C9_BLCRED IN('01','04') OR SC9.C9_BLWMS='03') "
+			EndIf
+			If ( lAvWMS .And.  !lAvEst )
+				cQuery += "AND (SC9.C9_BLWMS='03') "
+			EndIf
+
+			If ExistBlock("MT450QRY")
+				cQuery := ExecBlock("MT450QRY", .F. , .F. ,{ cQuery })
+			EndIf
+
+			cQuery += "ORDER BY "+SqlOrder(SC9->(IndexKey()))
+			cQuery := ChangeQuery(cQuery)
+
+			dbUseArea( .T. , "TOPCONN", TCGENQRY(,,cQuery),cAliasSC9, .T. , .T. )
+
+		Else
+
+		cQuery := "C9_FILIAL=='"+xFilial("SC9")+"'.And."
+		cQuery += "C9_PEDIDO>='"+MV_PAR01+"'.And."
+		cQuery += "C9_PEDIDO<='"+MV_PAR02+"'.And."
+		cQuery += "C9_CLIENTE>='"+MV_PAR03+"'.And."
+		cQuery += "C9_CLIENTE<='"+MV_PAR04+"'.And."
+		cQuery += "C9_NFISCAL=='"+Space(Len(SC9->C9_NFISCAL))+"'.And."
+		If ( lAvCred .And.  !lAvEst )
+			cQuery += "(C9_BLCRED=='01'.OR.C9_BLCRED=='04')"
+		EndIf
+		If ( lAvEst .And.  !lAvCred )
+			cQuery += "(C9_BLEST=='02'.OR.C9_BLWMS=='03').AND.C9_BLCRED=='  '"
+		EndIf
+		If ( lAvCred .And.  lAvEst )
+			cQuery += "(C9_BLCRED=='01'.OR.C9_BLCRED=='04'.OR.C9_BLEST=='02'.OR.C9_BLWMS=='03')"
+		EndIf
+		If ( lAvWMS .And.  !lAvEst )
+			cQuery += "(SC9.C9_BLWMS='03')"
+		EndIf
+
+		If ExistBlock("MT450FIL")
+			cQuery += ".And."+ExecBlock("MT450FIL", .F. , .F. )
+		EndIf
+
+
+
+
+		ChkFile("SC9", .F. ,cAliasSC9)
+		dbSelectArea(cAliasSC9)
+		cIndSC9 := CriaTrab(, .F. )
+		IndRegua(cAliasSC9,cIndSC9,IndexKey(),,cQuery)
+		dbGotop()
+
+		EndIf
+
+	dbSelectArea(cAliasSC9)
+	While (!((cAliasSC9)->(Eof())) .And.  xFilial("SC9") == (cAliasSC9)->C9_FILIAL )
+
+
+
+		If lQuery
+			cTipLib := (cAliasSC9)->C5_TIPLIB
+		Else
+			dbSelectArea("SC5")
+			dbSetOrder(1)
+			MsSeek(xFilial("SC5")+(cAliasSC9)->C9_PEDIDO)
+			cTipLib := SC5->C5_TIPLIB
+		EndIf
+
+		If lMT450Ite
+			ExecBlock("MT450ITE", .F. , .F. ,{cAliasSC9})
+		Endif
+
+		If lMT450TpLi
+			cTipLib := ExecBlock("MT450TPLI", .F. , .F. ,{cTipLib})
+		Endif
+
+		If cTipLib == "1"
+
+
+
+			dbSelectArea("SC9")
+			If ( lQuery )
+				MsGoto((cAliasSC9)->RECNO)
+			Else
+				MsGoto((cAliasSC9)->(RecNo()))
+			EndIf
+
+
+
+			dbSelectArea("SC6")
+			dbSetOrder(1)
+			MsSeek(xFilial("SC6")+SC9->C9_PEDIDO+SC9->C9_ITEM+SC9->C9_PRODUTO)
+			If ( SC6->C6_ENTREG >= mv_par05 .And.  SC6->C6_ENTREG <= mv_par06 )
+				dbSelectArea("SF4")
+				dbSetOrder(1)
+				MsSeek(xFilial(Alias())+SC6->C6_TES)
+				dbSelectArea("SC5")
+				dbSetOrder(1)
+				If MsSeek(xFilial("SC5")+SC9->C9_PEDIDO)
+					If SC5->C5_TIPO$"BD"
+						dbSelectArea("SA2")
+						dbSetOrder(1)
+						MsSeek(xFilial("SA2")+SC9->C9_CLIENTE+SC9->C9_LOJA)
+						If ( lAvCred )
+							lCredito := .T. 
+						Else
+							lCredito := Empty(SC9->C9_BLCRED)
+						EndIf
+					Else
+						dbSelectArea("SA1")
+						dbSetOrder(1)
+						MsSeek(xFilial("SA1")+SC9->C9_CLIENTE+SC9->C9_LOJA)
+
+
+
+						If ( lAvCred )
+							If lMTValAvC
+								nValAv	:=	ExecBLock("MTValAvC", .F. , .F. ,{"MA450PROCES",SC9->C9_PRCVEN*SC9->C9_QTDLIB,Nil})
+							Else
+								nValAv	:=	SC9->C9_PRCVEN*SC9->C9_QTDLIB
+							Endif
+
+							If nMvTipCrd == 2 .AND.  FindFunction("FatCredTools")
+
+								If nValItPed == 0
+
+									nVlrTitAbe := SldCliente(SC9->C9_CLIENTE + SC9->C9_LOJA, Nil, Nil, .F. )
+
+									nVlrTitAtr := CrdXTitAtr(SC9->C9_CLIENTE + SC9->C9_LOJA, Nil, Nil, .F. )
+								EndIf
+
+								nValItPed += nValAv
+
+								LJMsgRun("Aguarde... Efetuando Analise de Crédito.",,{|| lCredito := FatCredTools(SC9->C9_CLIENTE, SC9->C9_LOJA, nValItPed, nVlrTitAbe, nVlrTitAtr)})
+
+							Else
+								lCredito := MaAvalCred(SC9->C9_CLIENTE,SC9->C9_LOJA,nValAv,SC5->C5_MOEDA, .T. ,@cBlqCred)
+							EndIf
+						Else
+							lCredito := Empty(SC9->C9_BLCRED)
+						EndIf
+					EndIf
+					If ( lAvEst .And.  lCredito )
+						If ( SF4->F4_ESTOQUE == "S" .And.  Empty(SC9->C9_RESERVA))
+							If lBlqEst
+								lEstoque := .F. 
+							Else
+								lEstoque := A440VerSB2(SC9->C9_QTDLIB,lMvAvalEst)
+							EndIf
+						Else
+							lEstoque := .T. 
+						Endif
+					Else
+						lEstoque := IF(Empty(SC9->C9_BLEST), .T. , .F. )
+					EndIf
+					If ( SC6->(Found()) .And.  ((lCredito .And.  lAvCred) .Or.  (lEstoque .And.  lAvEst .And.  lCredito)) )
+						Do Case
+
+
+
+						Case ( lAvCred .And.  lAvEst .And.  lCredito .And.  lEstoque)
+							a450Grava(1, .T. , .T. ,,,lAvEst)
+
+
+
+						Case ( lAvCred .And.  !lAvEst .And.  lCredito )
+							a450Grava(1, .T. , .F. ,,,lAvEst)
+
+
+
+						Case ( lAvCred .And.  !lCredito )
+							Begin Sequence; BeginTran()
+								RecLock(cAlias, .F. )
+								SC9->C9_BLCRED := cBlCred
+								MsUnLock()
+							EndTran(); end
+
+
+
+						Case ( lAvEst .And.  lEstoque .And.  lCredito)
+							a450Grava(1, .F. ,lAvEst,,,lAvEst)
+
+
+
+						Case ( lAvEst .And.  !lEstoque )
+							Begin Sequence; BeginTran()
+								RecLock(cAlias, .F. )
+								SC9->C9_BLEST := "02"
+								MsUnLock()
+							EndTran(); end
+						EndCase
+					EndIf
+					If ( lMta450T )
+						ExecBlock("MTA450T", .F. , .F. )
+					EndIf
+				EndIf
+			EndIf
+		Else
+
+
+
+			If !lQuery
+				dbSelectArea("SC6")
+				dbSetOrder(1)
+				MsSeek(xFilial("SC6")+(cAliasSC9)->C9_PEDIDO+(cAliasSC9)->C9_ITEM+(cAliasSC9)->C9_PRODUTO)
+				aadd(aRegSC6,SC6->(RecNo()))
+			Else
+				aadd(aRegSC6,(cAliasSC9)->SC6RECNO)
+			EndIf
+
+			If ( lMta450T2 )
+				ExecBlock("MTA450T2", .F. , .F. )
+			EndIf
+
+			If (cAliasSC9)->C9_BLCRED <> "  "
+				lLibPedCr := .F. 
+			Endif
+		EndIf
+		cQuebra := (cAliasSC9)->C9_PEDIDO
+		dbSelectArea(cAliasSC9)
+		dbSkip()
+		IncProc(cMensagem+"..:"+(cAliasSC9)->C9_PEDIDO+"/"+(cAliasSC9)->C9_ITEM)
+
+
+
+		If cQuebra <> (cAliasSC9)->C9_PEDIDO .Or.  (cAliasSC9)->(Eof())
+			If Len(aRegSC6) > 0
+				dbSelectArea("SC5")
+				dbSetOrder(1)
+				MsSeek(xFilial("SC5")+cQuebra)
+				Begin Sequence; BeginTran()
+					MaAvalSC5("SC5",3, .F. , .F. ,,,,,,cQuebra,aRegSC6, .T. ,!lLibPedCr)
+					aRegSC6 := {}
+				EndTran(); end
+				lLibPedCr := .T. 
+			EndIf
+			If lMa450Ped
+				Execblock("MA450PED", .F. , .F. ,{cQuebra} )
+			Endif
+		EndIf
+
+
+
+		If lEnd
+			Exit
+		EndIf
+
+		If ( lMt450End )
+			ExecBlock("MT450END", .F. , .F. )
+		EndIf
+
+	EndDo
+	dbSelectArea(cAliasSC9)
+	dbCloseArea()
+	dbSelectArea("SM0")
+	dbSkip()
+EndDo
+
+
+If	IntDL() .And.  !Empty(aLibSDB)
+	WmsExeDCF("2")
+EndIf
+
+
+
+cFilAnt := cSavFil
+dbSelectArea("SC9")
+RestArea(aAreaSM0)
+RestArea(aArea)
+Return( .T. )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Function A450LibMan()
+
+Local aArea		:= GetArea()
+Local aAreaSC9  := SC9->(GetArea())
+Local aRegSC6   := {}
+Local lContinua	:= .T. 
+Local lQuery    := .F. 
+Local nOpcA     := 0
+
+Local cPedido	:= ""
+Local cAliasSC5 := "SC5"
+Local cAliasSC6 := "SC6"
+Local cAliasSC9 := "SC9"
+Local dLimLib   := dDataBase
+Local lMt450Fim := Existblock("MT450FIM")
+Local lProcessa := .T. 
+
+
+	Local cQuery    := ""
+
+
+
+Private aLibSDB	:= {}
+Private aWmsAviso:= {}
+
+
+
+
+Pergunte("MTA451", .F. )
+
+IF (Existblock("MT450MAN"))
+	lContinua := ExecBlock("MT450MAN", .F. , .F. )
+Endif
+
+
+
+If ( SC9->C9_BLCRED == "10" .Or.  SC9->C9_BLEST == "10" .Or.  SC9->C9_BLCRED == "ZZ" .Or.  SC9->C9_BLEST == "ZZ" )
+	HELP(" ",1,"A450NFISCA")
+	lContinua := .F. 
+EndIf
+If ( SC9->C9_BLCRED == "  " .And.  SC9->C9_BLEST == "  " )
+	Help(" ",1,"A450JALIB")
+	lContinua := .F. 
+EndIf
+If ( Empty(SC9->C9_BLCRED) .And.  !Empty(SC9->C9_BLEST) )
+	Help(" ",1,"A450ESTOQ")
+	lContinua := .F. 
+EndIf
+If ( lContinua )
+	nOpcA := a450Tela( @lContinua , .T.  , .F. ,@dLimLib)
+
+	If ( nOpcA == 1 )
+		lProcessa := .T. 
+
+
+
+		If (Existblock("MTA450LIB"))
+			lProcessa:=ExecBlock("MTA450LIB", .f. , .f. ,{SC9->C9_PEDIDO,SC9->C9_ITEM,nOpcA})
+		EndIf
+
+		If lProcessa
+
+
+
+			a450Grava(1, .T. , .F. )
+
+
+
+
+			IF (ExistTemplate("MTA450I"))
+				ExecTemplate("MTA450I", .f. , .f. ,{nOpca,dLimLib})
+			EndIf
+
+			IF (Existblock("MTA450I"))
+				ExecBlock("MTA450I", .f. , .f. ,{nOpca,dLimLib})
+			EndIf
+		Endif
+
+
+
+	ElseIf nOpcA == 3
+		a450Grava(2, .T. , .F. )
+		IF (Existblock("MTA450R"))
+			ExecBlock("MTA450R", .f. , .f. )
+		EndIf
+	ElseIf nOpcA == 4
+
+
+
+		cPedido := SC9->C9_PEDIDO
+		dbSelectArea("SC9")
+		dbSetOrder(1)
+
+			lQuery := .T. 
+			cAliasSC9 := "A450LIBMAN"
+			cAliasSC5 := "A450LIBMAN"
+			cAliasSC6 := "A450LIBMAN"
+			cQuery := "SELECT C9_FILIAL,C9_PEDIDO,C9_BLCRED,C9_ITEM,SC9.R_E_C_N_O_ SC9RECNO,SC5.C5_TIPLIB,"
+			cQuery += "SC5.R_E_C_N_O_ SC5RECNO,SC6.R_E_C_N_O_ SC6RECNO "
+			cQuery += "FROM "+RetSqlName("SC9")+" SC9,"
+			cQuery += RetSqlName("SC5")+" SC5,"
+			cQuery += RetSqlName("SC6")+" SC6 "
+			cQuery += "WHERE SC9.C9_FILIAL = '"+xFilial("SC9")+"' AND "
+			cQuery += "SC9.C9_PEDIDO = '"+cPedido+"' AND "
+			cQuery += "SC9.C9_BLCRED <> '"+Space(Len(SC9->C9_BLCRED))+"' AND "
+			If mv_par01 == 1
+				cQuery += "SC9.C9_BLCRED <> '09' AND "
+			Endif
+			cQuery += "SC9.C9_BLCRED <> '10' AND "
+			cQuery += "SC9.C9_BLCRED <> 'ZZ' AND "
+			cQuery += "SC9.D_E_L_E_T_ = ' ' AND "
+			cQuery += "SC5.C5_FILIAL='"+xFilial("SC5")+"' AND "
+			cQuery += "SC5.C5_NUM=SC9.C9_PEDIDO AND "
+			cQuery += "SC5.D_E_L_E_T_ = ' ' AND "
+			cQuery += "SC6.C6_FILIAL='"+xFilial("SC6")+"' AND "
+			cQuery += "SC6.C6_NUM=SC5.C5_NUM AND "
+			cQuery += "SC6.C6_ITEM=SC9.C9_ITEM AND "
+			cQuery += "SC6.C6_PRODUTO=SC9.C9_PRODUTO AND "
+			cQuery += "SC6.D_E_L_E_T_ = ' ' "
+
+			cQuery := ChangeQuery(cQuery)
+
+			dbUseArea( .T. ,"TOPCONN",TcGenQry(,,cQuery),cAliasSC9, .T. , .T. )
+
+
+
+
+		While ( !Eof() .And.  (cAliasSC9)->C9_FILIAL == xFilial("SC9") .And.  (cAliasSC9)->C9_PEDIDO == cPedido )
+
+			lProcessa := .T. 
+
+			If ( !Empty((cAliasSC9)->C9_BLCRED) .And.  (cAliasSC9)->C9_BLCRED <> "10" .And.  (cAliasSC9)->C9_BLCRED <> "ZZ")
+
+				If mv_par01 == 1
+					If (cAliasSC9)->C9_BLCRED == "09"
+						lProcessa := .F. 
+					Endif
+				Endif
+
+				If lProcessa
+
+
+
+					If (Existblock("MTA450LIB"))
+						lProcessa:=ExecBlock("MTA450LIB", .f. , .f. ,{(cAliasSC9)->C9_PEDIDO,(cAliasSC9)->C9_ITEM,nOpcA})
+					EndIf
+
+					If lProcessa
+						If !lQuery
+							dbSelectArea("SC5")
+							dbSetOrder(1)
+							MsSeek(xFilial("SC5")+SC9->C9_PEDIDO)
+						Else
+							SC5->(MsGoto((cAliasSC5)->SC5RECNO))
+						EndIf
+						If (cAliasSC5)->C5_TIPLIB == "2"
+							If !lQuery
+								dbSelectArea("SC6")
+								dbSetOrder(1)
+								MsSeek(xFilial("SC6")+SC9->C9_PEDIDO+SC9->C9_ITEM+SC9->C9_PRODUTO)
+								aadd(aRegSC6,SC6->(RecNo()))
+							Else
+								aadd(aRegSC6,(cAliasSC6)->SC6RECNO)
+							EndIf
+						Else
+							If lQuery
+								SC9->(MsGoto((cAliasSC9)->SC9RECNO))
+							EndIf
+							a450Grava(1, .T. , .F. )
+						EndIf
+					EndIf
+				Endif
+
+
+
+
+				If (ExistTemplate("MTA450I"))
+					ExecTemplate("MTA450I", .f. , .f. ,{nOpca,dLimLib})
+				EndIf
+
+				If (Existblock("MTA450I"))
+					ExecBlock("MTA450I", .f. , .f. ,{nOpca,dLimLib})
+				EndIf
+			Endif
+
+			dbSelectArea(cAliasSC9)
+			dbSkip()
+		EndDo
+		If lQuery
+			dbSelectArea(cAliasSC9)
+			dbCloseArea()
+			dbSelectArea("SC9")
+		EndIf
+		If Len(aRegSC6) > 0
+
+			dbSelectArea("SC9")
+			DbClearFilter()
+			dbSetOrder(1)
+
+			Begin Sequence; BeginTran()
+				MaAvalSC5("SC5",3, .F. , .F. ,,,,,,cPedido,aRegSC6, .T. , .F. )
+				aRegSC6 := {}
+			EndTran(); end
+		EndIf
+		If lMt450Fim
+			Execblock("MT450FIM", .F. , .F. ,{cPedido})
+		Endif
+
+
+		If	IntDL() .And.  !Empty(aLibSDB)
+			WmsExeDCF("2")
+		EndIf
+	EndIf
+EndIf
+MsUnLockAll()
+RestArea(aAreaSC9)
+Eval(bFiltrabrw)
+RestArea(aArea)
+Return(	lContinua )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Function A450LibAut()
+
+Local aArea   := GetArea()
+
+
+
+
+
+
+
+
+If ( Pergunte("LIBAUT", .T. ) )
+	If MsgYesNo(OemToAnsi("Confirma Libera‡„o Automatica dos Pedidos ?"),OemToAnsi("Aten‡„o"))
+		Processa({|lEnd| Ma450Proces("SC9", .T. , .F. ,@lEnd)},,, .T. )
+	EndIf
+EndIf
+RestArea(aArea)
+Return(Nil)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Function FtSomaAtr(cFilNew)
+
+Local aArea      := GetArea()
+Local aAreaSE1   := SE1->(GetArea())
+
+Local cSalvFil   := cFilAnt
+Local cAliasSE1  := "SE1"
+
+Local lQuery     := .F. 
+Local nValAtraso := 0
+
+
+	Local aStruSE1   := {}
+	Local cQuery     := ""
+	Local nX         := 0
+
+
+
+
+
+cFilNew := If( cFilNew == nil, cFilAnt, cFilNew ) ;
+cFilAnt := cFilNew
+
+
+
+dbSelectArea("SE1")
+dbSetOrder(8)
+
+	aStruSE1  := SE1->(dbStruct())
+	cAliasSE1 := "SOMAATRASO"
+	lQuery    := .T. 
+
+	cQuery := "SELECT * "
+	cQuery += "FROM "+RetSqlName("SE1")+" SE1 "
+	cQuery += "WHERE SE1.E1_FILIAL='"+xFilial("SE1")+"' AND "
+	cQuery += "SE1.E1_CLIENTE='"+SA1->A1_COD+"' AND "
+	cQuery += "SE1.E1_LOJA='"+SA1->A1_LOJA+"' AND "
+	cQuery += "SE1.E1_STATUS='A' AND "
+	cQuery += "SE1.D_E_L_E_T_=' ' "
+
+	cQuery := ChangeQuery(cQuery)
+
+	dbUseArea( .T. ,"TOPCONN",TcGenQry(,,cQuery),cAliasSE1, .T. , .T. )
+	For nX := 1 To Len(aStruSE1)
+		If aStruSE1[nX][2] <> "C"
+			TcSetField(cAliasSE1,aStruSE1[nX][1],aStruSE1[nX][2],aStruSE1[nX][3],aStruSE1[nX][4])
+		EndIf
+	next
+
+
+
+
+
+While ( !Eof() .And.  (cAliasSE1)->E1_FILIAL == xFilial("SE1") .And.  (cAliasSE1)->E1_CLIENTE+(cAliasSE1)->E1_LOJA == SA1->A1_COD+SA1->A1_LOJA .And.  (cAliasSE1)->E1_STATUS == "A" )
+	If ( dDataBase > (cAliasSE1)->E1_VENCREA )
+
+
+
+
+
+
+		If (cAliasSE1)->E1_TIPO $ MVABATIM
+			nValAtraso += xMoeda( (cAliasSE1)->E1_SALDO , (cAliasSE1)->E1_MOEDA , 1 )
+		ElseIf !((cAliasSE1)->E1_TIPO $ MVRECANT+"/"+MVPROVIS+"/"+MV_CRNEG)
+			nValAtraso -= xMoeda( (cAliasSE1)->E1_SALDO , (cAliasSE1)->E1_MOEDA , 1 )
+		Endif
+	EndIf
+	dbSelectArea(cAliasSE1)
+	dbSkip()
+EndDo
+If lQuery
+	dbSelectArea(cAliasSE1)
+	dbCloseArea()
+	dbSelectArea("SE1")
+EndIf
+dbSetOrder(1)
+cFilAnt := cSalvFil
+RestArea(aAreaSE1)
+RestArea(aArea)
+Return (nValAtraso)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Function a450Grava(nOpc,lAtuCred,lAtuEst,lHelp,aSaldos,lAvEst)
+
+Local aArea     := GetArea()
+Local aAreaC9   := SC9->(GetArea())
+Local aSaldoP3  := {}
+
+Local lCredito  := Empty(SC9->C9_BLCRED)
+
+Local nQtdEst   := 0
+Local nMCusto   :=  Val(SuperGetMv("MV_MCUSTO"))
+Local nQtdPoder3:= 0
+Local nQtdEmP3  := 0
+Local nQtdALib  := 0
+Local lEstoque  := .F. 
+Local lMvAvalEst:= SuperGetMv("MV_AVALEST")==2
+Local lBlqEst   := SuperGetMv("MV_AVALEST")==3 .And.  Empty(aSaldos)
+Local cLiberOk := ""
+Local cBlq      := ""
+Local cBloquei  := ""
+Local nX
+
+lHelp := If( lHelp == nil, .T. , lHelp ) ;
+aSaldos := If( aSaldos == nil, {}, aSaldos ) ;
+lAvEst := If( lAvEst == nil, .F. , lAvEst ) ;
+
+
+Private lbloqDCF := !Empty(SC9->C9_BLCRED+SC9->C9_BLEST)
+lBlqEst := lBlqEst .And.  !lAvEst
+
+
+
+dbSelectArea("SC5")
+dbSetOrder(1)
+MsSeek(xFilial("SC5")+SC9->C9_PEDIDO)
+
+dbSelectArea("SC6")
+dbSetOrder(1)
+MsSeek(xFilial("SC6")+SC9->C9_PEDIDO+SC9->C9_ITEM+SC9->C9_PRODUTO)
+
+dbSelectArea("SA1")
+dbSetOrder(1)
+MsSeek(xFilial("SA1")+SC9->C9_CLIENTE+SC9->C9_LOJA)
+
+dbSelectArea("SF4")
+dbSetOrder(1)
+MsSeek(xFilial("SF4")+SC6->C6_TES)
+
+
+
+nMCusto:= If (SA1->A1_MOEDALC > 0, SA1->A1_MOEDALC, nMCusto)
+dbSelectArea("SB2")
+dbSetOrder(1)
+MsSeek(xFilial(Alias())+SC6->C6_PRODUTO+SC6->C6_LOCAL)
+
+
+
+
+If ( nOpc == 1 )
+	Begin Sequence; BeginTran()
+
+
+
+		If !(SC5->C5_TIPO $ "DB")
+			RecLock("SA1", .F. )
+		EndIf
+		RecLock("SC5", .F. )
+		RecLock("SC6", .F. )
+		RecLock("SC9", .F. )
+		If ( SB2->(Found()) )
+			RecLock("SB2", .F. )
+		EndIf
+
+
+
+		nQtdEst :=SC9->C9_QTDLIB
+		If ( Empty(SC9->C9_RESERVA) .And.  !Empty(SC9->C9_BLCRED+SC9->C9_BLEST) .And.  SF4->F4_ESTOQUE == "S")
+			If lBlqEst
+				lEstoque := .F. 
+			Else
+				If Empty(aSaldos)
+					lEstoque := A440VerSB2(@nQtdEst,lMvAvalEst)
+				Else
+					lEstoque := A440VerSB2(@nQtdEst,lMvAvalEst,,,, .F. )
+				EndIf
+			EndIf
+		Else
+			lEstoque := .T. 
+		EndIf
+		If ( nQtdEst == 0 )
+			nQtdEst  := SC9->C9_QTDLIB
+			lEstoque := .F. 
+		EndIf
+
+
+
+		If ( lAtuCred .And.  !Empty(SC9->C9_BLCRED) )
+			MaAvalSC9("SC9",4,Nil,Nil,Nil, .F. )
+			SC9->C9_BLCRED := ""
+			SC9->C9_BLEST := "02"
+			MaAvalSC9("SC9",3)
+			lCredito := .T. 
+
+
+
+			If ( lMvAvalEst )
+				SC6->C6_QTDEMP -= SC9->C9_QTDLIB
+				SC9->C9_QTDLIB := nQtdEst
+				SC9->C9_QTDLIB2 := nQtdEst * ( SC6->C6_UNSVEN / SC6->C6_QTDVEN )
+				SC6->C6_QTDEMP += SC9->C9_QTDLIB
+			EndIf
+		EndIf
+		If ( Empty(SC9->C9_BLCRED) .And.  (lAtuEst .Or.  lEstoque))
+
+
+
+			If !( SF4->F4_PODER3=="D" .And.  !(SC5->C5_TIPO$"CIPD") )
+				aSaldoP3   := MaNeedP3(SC9->C9_QTDLIB,IIf(Empty(SC9->C9_BLCRED+SC9->C9_BLEST),SC9->C9_QTDLIB,0))
+				nQtdPoder3 := aSaldoP3[2]
+				nQtdEmP3   := aSaldoP3[3]
+			Else
+				nQtdPoder3 := 0
+				nQtdEmP3   := 0
+			EndIf
+			If Rastro(SC9->C9_PRODUTO) .Or.  Localiza(SC9->C9_PRODUTO) .Or.  !Empty(SC9->C9_RESERVA) .Or.  nQtdPoder3 <> 0 .Or.  nQtdEmP3 <> 0
+				If (Rastro(SC9->C9_PRODUTO) .Or.  Localiza(SC9->C9_PRODUTO)) .And.  !lEstoque
+
+				Else
+
+					RecLock("SC5")
+					cLiberOk := SC5->C5_LIBEROK
+					nQtdALib := SC9->C9_QTDLIB
+					cBlq     := SC5->C5_BLQ
+					cBloquei := SC6->C6_BLOQUEI
+					SC9->(a460Estorna())
+					SC5->C5_BLQ     := cBlq
+					SC6->C6_BLOQUEI := cBloquei
+					If Len(aSaldos)>0
+						For nX := 1 To Len(aSaldos)
+							RecLock("SC6")
+							SC6->C6_LOTECTL := aSaldos[nX][1]
+							SC6->C6_NUMLOTE := aSaldos[nX][2]
+							SC6->C6_LOCALIZ := aSaldos[nX][3]
+							SC6->C6_NUMSERI := aSaldos[nX][4]
+							SC6->C6_DTVALID := aSaldos[nX][7]
+							SC6->C6_POTENCI := aSaldos[nX][6]
+
+							MaLibDoFat(SC6->(RecNo()),Min(aSaldos[nX][5],nQtdALib),@lCredito,@lEstoque,!(lAtuCred .Or.  Empty(SC9->C9_BLCRED)),!Empty(SC9->C9_BLEST), .F. , .F. )
+							nQtdALib -= Min(aSaldos[nX][5],nQtdALib)
+
+							SC6->C6_LOTECTL := ""
+							SC6->C6_NUMLOTE := ""
+							SC6->C6_LOCALIZ := ""
+							SC6->C6_NUMSERI := ""
+							SC6->C6_DTVALID := Ctod("")
+							SC6->C6_POTENCI := 0
+
+						next
+					Else
+						MaLibDoFat(SC6->(RecNo()),SC9->C9_QTDLIB,@lCredito,@lEstoque,!(lAtuCred .Or.  Empty(SC9->C9_BLCRED)),!Empty(SC9->C9_BLEST), .F. , .F. )
+					EndIf
+					RecLock("SC5")
+					SC5->C5_LIBEROK := cLiberOk
+				EndIf
+			Else
+
+
+
+				If SC9->C9_BLWMS == "03" .And.  SC9->C9_BLEST == "  "
+					MaAvalSC9("SC9",9,{{ "","","","",SC9->C9_QTDLIB,SC9->C9_QTDLIB2,Ctod(""),"","","",SC9->C9_LOCAL}})
+				Else
+					MaAvalSC9("SC9",6,{{ "","","","",SC9->C9_QTDLIB,SC9->C9_QTDLIB2,Ctod(""),"","","",SC9->C9_LOCAL}},Nil,Nil, .F. )
+					SC9->C9_BLEST := ""
+					MaAvalSC9("SC9",5,{{ "","","","",SC9->C9_QTDLIB,SC9->C9_QTDLIB2,Ctod(""),"","","",SC9->C9_LOCAL}})
+				EndIf
+			EndIf
+		EndIf
+	EndTran(); end
+	If ( (lAtuEst .And.  !Empty(SC9->C9_BLEST)) ) .And.  lHelp
+		Help(" ",1,"A455LIBMAN",, "Liberacao manual de estoque nao permitida.", 1, 1 )
+		lHelp := .F. 
+	EndIf
+Else
+
+
+
+	Begin Sequence; BeginTran()
+
+
+
+		RecLock("SC9")
+			SC9->C9_BLCRED := "09"
+		MsUnlock()
+	EndTran(); end
+EndIf
+RestArea(aAreaC9)
+RestArea(aArea)
+Return(Nil)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Function a450Tela(lContinua , lAvCred , lAvEst, dLimLib)
+
+Local aArea      := GetArea()
+Local aAreaSC9   := SC9->(GetArea())
+
+Local nSaldoLC   := 0
+Local nValItem   := 0
+Local nValPed    := 0
+Local nLimCred   := 0
+Local nMoeda     := 0
+Local nQtdVen    := 0
+Local nSalPedL   := 0
+Local nSalPed    := 0
+Local nSalDup	 := 0
+Local nSalDupM	 := 0
+Local nValAtraso := 0
+Local nOpca 	 := 0
+Local nSalvEmp   := 0
+Local nCntFor    := 0
+Local cDescBloq  := ""
+Local cDescri    := ""
+Local cCondSC9   := ""
+Local cProduto   := SC9->C9_PRODUTO
+Local cLocal     := SC9->C9_LOCAL
+Local oBtn
+Local oDlg
+Local bWhile     := Nil
+Local nMCusto    := 0
+Local nMCustoCli := 0
+Local nDecs		 := 0
+Local aSaldos
+Local lLiberado  := .F. 
+Local nSalFin    := 0
+Local nSalFinM   := 0
+Local nLcFin     := 0
+Local nLcFinM    := 0
+Local aCols      :={}
+Local aHeader    :={}
+Local cMoeda     := ""
+Local aColsNew   := {}
+Local lMT450COLS := ExistBlock("MT450COLS")
+
+Private cCadastro := OemToAnsi("Consulta Posi‡„o Clientes")
+
+dLimLib := If( dLimLib == nil, dDataBase, dLimLib ) ;
+
+
+
+
+If ( lContinua )
+	dbSelectArea("SC5")
+	dbSetOrder(1)
+	If dbSeek(xFilial()+SC9->C9_PEDIDO)
+		If !SoftLock("SC5")
+			lContinua := .F. 
+		EndIf
+	EndIf
+EndIf
+
+
+
+If ( SC5->C5_TIPLIB=="2" )
+
+
+
+	dbSelectArea("SC9")
+	dbSetOrder(1)
+	dbSeek(xFilial("SC9")+SC9->C9_PEDIDO)
+	cCondSC9 := SC9->C9_PEDIDO
+
+	bWhile := {||  xFilial("SC9") == SC9->C9_FILIAL .And.  cCondSC9 == SC9->C9_PEDIDO }
+Else
+	cCondSC9 := SC9->C9_PEDIDO+SC9->C9_ITEM+SC9->C9_SEQUEN
+
+	bWhile   := {||   xFilial("SC9") == SC9->C9_FILIAL .And.  cCondSC9 == SC9->C9_PEDIDO+SC9->C9_ITEM+SC9->C9_SEQUEN }
+EndIf
+
+dbSelectArea("SA1")
+dbSetOrder(1)
+dbSeek(xFilial(Alias())+SC5->C5_CLIENTE+SC5->C5_LOJACLI)
+nMCusto:= If (SA1->A1_MOEDALC > 0, SA1->A1_MOEDALC, VAL(SuperGetMv("MV_MCUSTO")))
+cMoeda           := " "+Pad(SuperGetMv("MV_SIMB"+AllTrim(STR(nMCusto))),4)
+nDecs            := MsDecimais(nMcusto)
+
+
+
+
+If ( SuperGetMv("MV_CREDCLI") == "L" )
+	nLimCred := SA1->A1_LC
+	nSalPed  := SA1->A1_SALPED + SA1->A1_SALPEDB
+	nSalPedL := SA1->A1_SALPEDL
+	nSalDup  := SA1->A1_SALDUP
+	nSalDupM := SA1->A1_SALDUPM
+	nSalFin  := SA1->A1_SALFIN
+	nLcFin   := SA1->A1_LCFIN
+	nLcFinM  := SA1->A1_SALFINM
+Else
+
+
+
+	dbSelectArea("SA1")
+	dbSetOrder(1)
+	dbSeek(xFilial("SA1")+SC5->C5_CLIENTE)
+
+	While ( !Eof() .And.  xFilial("SA1") == SA1->A1_FILIAL .And.  SC5->C5_CLIENTE ==  SA1->A1_COD )
+
+		nMCustoCli := Iif(SA1->A1_MOEDALC > 0, SA1->A1_MOEDALC, Val(SuperGetMv("MV_MCUSTO")))
+		nLimCred += xMoeda(SA1->A1_LC,nMCustoCli,nMCusto,dDataBase)
+		nSalPed  += xMoeda(SA1->A1_SALPED+SA1->A1_SALPEDB,nMCustoCli,nMCusto,dDataBase)
+		nSalPedL += xMoeda(SA1->A1_SALPEDL,nMCustoCli,nMCusto,dDataBase)
+		nSalDup  += SA1->A1_SALDUP
+		nSalDupM += xMoeda(SA1->A1_SALDUPM,nMCustoCli,nMCusto,dDataBase)
+		nSalFin  += SA1->A1_SALFIN
+		nLcFin   += xMoeda(SA1->A1_LCFIN,nMCustoCli,nMCusto,dDataBase)
+		nSalFinM += xMoeda(SA1->A1_SALFINM,nMCustoCli,nMCusto,dDataBase)
+		dbSelectArea("SA1")
+		dbSkip()
+	EndDo
+EndIf
+nSalvEmp := SM0->(Recno())
+
+
+
+dbSelectArea("SM0")
+dbSeek(cEmpAnt+IIf(!Empty(xFilial("SA1")),xFilial("SA1"),""))
+While !Eof() .and.  M0_CODIGO == cEmpAnt
+	If ( SuperGetMv("MV_CREDCLI")=="L" )
+		nValAtraso += FtSomaAtr(Iif ( FindFunction("FWCODFIL"), FWCodFil(), SM0->M0_CODFIL))
+	Else
+		dbSelectArea("SA1")
+		dbSetOrder(1)
+		dbSeek(xFilial("SA1")+SC5->C5_CLIENTE)
+
+		While ( !Eof() .And.  xFilial("SA1")  == SA1->A1_FILIAL .And.  SC5->C5_CLIENTE == SA1->A1_COD )
+			nValAtraso += FtSomaAtr(Iif ( FindFunction("FWCODFIL"), FWCodFil(), SM0->M0_CODFIL))
+			dbSelectArea("SA1")
+			dbSkip()
+		EndDo
+	EndIf
+
+
+
+	If ( xFilial("SE1") == Space(Iif ( FindFunction("FWSIZEFILIAL"), FWSizeFilial(), 2)) .Or.  !Empty(xFilial("SA1")))
+		Exit
+	EndIf
+	dbSelectArea("SM0")
+	dbSkip()
+EndDo
+dbSelectArea("SM0")
+dbGoto(nSalvEmp)
+
+dbSelectArea("SA1")
+dbSetOrder(1)
+dbSeek(xFilial(Alias())+SC5->C5_CLIENTE+SC5->C5_LOJACLI)
+dbSelectArea("SC9")
+While ( !Eof() .And.  Eval(bWhile) .And.  lContinua)
+
+
+
+	If (  SC9->C9_BLCRED <> "10" .And.  SC9->C9_BLEST <> "10" .And.  SC9->C9_BLCRED <> "ZZ" .And.  SC9->C9_BLEST <> "ZZ" .And.  (If(lAvCred,!Empty(SC9->C9_BLCRED), .F. ) .Or.  If(lAvEst,!Empty(SC9->C9_BLEST), .F. )) )
+		lLiberado := .T. 
+		If !SoftLock("SC9")
+			lContinua := .F. 
+		EndIf
+		If ( lContinua )
+			dbSelectArea("SC9")
+
+			If ( SC5->C5_TIPO $ "DB" )
+				Help(" ",1,"A450NCRED")
+				lContinua := .F. 
+			EndIf
+		EndIf
+		If ( lContinua )
+			dbSelectArea("SC6")
+			dbSetOrder(1)
+			dbSeek(xFilial(Alias())+SC9->C9_PEDIDO+SC9->C9_ITEM+SC9->C9_PRODUTO)
+
+			dbSelectArea("SM2")
+			dbSetOrder(1)
+			dbSeek(dDataBase, .T. )
+
+			dbSelectArea("SC9")
+			nMoeda   := Iif(SC5->C5_MOEDA < 2,1,SC5->C5_MOEDA)
+			nValItem := xMoeda((SC6->C6_PRCVEN * SC9->C9_QTDLIB),nMoeda,nMcusto,dDataBase)
+			nValPed  += nValItem
+			nSalPed  -= nValItem
+			nSalPed  := IIf( nSalped < 0 , 0 , nSalPed )
+
+		EndIf
+	EndIf
+	dbSelectArea("SC9")
+	dbSkip()
+EndDo
+dbSelectArea("SC9")
+dbGoto(aAreaSC9[3])
+If ( !lLiberado )
+	Help(" ",1,"A450JALIB")
+Endif
+If ( lContinua .And.  lLiberado )
+
+
+
+	dbSelectArea("SA1")
+	dbSetOrder(1)
+	dbSeek(xFilial(Alias())+SC5->C5_CLIENTE+SC5->C5_LOJACLI)
+	If ( SC9->C9_BLCRED == "01" )
+		cDescBloq := OemToAnsi("Cr‚dito")
+	ElseIf SC9->C9_BLCRED == "04"
+		cDescBloq := OemToAnsi("Limite de Cr‚dito Vencido")
+	ElseIf SC9->C9_BLCRED == "09"
+		cDescBloq := OemToAnsi("Rejeitado")
+	ElseIf !Empty(SC9->C9_BLEST)
+		cDescBloq := OemToAnsi("Estoque")
+	EndIf
+	cDescri := Substr(SA1->A1_NOME,1,35)
+
+	aSaldos	        	:=	Array(12,2)
+	aSaldos[1,1] 	:=	nLimCred
+	aSaldos[1,2 ] 	:=  xMoeda(nLimCred,nMCusto,1)
+	aSaldos[2,1 ] 	:=	nSalDupM
+	aSaldos[2,2  ] 	:=	nSalDup
+	aSaldos[3,1] 	:=	nSalPedL
+	aSaldos[3,2 ] 	:=	xMoeda(nSalPedL,nMCusto,1)
+	aSaldos[4,1] 	:=	SA1->A1_MCOMPRA
+	aSaldos[4,2 ] 	:=	xMoeda(SA1->A1_MCOMPRA,nMCusto,1)
+	aSaldos[5,1] 	:=  nLimCred-nSaldupM-nSalPedL
+	aSaldos[5,2 ] 	:=  xMoeda(nLimCred-nSaldupM-nSalPedL,nMCusto,1)
+	aSaldos[6,1] 	:=	SA1->A1_MAIDUPL
+	aSaldos[6,2 ] 	:=	xMoeda(SA1->A1_MAIDUPL,nMCusto,1)
+	aSaldos[7,1  ] 	:=	xMoeda((SC9->C9_PRCVEN * SC9->C9_QTDLIB),nMoeda,nMcusto)
+	aSaldos[7,2   ] 	:=	xMoeda((SC9->C9_PRCVEN * SC9->C9_QTDLIB),nMoeda,1)
+	aSaldos[8,1 ] 	:=  nValPed
+	aSaldos[8,2  ]	:=  xMoeda(nValPed ,nMCusto,1)
+	aSaldos[9,1 ]	:=	nSalPed
+	aSaldos[9,2  ]	:=  xMoeda(nSalPed ,nMCusto,1)
+	aSaldos[10,1 ] 	:=	xMoeda(nValAtraso,1,nMCusto)
+	aSaldos[10,2  ] 	:=	nValAtraso
+	aSaldos[11,1  ] 	:=	nLcFin
+	aSaldos[11,2   ] 	:=  xMoeda(nLCFin,nMcusto,1)
+	aSaldos[12,1 ] 	:=	nSalFinM
+	aSaldos[12,2  ] 	:=	nSalFin
+
+
+	aHeader  := {OemToAnsi("STR0055"),OemToAnsi("STR0056"),OemToAnsi("STR0054")+AllTrim(cMoeda)," ",OemToAnsi("STR0055"), OemToAnsi("STR0059")}
+
+
+
+
+
+	Aadd(aCols,{OemToAnsi("Limite de Credito"),TRansform(aSaldos[1,2],PesqPict("SA1","A1_LC",17,1)), TRansform(aSaldos[1,1],PesqPict("SA1","A1_LC",17,nMcusto))," ", OemToAnsi("Tit.Protestados"),Space(02)+STR(SA1->A1_TITPROT,3)+Space(05)+ OemToAnsi("DT.ULT TIT")+Space(03)+DtoC(SA1->A1_DTULTIT)})
+
+
+
+
+
+	Aadd(aCols,{OemToAnsi("Saldo Titulos"),TRansform(aSaldos[2,2],PesqPict("SA1","A1_SALDUP",17,1)), TRansform(aSaldos[2,1],PesqPict("SA1","A1_SALDUPM",17,nMcusto))," ", OemToAnsi("Cheques Devolvidos"),Space(02)+STR(SA1->A1_CHQDEVO,3)+Space(05)+ OemToAnsi("DT.ULT TIT")+Space(03)+DtoC(SA1->A1_DTULCHQ)})
+
+
+
+
+	Aadd(aCols,{OemToAnsi("Pedidos Aprovados"),TRansform(aSaldos[3,2],PesqPict("SA1","A1_SALPEDL",17,1)), TRansform(aSaldos[3,1],PesqPict("SA1","A1_SALPEDL",17,nMcusto))," ",OemToAnsi("Maior Compra"), Transform(aSaldos[4,1],PesqPict("SA1","A1_MCOMPRA",17,nMCusto))})
+
+
+
+
+	Aadd(aCols,{OemToAnsi("Saldo Lim Credito"),TRansform(aSaldos[5,2],PesqPict("SA1","A1_SALDUP",17,1)), TRansform(aSaldos[5,1],PesqPict("SA1","A1_SALDUPM",17,nMcusto))," ", OemToAnsi("Maior Duplicata"),Transform(aSaldos[6,1],PesqPict("SA1","A1_MAIDUPL",17,nMCusto))})
+
+
+
+
+
+	Aadd(aCols,{OemToAnsi("Item Pedido Atual"),TRansform(aSaldos[7,2],PesqPict("SA1","A1_SALDUP",17,1)), TRansform(aSaldos[7,1],PesqPict("SA1","A1_SALDUP",17,nMcusto))," ", OemToAnsi("item Pedido Atua"),Space(14)+Transform(SA1->A1_METR,PesqPict("SA1","A1_METR",7))+Space(04)+ OemToAnsi("Media de Atraso")})
+
+	If SC5->C5_TIPLIB=="2"
+
+
+		Aadd(aCols,{OemToAnsi("Pedido Atual"),TRansform(aSaldos[8,2],PesqPict("SA1","A1_SALDUP",17,1)), TRansform(aSaldos[8,1],PesqPict("SA1","A1_SALDUP",17,nMcusto))," ", OemToAnsi("Vencto.Lim.Credito"),Space(10)+DtoC(SA1->A1_VENCLC)})
+	Else
+
+		Aadd(aCols,{"","","","", OemToAnsi("Vencto.Lim.Credito"),Space(10)+DtoC(SA1->A1_VENCLC)})
+	EndIf
+
+
+
+
+	Aadd(aCols,{OemToAnsi("Saldo de Pedidos"),TRansform(aSaldos[9,2],PesqPict("SA1","A1_SALPED",17,1)), TRansform(aSaldos[9,1],PesqPict("SA1","A1_SALPED",17,nMcusto))," ", OemToAnsi("Data Limite Liberação"),Space(10)+DtoC(dLimLib)})
+
+
+
+
+	Aadd(aCols,{OemToAnsi("Lim. de Cred. Secundario"),TRansform(aSaldos[11,2],PesqPict("SA1","A1_LC",17,1)), TRansform(aSaldos[11,1],PesqPict("SA1","A1_LC",17,nMcusto))," ", OemToAnsi("Lim. de Cred. em Cheque"),TRansform(aSaldos[10,2],PesqPict("SA1","A1_SALDUP",17,1))})
+
+
+	Aadd(aCols,{OemToAnsi("Saldo em Cheques"),TRansform(aSaldos[12,2],PesqPict("SA1","A1_SALDUP",17,1)), TRansform(aSaldos[12,1],PesqPict("SA1","A1_SALDUP",17,nMcusto))," ",,,})
+	oDlg = MsDialog():New( 125, 3, 430, 608, OemToAnsi("Libera‡„o de Cr‚dito"),,,.F.,,,,,,.T.,, ,.F. )
+
+
+	IF lMT450COLS
+		aColsNew := ExecBlock("MT450COLS", .F. , .F. ,{aHeader,aCols})
+		IF VALTYPE(aColsNew) == "A"
+			aCols := {}
+			aCols := ACLONE(aColsNew)
+		ENDIF
+	ENDIF
+
+
+	 TGroup():New( 003, 004, 033, 299, "", oDlg,,,.T., )
+	 TGroup():New( 130, 004, 150, 155, "", oDlg,,,.T., )
+	 TGroup():New( 130, 160, 150, 240, "", oDlg,,,.T., )
+
+	 SButton():New( 134, 242,1,{||  (nOpca:=1,oDlg:End())}, oDlg,.T.,,)
+	 SButton():New( 134, 272,2,{||  oDlg:End()}, oDlg,.T.,,)
+
+	 TButton():New( 135, 010, OemToAnsi("Consulta"), oDlg,{||  (a450F4con(),cCadastro:=OemToAnsi("Libera‡„o de Cr‚dito"))}, 34, 11,, oDlg:oFont,.F.,.T.,.F.,,.F.,,,.F. )
+	 TButton():New( 135, 045, OemToAnsi("Cliente"), oDlg,{||  (cCadastro:=OemToAnsi("Cliente"),A030Visual("SA1",SA1->(RecNo()),1),cCadastro:=OemToAnsi("Libera‡„o de Cr‚dito"))}, 34, 11,, oDlg:oFont,.F.,.T.,.F.,,.F.,,,.F. )
+	 TButton():New( 135, 080, OemToAnsi("Pedido"), oDlg,{||  (cCadastro:=OemToAnsi("Pedido"),a410Visual("SC5",SC5->(RecNo()),1),cCadastro:=OemToAnsi("Libera‡„o de Cr‚dito"))}, 34, 11,, oDlg:oFont,.F.,.T.,.F.,,.F.,,,.F. )
+	 TButton():New( 135, 115, OemToAnsi("Estoque"), oDlg,{||  (a450ConEst(cProduto,cLocal))}, 34, 11,, oDlg:oFont,.F.,.T.,.F.,,.F.,,,.F. )
+
+	 TButton():New( 135, 165, OemToAnsi("Lib.Todos"), oDlg,{||  (nOpca:=4,oDlg:End())}, 34, 11,, oDlg:oFont,.F.,.T.,.F.,,.F.,,,.F. )
+	 TButton():New( 135, 200, OemToAnsi(Rejeita), oDlg,{||  (nOpca:=3,oDlg:End())}, 34, 11,, oDlg:oFont,.F.,.T.,.F.,,.F.,,,.F. )
+
+	 TSay():New( 010, 008,{||  OemToAnsi("Pedido :")},oDlg,,,.F.,.F.,.F.,.T.,,, 23, 7,.F.,.F.,.F.,.F.,.F.,.F. )
+	 TSay():New( 010, 032,{||  SC9->C9_PEDIDO},oDlg,,,.F.,.F.,.F.,.T.,,, 26, 7,.F.,.F.,.F.,.F.,.F.,.F. )
+	 TSay():New( 010, 060,{||  OemToAnsi("Cond.Pagto. :")},oDlg,,,.F.,.F.,.F.,.T.,,, 35, 7,.F.,.F.,.F.,.F.,.F.,.F. )
+	 TSay():New( 010, 095,{||  SC5->C5_CONDPAG},oDlg,,,.F.,.F.,.F.,.T.,,, 09, 7,.F.,.F.,.F.,.F.,.F.,.F. )
+	 TSay():New( 010, 115,{||  OemToAnsi("Risco :")},oDlg,,,.F.,.F.,.F.,.T.,,, 21, 7,.F.,.F.,.F.,.F.,.F.,.F. )
+	 TSay():New( 010, 138,{||  SA1->A1_RISCO},oDlg,,,.F.,.F.,.F.,.T.,,, 11, 7,.F.,.F.,.F.,.F.,.F.,.F. )
+	 TSay():New( 010, 153,{||  OemToAnsi("Valores em "+SuperGetMv("MV_SIMB"+Alltrim(STR(nMCusto))))},oDlg,,,.F.,.F.,.F.,.T.,,, 50, 7,.F.,.F.,.F.,.F.,.F.,.F. )
+	 TSay():New( 010, 200,{||  OemToAnsi("Bloqueio :")},oDlg,,,.F.,.F.,.F.,.T.,,, 27, 7,.F.,.F.,.F.,.F.,.F.,.F. )
+	 TSay():New( 010, 230,{||  cDescBloq},oDlg,,,.F.,.F.,.F.,.T.,,, 83, 7,.F.,.F.,.F.,.F.,.F.,.F. )
+
+	 TSay():New( 021, 008,{||  OemToAnsi("Cliente :")},oDlg,,,.F.,.F.,.F.,.T.,,, 23, 7,.F.,.F.,.F.,.F.,.F.,.F. )
+	 TSay():New( 021, 032,{||  cDescri},oDlg,,,.F.,.F.,.F.,.T.,,, 96, 7,.F.,.F.,.F.,.F.,.F.,.F. )
+	 TSay():New( 021, 153,{||  OemToAnsi("Data Limite Libera‡Æo :")},oDlg,,,.F.,.F.,.F.,.T.,,, 64, 7,.F.,.F.,.F.,.F.,.F.,.F. )
+	 TGet():New( 020.4, 230, { | u | If( PCount() == 0, dLimLib, dLimLib := u ) },oDlg, 52, 7,,,,,,.F.,,.T.,,.F.,,.F.,.F.,,.F.,.F. ,,"dLimLib",,,,.T. )
+
+	oLbx := RDListBox(2.48, .5, 295, 95, aCols, aHeader,{55,50,50,12,55,69})
+
+	oDlg:Activate( oDlg:bLClicked, oDlg:bMoved, oDlg:bPainted,,,,, oDlg:bRClicked, )
+EndIf
+
+RestArea(aAreaSC9)
+RestArea(aArea)
+Return(nOpcA)
+
+
+
+
+
+
+
+
+
+
+
+
+
+Function A450F4Con()
+
+Local aBackRot := aClone(aRotina)
+
+DbSelectArea("SA1")
+If ( Pergunte("FIC010", .T. ) )
+	Fc010Con()
+EndIf
+
+
+
+
+
+
+Pergunte("MTA451", .F. )
+
+
+
+
+aRotina := aClone(aBackRot)
+
+Return(Nil)
+
+
+
+
+
+
+
+
+
+
+
+
+
+Function a450ConEst(cProduto,cLocal)
+
+Local aArea		:= GetArea()
+Local aAreaSB1  := SB1->(GetArea())
+Local aAreaSB2  := SB2->(GetArea())
+Local lMta450Con:= (ExistBlock("MTA450CO"))
+Local nStok     := 0
+
+cProduto := If( cProduto == nil, SC6->C6_PRODUTO, cProduto ) ;
+cLocal := If( cLocal == nil, SC6->C6_LOCAL, cLocal ) ;
+
+If lMta450Con
+	ExecBlock("MTA450CO", .f. , .f. )
+Else
+	dbSelectArea("SB1")
+	dbSetOrder(1)
+	If ( MsSeek(xFilial()+cProduto, .F. ) )
+		dbSelectArea("SB2")
+		dbSetOrder(1)
+		If MsSeek(xFilial()+cProduto+cLocal, .F. )
+			nStok:= SaldoSb2()
+		EndIf
+		oDlg = MsDialog():New( 62, 1, 293, 365, OemToAnsi("POSI€AO DO ESTOQUE"),,,.F.,,,,,,.T.,, ,.F. )
+		 TGroup():New( 0, 2, 28, 181, "", oDlg,,,.T., )
+		 TGroup():New( 31, 2, 91, 181, "", oDlg,,,.T., )
+		 TSay():New( 8, 4,{||  OemToAnsi("Produto :")},oDlg,,,.F.,.F.,.F.,.T.,,, 31, 7,.F.,.F.,.F.,.F.,.F.,.F. )
+		 TSay():New( 7, 39,{||  cProduto+" /"+Subs(SB1->B1_DESC,1,20)},oDlg,,,.F.,.F.,.F.,.T.,,, 140, 7,.F.,.F.,.F.,.F.,.F.,.F. )
+		 TSay():New( 16, 5,{||  OemToAnsi("Local    :")},oDlg,,,.F.,.F.,.F.,.T.,,, 31, 7,.F.,.F.,.F.,.F.,.F.,.F. )
+		 TSay():New( 16, 39,{||  cLocal},oDlg,,,.F.,.F.,.F.,.T.,,, 13, 7,.F.,.F.,.F.,.F.,.F.,.F. )
+		 TSay():New( 37, 9,{||  OemToAnsi("Pedido de Vendas em Aberto")},oDlg,,,.F.,.F.,.F.,.T.,,, 92, 7,.F.,.F.,.F.,.F.,.F.,.F. )
+		 TSay():New( 37, 118,{||  B2_QPEDVEN},oDlg,,,.F.,.F.,.F.,.T.,,, 53, 7,.F.,.F.,.F.,.F.,.F.,.F. )
+		 TSay():New( 45, 9,{||  OemToAnsi("Quantidade Empenhada")},oDlg,,,.F.,.F.,.F.,.T.,,, 88, 7,.F.,.F.,.F.,.F.,.F.,.F. )
+		 TSay():New( 45, 118,{||  B2_QEMP},oDlg,,,.F.,.F.,.F.,.T.,,, 53, 7,.F.,.F.,.F.,.F.,.F.,.F. )
+		 TSay():New( 53, 9,{||  OemToAnsi("Qtd.Prevista p/Entrar")},oDlg,,,.F.,.F.,.F.,.T.,,, 88, 7,.F.,.F.,.F.,.F.,.F.,.F. )
+		 TSay():New( 53, 118,{||  B2_SALPEDI},oDlg,,,.F.,.F.,.F.,.T.,,, 53, 7,.F.,.F.,.F.,.F.,.F.,.F. )
+		 TSay():New( 61, 9,{||  OemToAnsi("Quantidade Reservada (A)")},oDlg,,,.F.,.F.,.F.,.T.,,, 88, 7,.F.,.F.,.F.,.F.,.F.,.F. )
+		 TSay():New( 61, 118,{||  B2_RESERVA},oDlg,,,.F.,.F.,.F.,.T.,,, 53, 7,.F.,.F.,.F.,.F.,.F.,.F. )
+		 TSay():New( 69, 9,{||  OemToAnsi("Saldo Atual (B)")},oDlg,,,.F.,.F.,.F.,.T.,,, 53, 7,.F.,.F.,.F.,.F.,.F.,.F. )
+		 TSay():New( 69, 118,{||  B2_QATU},oDlg,,,.F.,.F.,.F.,.T.,,, 53, 7,.F.,.F.,.F.,.F.,.F.,.F. )
+		 TSay():New( 78, 9,{||  OemToAnsi("Dispon¡vel (B - A)")},oDlg,,,.F.,.F.,.F.,.T.,,, 53, 7,.F.,.F.,.F.,.F.,.F.,.F. )
+		 TSay():New( 78, 118,{||  nStoK},oDlg,,,.F.,.F.,.F.,.T.,,, 53, 7,.F.,.F.,.F.,.F.,.F.,.F. )
+		 SButton():New( 98, 149,1,{||  (oDlg:End())}, oDlg,.T.,,)
+		oDlg:Activate( oDlg:bLClicked, oDlg:bMoved, oDlg:bPainted,.T.,,,, oDlg:bRClicked, )
+	Else
+		HELP(" ",1,"C6_PRODUTO")
+	EndIf
+EndIf
+RestArea(aAreaSB1)
+RestArea(aAreaSB2)
+RestArea(aArea)
+Return
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Function A450Legend()
+Local aLegenda := {}
+
+Aadd(aLegenda, {"ENABLE"    ,"Item Liberado"})
+Aadd(aLegenda, {"DISABLE"   ,"Item Faturado"})
+Aadd(aLegenda, {"BR_AZUL"   ,"Item Bloqueado - Credito"})
+Aadd(aLegenda, {"BR_MARROM" ,"Rejeitados"})
+Aadd(aLegenda, {"BR_PRETO"  ,"Item Bloqueado - Estoque"})
+
+If !__lPyme
+	Aadd(aLegenda, {"BR_AMARELO","Bloqueado - WMS"})
+	Aadd(aLegenda, {"BR_LARANJA","Bloqueado - TMS"})
+EndIf
+
+
+
+
+If ExistBlock("MA450COR")
+	aLegenda := ExecBlock("MA450COR", .F. , .F. ,aLegenda)
+Endif
+BrwLegenda(cCadastro, "STR0049", aLegenda)
+
+Return( .T. )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Static Function MenuDef()
+
+
+
+
+Private	aRotina := {	{"Pesquisar","PesqBrw"	, 0 , 1,0, .F. },						{"Autom tica","A450LibAut", 0 , 0,0,NIL},						{"Manual","A450LibMan", 0 , 0,0,NIL},						{"Legenda","A450Legend", 0 , 3,0, .F. }}
+
+If ExistBlock("MA450MNU")
+	ExecBlock("MA450MNU", .F. , .F. )
+EndIf
+
+Return(aRotina)
