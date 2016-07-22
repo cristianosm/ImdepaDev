@@ -428,7 +428,7 @@ NFTOTIMCR :=0
 
         ///AVALORES[1] = UA_VALMERC
         ///
-         LVINCULO:=ALLTRIM(SA1->A1_VINCULO)$  ("#CM*CM*#PP*PP")
+         LVINCULO:=ALLTRIM(SA1->A1_VINCIMD)$  ("#CM*CM*#PP*PP")
 		IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (!LVINCULO) .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
 			nValFret := NoRound( GDFIELDGET('UB_VLRITEM', nItens) / AVALORES[1] *  M->UA_FRETRAN,2) // - SUA->UA_FRETE,2) //Valor Frete
 			nValFrtA:= NoRound( GDFIELDGET('UB_VLRITEM', nItens) / AVALORES[1] *  AVALORES[4],2) //M->UA_FRETE,2)
@@ -440,7 +440,7 @@ NFTOTIMCR :=0
 
 		If M->UA_TPFRETE == "C" .AND. AVALORES[4] !=0 //M->UA_FRETE !=0    //SUA->UA_TPCIF='CIFD'   //SUA->UA_FRETE != 0
 
-			 LVINCULO:=ALLTRIM(SA1->A1_VINCULO)$  ("#CM*CM*#PP*PP")
+			 LVINCULO:=ALLTRIM(SA1->A1_VINCIMD)$  ("#CM*CM*#PP*PP")
 			IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (!LVINCULO) .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
 				nFreteItem	:= nValFret //| CIF - Destacado      ///nFreteCal / nValmerc * nVlrItem
 			ELSE
@@ -449,7 +449,7 @@ NFTOTIMCR :=0
 
 
 		Elseif M->UA_TPFRETE == "C" .AND. AVALORES[4]=0 //M->UA_FRETE = 0 //SUA->UA_TPCIF='CIFI' //SUA->UA_FRETE = 0
-		    LVINCULO:=ALLTRIM(SA1->A1_VINCULO)$  ("#CM*CM*#PP*PP")
+		    LVINCULO:=ALLTRIM(SA1->A1_VINCIMD)$  ("#CM*CM*#PP*PP")
 			IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (!LVINCULO) .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
 				nFreteItem := NoRound( GDFIELDGET('UB_VLRITEM', nItens) / AVALORES[1] * M->UA_FRETRAN ,2) //(SUA->UA_FRETRAN - SUA->UA_FRETCAL),2) //Valor Frete Incluso
 			ELSE
@@ -462,7 +462,7 @@ NFTOTIMCR :=0
 		Endif
 
 		//NOROUND(GDFIELDGET('UB_BASEICM', nItens),2)
-		 LVINCULO:=ALLTRIM(SA1->A1_VINCULO)$  ("#CM*CM*#PP*PP")
+		 LVINCULO:=ALLTRIM(SA1->A1_VINCIMD)$  ("#CM*CM*#PP*PP")
 		IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (!LVINCULO) .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
 			nCalcIcm := NoRound( (GDFIELDGET('UB_VLRITEM', nItens)   + nValDesp + nAcreCon + nValFrtA),2)   // Base do Icms
 			NIcm_PIS := NoRound(( GDFIELDGET('UB_VLRITEM', nItens)  + nAcreCon ),2)   // Base do Icms // alterado por rodrigo em 29/05 em funçăo de que năo deve somar as despesas nos calculo de PIS
@@ -696,7 +696,7 @@ NFTOTIMCR :=0
 	nFat3 := nCOEFI			*	(nCustoMC+ nfat1 + nfat2)
 
 	nFatores := nFat1 + nFat2 + nFat3
-	 LVINCULO:=ALLTRIM(SA1->A1_VINCULO)$  ("#CM*CM*#PP*PP")
+	 LVINCULO:=ALLTRIM(SA1->A1_VINCIMD)$  ("#CM*CM*#PP*PP")
 	IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (!LVINCULO) .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
 		nTotItemSemIPI  :=GDFIELDGET('UB_VLRITEM', nItens) + nRatDesp + nAcreCon + nValFrtA
 	ELSE

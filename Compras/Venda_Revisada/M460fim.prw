@@ -10,31 +10,31 @@
 
 
 /*
-ÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœ
-Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±
-Â±Â±Ã‰ÃÃÃÃÃÃÃÃÃÃÅƒÃÃÃÃÃÃÃÃÃÃÃ‹ÃÃÃÃÃÃÃÅƒÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃ‹ÃÃÃÃÃÃÅƒÃÃÃÃÃÃÃÃÃÃÃÃÃÂ»Â±Â±
-Â±Â±ÅŸPrograma  Å‚M460FIM   ÅŸAutor  Å‚Raul                ÅŸ Data Å‚  April/03   ÅŸÂ±Â±
-Â±Â±ÄšÃÃÃÃÃÃÃÃÃÃÅ˜ÃÃÃÃÃÃÃÃÃÃÄ˜ÃÃÃÃÃÃÃÄŽÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÄ˜ÃÃÃÃÃÃÄŽÃÃÃÃÃÃÃÃÃÃÃÃÃÄ…Â±Â±
-Â±Â±ÅŸDesc.     Å‚Ponto de entrada apos a gravacao de Nota fiscal             ÅŸÂ±Â±
-Â±Â±ÅŸ          Å‚                                                            ÅŸÂ±Â±
-Â±Â±ÅŸAlteracao Å‚Gravacao dos campos E1_ENDOSSO,E1_CREDICM E E1_REEM,        ÅŸÂ±Â±
-Â±Â±ÅŸ          Å‚campos estes para filtro na geracao do bordero. (O rela-    ÅŸÂ±Â±
-Â±Â±ÅŸ          Å‚cionamento destes campos sao com o arquivo SUA.             ÅŸÂ±Â±
-Â±Â±ÅŸ          Å‚Gravacao do lucro e margem nos arquivos SD2 e SE1           ÅŸÂ±Â±
-Â±Â±Ä‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ä¹Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´Â±Â±
-Â±Â±Å‚ Uso      Å‚ Especifico para o cliente Imdepa                           Å‚Â±Â±
-Â±Â±Ä‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„ÃÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´Â±Â±
-Â±Â±Å‚         ATUALIZACOES SOFRIDAS DESDE A CONSTRUâ‚¬AO INICIAL.             Å‚Â±Â±
-Â±Â±Ä‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´Â±Â±
-Â±Â±Å‚Programador Å‚ Data   Å‚ Motivo da Alteracao                             Å‚Â±Â±
-Â±Â±Ä‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ä¹Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ä¹Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´Â±Â±
-Â±Â±Å‚Expedito    Å‚06/04/06Å‚ Verificacao de inconsistencia nas tabelas e     Å‚Â±Â±
-Â±Â±Å‚            Å‚        Å‚ geracao de log.                                 Å‚Â±Â±
-Â±Â±Å‚MarcioQ.BorgÅ‚19/09/07Å‚ Ajuste na amarraÃ§Äƒo do itemSD2 com o acols      Å‚Â±Â±
-Â±Â±Å‚MarcioQ.BorgÅ‚20/05/08Å‚ Desonera MC qdo Sit.Trib,considera icm retido   Å‚Â±Â±
-Â±Â±Å‚            Å‚        Å‚                                                 Å‚Â±Â±
-Â±Â±Å”Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„ÃÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„ÃÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Å®Â±Â±
-Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±*/
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
+±±ºPrograma  ³M460FIM   ºAutor  ³Raul                º Data ³  April/03   º±±
+±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
+±±ºDesc.     ³Ponto de entrada apos a gravacao de Nota fiscal             º±±
+±±º          ³                                                            º±±
+±±ºAlteracao ³Gravacao dos campos E1_ENDOSSO,E1_CREDICM E E1_REEM,        º±±
+±±º          ³campos estes para filtro na geracao do bordero. (O rela-    º±±
+±±º          ³cionamento destes campos sao com o arquivo SUA.             º±±
+±±º          ³Gravacao do lucro e margem nos arquivos SD2 e SE1           º±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³ Uso      ³ Especifico para o cliente Imdepa                           ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³         ATUALIZACOES SOFRIDAS DESDE A CONSTRU€AO INICIAL.             ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Programador ³ Data   ³ Motivo da Alteracao                             ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Expedito    ³06/04/06³ Verificacao de inconsistencia nas tabelas e     ³±±
+±±³            ³        ³ geracao de log.                                 ³±±
+±±³MarcioQ.Borg³19/09/07³ Ajuste na amarração do itemSD2 com o acols      ³±±
+±±³MarcioQ.Borg³20/05/08³ Desonera MC qdo Sit.Trib,considera icm retido   ³±±
+±±³            ³        ³                                                 ³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±*/
 *********************************************************************
 User Function M460FIM()
 *********************************************************************
@@ -88,7 +88,7 @@ Private cCustoNF  := GetMV("MV_CUSTONF",," ")
 
 
 //Inserido por Edivaldo Goncalves Cordeiro - Grava Comissoes por Operador
-//removido em 26/02/2015 em funÃ§Äƒo de que as regras de comissÄƒo por operador foram descontinuadas - Rodrigo Carvalho - Solutio
+//removido em 26/02/2015 em função de que as regras de comissão por operador foram descontinuadas - Rodrigo Carvalho - Solutio
 //cComisPorOperador(SC5->C5_VEND1,SE3->E3_NUM)
 
 
@@ -101,9 +101,9 @@ Private cCustoNF  := GetMV("MV_CUSTONF",," ")
 VerIncons()
 
 /*
-COmentado em 26/02/2015 apÃ³s conversar com o Edivaldo - Rodrigo Carvalho Solutio
+COmentado em 26/02/2015 após conversar com o Edivaldo - Rodrigo Carvalho Solutio
 IF SF2->F2_FILIAL = '13'
-   U__CORCOMIS() // Corrigi as comissÅ‘es de Curitiba com TES com percentual de icms diferido - Agostinho 23/03/2010
+   U__CORCOMIS() // Corrigi as comissões de Curitiba com TES com percentual de icms diferido - Agostinho 23/03/2010
 ENDIF
 */
 
@@ -125,7 +125,7 @@ If SF2->F2_TIPO == 'D' .and. SE2->E2_TIPO == 'NDF' .and. ;
 	// na Imdepa estah configurado para o titulo nao ser gerado com o prefixo igual a serie ( considero errado )...
 	SE2->( dbSeek( xFilial( 'SE2' ) + SD2->D2_CLIENTE + SD2->D2_LOJA + SD2->D2_SERIORI + SD2->D2_NFORI, .f. ) )
 //	SE2->( dbSeek( xFilial( 'SE2' ) + &( GetMv( "MV_2DUPREF" ) ) + SD2->D2_NFORI, .f. ) )
-	IF !FOUND()  //  Compatiblizar para encontrar os titulos  gerados com os prefixos das filias, antes da alteraÃ§Äƒo do parametro MV_2DUPREF para SF1->F1_SERIE em 14/02/2013
+	IF !FOUND()  //  Compatiblizar para encontrar os titulos  gerados com os prefixos das filias, antes da alteração do parametro MV_2DUPREF para SF1->F1_SERIE em 14/02/2013
 	    SE2->( dbSeek( xFilial( 'SE2' ) + SD2->D2_CLIENTE + SD2->D2_LOJA + ALLTRIM(POSICIONE("SX5",1, XFILIAL("SX5")+"Z3"+SD2->D2_FILIAL , "X5_DESCRI")) + SD2->D2_NFORI, .f. ) )
 	ENDIF
 	cNaturez := SE2->E2_NATUREZ
@@ -141,9 +141,9 @@ EndIf
 // fim alteracao por Luciano Correa...
 
 
-//ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Å¼
-//Å‚atualizar dados da NF no atendimento do Call Center    	     Å‚
-//Å”Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Å®
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³atualizar dados da NF no atendimento do Call Center    	     ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
 _cNumLig := SC5->C5_NUM
 
@@ -167,7 +167,7 @@ If DbSeek(xFilial("SUA")+_cNumLig)
 Endif
 
  // Edivaldo Gonlcalves Cordeiro  |Envio dos Boletins de Entrada
-  If SF2->F2_CLIENTE==cImdepa .AND. SF4->F4_ESTOQUE = 'S' .AND. SF2->F2_TIPO $ 'ND'  //Nota de TransferÄ™ncia , avisa vendedores da entrada dos produtos na filial
+  If SF2->F2_CLIENTE==cImdepa .AND. SF4->F4_ESTOQUE = 'S' .AND. SF2->F2_TIPO $ 'ND'  //Nota de Transferência , avisa vendedores da entrada dos produtos na filial
 
       SF2->(fItensBoletim())
 
@@ -211,9 +211,9 @@ If SF4->F4_DUPLIC <> 'S' .or. SF2->F2_TIPO $ 'BD'
 Endif
 
 
-//ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Å¼
-//Å‚Define o desconto de ICMS padrao                     Å‚
-//Å”Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Å®
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³Define o desconto de ICMS padrao                     ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 dbSelectArea('SA1')
 dbSetOrder(1) // filial+codigo+loja
 
@@ -242,9 +242,9 @@ oPvSldFin:AtuCliente()
 //| Verifica Desconto ICMS e Comercial Exportadora
 //DesICMPad(SA1->A1_EST)
 
-//ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Å¼
-//Å‚Grava o campo especifico F2_FILCLI                   Å‚
-//Å”Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Å®
+//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+//³Grava o campo especifico F2_FILCLI                   ³
+//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 Reclock("SF2",.F.)
 SF2->F2_FILCLI := SA1->A1_FILCLI
 MsUnlock()
@@ -289,7 +289,7 @@ Do While  SD2->(!Eof()) .AND. SD2->D2_FILIAL == xFilial('SD2') .AND. SD2->D2_DOC
 	// localiza o custo da embalagem
 	SC6->( MsSeek( xFilial('SC6')+SD2->D2_PEDIDO+SD2->D2_ITEMPV,.F. ))
 
-	//Å‚Posicionando de TES	         			     Å‚
+	//³Posicionando de TES	         			     ³
 	SF4->(dbSeek(xFilial("SF4")+SD2->D2_TES))
 	//-----> Carrega variaveis
 
@@ -300,7 +300,7 @@ Do While  SD2->(!Eof()) .AND. SD2->D2_FILIAL == xFilial('SD2') .AND. SD2->D2_DOC
 	nQtdItem 	:= SD2->D2_QUANT
 	nDescIcm 	:= SC6->C6_DESCICM
 	nFreteCal 	:= SF2->F2_FRETE
-	nValmerc 	:= SF2->F2_VALMERC //VALOR TOTAL DAS MERCADORIAS COM ACRESCIMMO DA CONDIÃ‡Ä‚O DE PAGAMENTO
+	nValmerc 	:= SF2->F2_VALMERC //VALOR TOTAL DAS MERCADORIAS COM ACRESCIMMO DA CONDIÇÃO DE PAGAMENTO
 	nDespesa	:= SF2->F2_DESPESA
 
 
@@ -312,14 +312,14 @@ Do While  SD2->(!Eof()) .AND. SD2->D2_FILIAL == xFilial('SD2') .AND. SD2->D2_DOC
 	///JULIO JACOVENKO, em 25/01/2012
 	///Projeto Idade Imdepa
 	///
-	nIdade2     := 0   //VARIAVEL PADRÄ‚O PARA IDADE2
+	nIdade2     := 0   //VARIAVEL PADRÃO PARA IDADE2
 
 
 
 
-	//ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Å¼
-	//Å‚Posicionando Produtos         			     Å‚
-	//Å”Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Å®
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	//³Posicionando Produtos         			     ³
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
 	SB1->(DbSeek(xFilial("SB1")+cProduto+cLocal))
 
@@ -346,28 +346,28 @@ Do While  SD2->(!Eof()) .AND. SD2->D2_FILIAL == xFilial('SD2') .AND. SD2->D2_DOC
 
 	//------------- MARCIO --------------------------
 
-	//ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Å¼
-	//Å‚ ITEM SUB X ITEM ACOLS  	  							Å‚
-	//Å”Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Å®
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	//³ ITEM SUB X ITEM ACOLS  	  							³
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 	//Identifica item do SUB correspondente no alcols
 
 	nItemacols 	:= 0
 	nItem 		:= 	nItemSD2
 
-	//Ã‰ÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÂ»
-	//ÅŸ                        CUSTOS        (OBS: qualquer alteraÃ§Äƒo aqui, faÃ§a tambÃ©m no TMKVFIM        ÅŸ
-	//ÄŒÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÄ½
+	//ÉÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ»
+	//º                        CUSTOS        (OBS: qualquer alteração aqui, faça também no TMKVFIM        º
+	//ÈÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼
 
 
 	//marcio
-	//ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Å¼
-	//Å‚     CAMPANHAS DE VENDAS								Å‚
-	//Å”Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Å®
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	//³     CAMPANHAS DE VENDAS								³
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 	//  nao precisa de campanha pois pego a meta direto do SC6
 
-	//ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Å¼
-	//Å‚CALCULO DAS COMISSOES  	  							Å‚
-	//Å”Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Å®
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	//³CALCULO DAS COMISSOES  	  							³
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
 	n_COMIS1 := SC6->C6_COMIS1
 	n_COMIS2 := SC6->C6_COMIS2
@@ -375,9 +375,9 @@ Do While  SD2->(!Eof()) .AND. SD2->D2_FILIAL == xFilial('SD2') .AND. SD2->D2_DOC
 	n_COMIS4 := SC6->C6_COMIS4
 	n_COMIS5 := SC6->C6_COMIS5
 
-	//ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Å¼
-	//Å‚ MARGEM                	  							Å‚
-	//Å”Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Å®
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	//³ MARGEM                	  							³
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
 	// Define variaveis para calculo de custo total e lucro
 
@@ -388,21 +388,21 @@ Do While  SD2->(!Eof()) .AND. SD2->D2_FILIAL == xFilial('SD2') .AND. SD2->D2_DOC
 	//Descricao: Calcula a Desoneracao do Custo sobre a SubsTituicao Tributaria | Nome:Cristiano Machado | Data:10/07/08 | Chamado:AAZOEX
 	nCustoMC  	:= U_FCusTrib(.F.)
 
-	//Custo Margem de ContribuiÃ§Äƒo Reposicao
+	//Custo Margem de Contribuição Reposicao
 	nCustoMCR  :=  U_PrcBase( cProduto,cTabPreco,@cTpCust,.F.,"R") // U_PrcBase( SUB->UB_PRODUTO,SUA->UA_TABELA,@cTpCust,.F.,"R")
 
-	//Custo Margem de ContribuiÃ§Äƒo MÃ©dia das Ultimas Compras
+	//Custo Margem de Contribuição Média das Ultimas Compras
 	nCustoMCUC :=  U_PrcBase( cProduto,cTabPreco,@cTpCust,.F.,"U") // U_PrcBase( SUB->UB_PRODUTO,SUA->UA_TABELA,@cTpCust,.F.,"U")
 
 	// converte o valor total do item para moeda 1
 	nVlrItem := IIF(cMoeda==1,nVlrItem,xMoeda(nVlrItem,cMoeda,1,dDataBase,nDecVLRITEM))
 
-	// Valor  TOTAL DO ITEM com acrÃ©scimo e sem IPI =  BASE DE ICM  (UB_VRCACRE * UB_QUANT
+	// Valor  TOTAL DO ITEM com acréscimo e sem IPI =  BASE DE ICM  (UB_VRCACRE * UB_QUANT
 	nBASEICM := IIF(cMoeda==1,nBASEICM,xMoeda(nBASEICM,cMoeda,1,dDataBase,nDecBASEICM))
 
 	// ***********     Preco de Venda Deflacionado    *********
 	// Define o desconto a ser aplicado no lucro devido ao acrescimo financeiro
-	// ou seja, Ã© a diferenÃ§a das despesas financeiras que pago para o banco das que o cliente me paga
+	// ou seja, é a diferença das despesas financeiras que pago para o banco das que o cliente me paga
 
 	//nDescLucro :=  (nBASEICM * nAcreFin) // (NOVO) alterado rodrigo em 02/06 para ficar igual ao tmkvfim
 
@@ -451,15 +451,15 @@ Endif
 
   ///USANDO FILIAL 05
   ///QUANDO TODOS TROCAR
-  ///IF (XFILIAL('SUA')<>'07' .OR. XFILIAL('SUA')<>'11') .AND. (SA1->A1_VINCIMD<>'PP' .OR. SA1->A1_VINCIMD<>'CM') .AND. (SA1->A1_CLFAMIN<>'S')
+  ///IF (XFILIAL('SUA')<>'07' .OR. XFILIAL('SUA')<>'11') .AND. (SA1->A1_VINCULO<>'PP' .OR. SA1->A1_VINCULO<>'CM') .AND. (SA1->A1_CLFAMIN<>'S')
 
 	//MV_FILFRT='05/11'
-    //IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCIMD<>'PP' .AND. SA1->A1_VINCIMD<>'CM')
-        LVINCULO:=ALLTRIM(SA1->A1_VINCIMD)$  ("#CM*CM*#PP*PP")
+    //IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCULO<>'PP' .AND. SA1->A1_VINCULO<>'CM')
+        LVINCULO:=ALLTRIM(SA1->A1_VINCULO)$  ("#CM*CM*#PP*PP")
 
     IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (!LVINCULO) .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
-  ///  IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCIMD<>'PP' .AND. SA1->A1_VINCIMD<>'CM') .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
-  //IF (XFILIAL('SUA')=='05') .AND. (SA1->A1_VINCIMD<>'PP' .OR. SA1->A1_VINCIMD<>'CM')
+  ///  IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCULO<>'PP' .AND. SA1->A1_VINCULO<>'CM') .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
+  //IF (XFILIAL('SUA')=='05') .AND. (SA1->A1_VINCULO<>'PP' .OR. SA1->A1_VINCULO<>'CM')
 	nValFret := NoRound(SC6->C6_VALOR / SUA->UA_VALMERC * SUA->UA_FRETRAN,2) //-SUA->UA_FRETE,2) //Valor Frete
 	NVALFRTA:= NoRound(SC6->C6_VALOR / SUA->UA_VALMERC * SUA->UA_FRETE,2)
   ELSE
@@ -482,15 +482,15 @@ Endif
 
 	       ///USANDO FILIAL 05
 	       ///QUANDO TODOS TROCAR
-	       ///IF (XFILIAL('SUA')<>'07' .OR. XFILIAL('SUA')<>'11') .AND. (SA1->A1_VINCIMD<>'PP' .OR. SA1->A1_VINCIMD<>'CM') .AND. (SA1->A1_CLFAMIN<>'S')
+	       ///IF (XFILIAL('SUA')<>'07' .OR. XFILIAL('SUA')<>'11') .AND. (SA1->A1_VINCULO<>'PP' .OR. SA1->A1_VINCULO<>'CM') .AND. (SA1->A1_CLFAMIN<>'S')
 
         	//MV_FILFRT='05/11'
-    //IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCIMD<>'PP' .AND. SA1->A1_VINCIMD<>'CM')
-       LVINCULO:=ALLTRIM(SA1->A1_VINCIMD)$  ("#CM*CM*#PP*PP")
+    //IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCULO<>'PP' .AND. SA1->A1_VINCULO<>'CM')
+       LVINCULO:=ALLTRIM(SA1->A1_VINCULO)$  ("#CM*CM*#PP*PP")
 
 	IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (!LVINCULO) .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
-	//IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCIMD<>'PP' .AND. SA1->A1_VINCIMD<>'CM') .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
-           //IF (XFILIAL('SUA')=='05') .AND. (SA1->A1_VINCIMD<>'PP' .OR. SA1->A1_VINCIMD<>'CM')
+	//IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCULO<>'PP' .AND. SA1->A1_VINCULO<>'CM') .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
+           //IF (XFILIAL('SUA')=='05') .AND. (SA1->A1_VINCULO<>'PP' .OR. SA1->A1_VINCULO<>'CM')
             //ALERT('UA_FRETE<>')
 			nFreteItem	:= nValFret //| CIF - Destacado      ///nFreteCal / nValmerc * nVlrItem
 			////JULIO JACOVENKO, em 04/07/2014 - ref projeto novo frete
@@ -512,15 +512,15 @@ Endif
 
 	 	  ///USANDO FILIAL 05
 	 	  ///QUANDO TODOS TROCAR
-	 	  ///IF (XFILIAL('SUA')<>'07' .OR. XFILIAL('SUA')<>'11') .AND. (SA1->A1_VINCIMD<>'PP' .OR. SA1->A1_VINCIMD<>'CM') .AND. (SA1->A1_CLFAMIN<>'S')
+	 	  ///IF (XFILIAL('SUA')<>'07' .OR. XFILIAL('SUA')<>'11') .AND. (SA1->A1_VINCULO<>'PP' .OR. SA1->A1_VINCULO<>'CM') .AND. (SA1->A1_CLFAMIN<>'S')
 
       	  //MV_FILFRT='05/11'
-    //IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCIMD<>'PP' .AND. SA1->A1_VINCIMD<>'CM')
-        LVINCULO:=ALLTRIM(SA1->A1_VINCIMD)$  ("#CM*CM*#PP*PP")
+    //IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCULO<>'PP' .AND. SA1->A1_VINCULO<>'CM')
+        LVINCULO:=ALLTRIM(SA1->A1_VINCULO)$  ("#CM*CM*#PP*PP")
 
     IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (!LVINCULO) .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
-    //IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCIMD<>'PP' .AND. SA1->A1_VINCIMD<>'CM') .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
-          //IF (XFILIAL('SUA')=='05') .AND. (SA1->A1_VINCIMD<>'PP' .OR. SA1->A1_VINCIMD<>'CM')
+    //IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCULO<>'PP' .AND. SA1->A1_VINCULO<>'CM') .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
+          //IF (XFILIAL('SUA')=='05') .AND. (SA1->A1_VINCULO<>'PP' .OR. SA1->A1_VINCULO<>'CM')
 	 	     nFreteItem 		:= NoRound(SC6->C6_VALOR / SUA->UA_VALMERC * SUA->UA_FRETRAN,2) //Valor Frete Incluso
 	 	  ELSE
 	 	     //ORIGINAL
@@ -544,7 +544,7 @@ Endif
 
 	if nItem > 0
 		//      Valor de ICM                          Valor de PIS                 Valor COFINS
-		//		IF (cUFOri $ 'MT') // Se for estado de GO ou MT  o icm Ã© zerado
+		//		IF (cUFOri $ 'MT') // Se for estado de GO ou MT  o icm é zerado
 		//			nValICM := 0
 		//		ELSE
 
@@ -562,7 +562,7 @@ Endif
             ////tratar excecoes
             /////tratar aqui
       /*
- 	  IF (XFILIAL('SUA')<>'07' .OR. XFILIAL('SUA')<>'11') .OR. (A1_VINCIMD<>'PP' .OR. A1_VINCIMD<>'CM') .OR. (A1_CLFAMIN<>'S')
+ 	  IF (XFILIAL('SUA')<>'07' .OR. XFILIAL('SUA')<>'11') .OR. (A1_VINCULO<>'PP' .OR. A1_VINCULO<>'CM') .OR. (A1_CLFAMIN<>'S')
 		//JULIO JACOVENKO, em 07/07/2014
 		IF SUA->UA_TPCIF='CIFD'
 	       nValFret := NoRound(SC6->C6_VALOR / SUA->UA_VALMERC * SUA->UA_FRETRAN-SUA->UA_FRETE ,2)
@@ -579,19 +579,19 @@ Endif
 
       ///USANDO FILIAL 05
       ///QUANDO TODOS TROCAR
-      ///IF (XFILIAL('SUA')<>'07' .OR. XFILIAL('SUA')<>'11') .AND. (SA1->A1_VINCIMD<>'PP' .OR. SA1->A1_VINCIMD<>'CM') .AND. (SA1->A1_CLFAMIN<>'S')
+      ///IF (XFILIAL('SUA')<>'07' .OR. XFILIAL('SUA')<>'11') .AND. (SA1->A1_VINCULO<>'PP' .OR. SA1->A1_VINCULO<>'CM') .AND. (SA1->A1_CLFAMIN<>'S')
 
 
 
 	  //MV_FILFRT='05/11'
-    //IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCIMD<>'PP' .AND. SA1->A1_VINCIMD<>'CM')
-         LVINCULO:=ALLTRIM(SA1->A1_VINCIMD)$  ("#CM*CM*#PP*PP")
+    //IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCULO<>'PP' .AND. SA1->A1_VINCULO<>'CM')
+         LVINCULO:=ALLTRIM(SA1->A1_VINCULO)$  ("#CM*CM*#PP*PP")
 
     IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (!LVINCULO) .AND. SA1->A1_CLIFRTE<>'1'  .AND. SA1->A1_TPFRET <> 'F'
 
 
-      //IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCIMD<>'PP' .AND. SA1->A1_VINCIMD<>'CM') .AND. SA1->A1_CLIFRTE<>'1'  .AND. SA1->A1_TPFRET <> 'F'
-      //IF (XFILIAL('SUA')=='05') .AND. (SA1->A1_VINCIMD<>'PP' .OR. SA1->A1_VINCIMD<>'CM')
+      //IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCULO<>'PP' .AND. SA1->A1_VINCULO<>'CM') .AND. SA1->A1_CLIFRTE<>'1'  .AND. SA1->A1_TPFRET <> 'F'
+      //IF (XFILIAL('SUA')=='05') .AND. (SA1->A1_VINCULO<>'PP' .OR. SA1->A1_VINCULO<>'CM')
 			nValFret := NoRound(SC6->C6_VALOR / SUA->UA_VALMERC * SUA->UA_FRETRAN,2) //-SUA->UA_FRETE,2) //Valor Frete
 			NVALFRTA:= NoRound(SC6->C6_VALOR / SUA->UA_VALMERC * SUA->UA_FRETE,2)
       ELSE
@@ -606,29 +606,29 @@ Endif
 
      //USANDO FILIAL 05
      //QUANDO TODOS TROCAR
-     //IF (XFILIAL('SUA')<>'07' .OR. XFILIAL('SUA')<>'11') .AND. (SA1->A1_VINCIMD<>'PP' .OR. SA1->A1_VINCIMD<>'CM') .AND. (SA1->A1_CLFAMIN<>'S')
+     //IF (XFILIAL('SUA')<>'07' .OR. XFILIAL('SUA')<>'11') .AND. (SA1->A1_VINCULO<>'PP' .OR. SA1->A1_VINCULO<>'CM') .AND. (SA1->A1_CLFAMIN<>'S')
 
 
 	 //MV_FILFRT='05/11'
-    //IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCIMD<>'PP' .AND. SA1->A1_VINCIMD<>'CM')
-         LVINCULO:=ALLTRIM(SA1->A1_VINCIMD)$  ("#CM*CM*#PP*PP")
+    //IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCULO<>'PP' .AND. SA1->A1_VINCULO<>'CM')
+         LVINCULO:=ALLTRIM(SA1->A1_VINCULO)$  ("#CM*CM*#PP*PP")
 
     IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (!LVINCULO) .AND. SA1->A1_CLIFRTE<>'1'  .AND. SA1->A1_TPFRET <> 'F'
 
 
-    //IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCIMD<>'PP' .AND. SA1->A1_VINCIMD<>'CM') .AND. SA1->A1_CLIFRTE<>'1'  .AND. SA1->A1_TPFRET <> 'F'
-     //IF (XFILIAL('SUA')=='05') .AND. (SA1->A1_VINCIMD<>'PP' .OR. SA1->A1_VINCIMD<>'CM')
+    //IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCULO<>'PP' .AND. SA1->A1_VINCULO<>'CM') .AND. SA1->A1_CLIFRTE<>'1'  .AND. SA1->A1_TPFRET <> 'F'
+     //IF (XFILIAL('SUA')=='05') .AND. (SA1->A1_VINCULO<>'PP' .OR. SA1->A1_VINCULO<>'CM')
 		nCalcIcm := NoRound((SC6->C6_VALOR   + nValDesp + nAcreCon + nValFrtA),2)   // Base do Icms
 
 		//IF SUA->UA_FRETE==0 .AND. SUA->UA_FRETCAL==0
 		    //nCalcIcm := NoRound((SUB->UB_VLRITEM  + nValDesp + nAcreCon ),2)   // Base do Icms
         //ENDIF
-        //Novo cÃ¡lculo do PIS desprezando o Frete
+        //Novo cálculo do PIS desprezando o Frete
        	NIcm_PIS := NoRound((SC6->C6_VALOR   + nAcreCon ),2)
 
      ELSE
         nCalcIcm := NoRound((SC6->C6_VALOR  + nValDesp + nAcreCon + nValFret),2)
-        //Novo cÃ¡lculo do PIS desprezando o Frete
+        //Novo cálculo do PIS desprezando o Frete
        	NIcm_PIS := NoRound((SC6->C6_VALOR  + nAcreCon ),2)
 
      ENDIF
@@ -732,7 +732,7 @@ Endif
 
 		// ALTERACAO POR MOTIVO DA BUILD 20A POR CRISTIANO MACHADO EM 29/11/2012
 		//nImpostosnoVlrItem := nValICM + mafisret(nItem,"IT_VALPS2") + mafisret(nITEM,"IT_VALCF2") + nICMRetido // Ver Funcoes Padroes
-		nImpostosnoVlrItem 	:= nValICM + nCalcPis + nCalcCof + nICMRetido// ver funÃ§Å‘es padrÅ‘es do siga
+		nImpostosnoVlrItem 	:= nValICM + nCalcPis + nCalcCof + nICMRetido// ver funções padrões do siga
 
 	Else
 
@@ -742,8 +742,8 @@ Endif
 
 
 	// ********** COMISSOES ***********************************
-	// acrescer 63% ao valor do vendedor interno (comis1) em funÃ§Äƒo de incidÄ™ncia de encargos trabalhistas
-	// descimo  terÃ§eiro, fÃ©rias , etc ----> marcio
+	// acrescer 63% ao valor do vendedor interno (comis1) em função de incidência de encargos trabalhistas
+	// descimo  terçeiro, férias , etc ----> marcio
 	// usado no Interno/Externo/Chefe de Venda
 
    //	nVDescComis := nQtdItem * nVlrItem * ( (n_COMIS1 * 1.63)  + n_COMIS2 + (n_COMIS3 * 1.63)  + (n_COMIS4 * 1.63) + n_COMIS5)/100
@@ -752,7 +752,7 @@ Endif
 	// nVDescComis := nQtdItem * nVlrItem * ( (n_COMIS1 * 1.63)  + n_COMIS2 + (n_COMIS3 * 1.63)  + (n_COMIS4 * 1.63) + (n_COMIS5 * 1.63) )/100
 	nVDescComis := 0 // alterado por rodrigo solutio em 26/02/2015
 
-	// *********** Fatores (FÂ´s)
+	// *********** Fatores (F´s)
 	// nFat1 =  Coeficiente Cambial    (COEFC)
 	// nFat2 =  Coeficiente Financeiro (COEFF)
 	// nFat3 =  Coeficiente Idade      (COEFI)
@@ -810,40 +810,40 @@ Endif
 
 	//USANDO FILIAL 05
 	///QUANDO TODOS TROCAR
-	///IF (XFILIAL('SUA')<>'07' .OR. XFILIAL('SUA')<>'11') .AND. (SA1->A1_VINCIMD<>'PP' .OR. SA1->A1_VINCIMD<>'CM') .AND. (SA1->A1_CLFAMIN<>'S')
+	///IF (XFILIAL('SUA')<>'07' .OR. XFILIAL('SUA')<>'11') .AND. (SA1->A1_VINCULO<>'PP' .OR. SA1->A1_VINCULO<>'CM') .AND. (SA1->A1_CLFAMIN<>'S')
 
 	//MV_FILFRT='05/11'
-    //IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCIMD<>'PP' .AND. SA1->A1_VINCIMD<>'CM')
-         LVINCULO:=ALLTRIM(SA1->A1_VINCIMD)$  ("#CM*CM*#PP*PP")
+    //IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCULO<>'PP' .AND. SA1->A1_VINCULO<>'CM')
+         LVINCULO:=ALLTRIM(SA1->A1_VINCULO)$  ("#CM*CM*#PP*PP")
 
     IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (!LVINCULO) .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
 
-	//IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCIMD<>'PP' .AND. SA1->A1_VINCIMD<>'CM') .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
-    //IF (XFILIAL('SUA')=='05') .AND. (SA1->A1_VINCIMD<>'PP' .OR. SA1->A1_VINCIMD<>'CM')
+	//IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCULO<>'PP' .AND. SA1->A1_VINCULO<>'CM') .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
+    //IF (XFILIAL('SUA')=='05') .AND. (SA1->A1_VINCULO<>'PP' .OR. SA1->A1_VINCULO<>'CM')
 
-	     //  nTotItemSemIPI  := NoRound(SD2->D2_PRCVEN * SD2->D2_QUANT + (SC6->C6_VALOR / SUA->UA_VALMERC * SUA->UA_DESPESA ),2) + nICMRetido + nValFrtA  ///// Alterado por rodrigo para contemplar as novas regras de calculo, porÃ©m considerando o frete 11/06/2015
+	     //  nTotItemSemIPI  := NoRound(SD2->D2_PRCVEN * SD2->D2_QUANT + (SC6->C6_VALOR / SUA->UA_VALMERC * SUA->UA_DESPESA ),2) + nICMRetido + nValFrtA  ///// Alterado por rodrigo para contemplar as novas regras de calculo, porém considerando o frete 11/06/2015
 
 	            nTotItemSemIPI  :=SC6->C6_VALOR  + nRatDesp + nAcreCon + nValFrtA
 	   	//IF SUA->UA_FRETE==0 .AND. SUA->UA_FRETCAL==0
 	      // nTotItemSemIPI  := NoRound(SUB->UB_VRCACRE * SUB->UB_QUANT + (SUB->UB_VLRITEM / SUA->UA_VALMERC * SUA->UA_DESPESA ),2) + nICMRetido
         //ENDIF
     ELSE
-	     //   nTotItemSemIPI := NoRound(SD2->D2_PRCVEN * SD2->D2_QUANT + (SC6->C6_VALOR / SUA->UA_VALMERC * SUA->UA_DESPESA ),2) + nICMRetido + nValFret	///// Alterado por rodrigo para contemplar as novas regras de calculo, porÃ©m considerando o frete 11/06/2015
+	     //   nTotItemSemIPI := NoRound(SD2->D2_PRCVEN * SD2->D2_QUANT + (SC6->C6_VALOR / SUA->UA_VALMERC * SUA->UA_DESPESA ),2) + nICMRetido + nValFret	///// Alterado por rodrigo para contemplar as novas regras de calculo, porém considerando o frete 11/06/2015
 
 	            nTotItemSemIPI  :=SC6->C6_VALOR  + nRatDesp + nAcreCon + nValFret
     ENDIF
 
 
 	//************************
-	//Custo mÃ©dio kardex Gerencial
+	//Custo médio kardex Gerencial
 	nCustoMCg 			:=  nFatores + nCustoMC
-	nTxFin  			:=  GETMV("MV_TXFIN",,0)/100  // Similar a Taxa CDI , mas ao mÄ™s
+	nTxFin  			:=  GETMV("MV_TXFIN",,0)/100  // Similar a Taxa CDI , mas ao mês
 	nValCPMF	    	:=  GETMV("MV_CPMF" ,,0)/100  * MaFisRet(nItem,"IT_TOTAL") //GETMV("MV_CPMF" ,,0)/100  * (SUB->UB_VRACRE * (1 + SUB->UB_VALIPI/100))
 	nPrazoMedioCobr 	:= 	SE4->E4_PRZMED //criar campo
 	nTaxaDiaria 		:=  ((1 + nTxFin )^(1/30))-1
 	 nValorDeflacionado 	:=  (nTotItemSemIPI / ((1 + round(nTaxaDiaria,6)) ^ nPrazoMedioCobr ))
 	//nValorDeflacionado 	:=  nTotItemSemIPI //alterado pro rodrigo carvalho solutio em 26/02/2015 para ficar a mesma regfra do PE_TMKVFIM onde a regra de calculo de Margem foi alterada
-	// Margem de Contribuicao nÄƒo Gerencial (sem os fatores -> F1, F2, F3 ...)
+	// Margem de Contribuicao não Gerencial (sem os fatores -> F1, F2, F3 ...)
 
 
     //ALERT('M460FIM : '+STR(NFRETEITEM))
@@ -855,7 +855,7 @@ Endif
 	n_COMIS4 	:=	SD2->D2_COMIS4
 	n_COMIS5	:=	SD2->D2_COMIS5
 //	nVDescComis := 	SD2->D2_QUANT  * SD2-> D2_PRCVEN * ( n_COMIS1  + n_COMIS2 + n_COMIS3  + n_COMIS4 + n_COMIS5 )/100
-	//nVDescComis := nQtdItem * nVlrItem * ( (n_COMIS1 * 1.63)  + n_COMIS2 + (n_COMIS3 * 1.63)  + (n_COMIS4 * 1.63) + (n_COMIS5 * 1.63) )/100 // alterado por rodrigo soluto em 25/05/2015 em funÃ§Äƒo de que deve retornar a incidÄ™ncia de 63% de encargos trabalhistas no calculo de comissÅ‘es.
+	//nVDescComis := nQtdItem * nVlrItem * ( (n_COMIS1 * 1.63)  + n_COMIS2 + (n_COMIS3 * 1.63)  + (n_COMIS4 * 1.63) + (n_COMIS5 * 1.63) )/100 // alterado por rodrigo soluto em 25/05/2015 em função de que deve retornar a incidência de 63% de encargos trabalhistas no calculo de comissões.
 	nVDescComis := (((n_COMIS1+n_COMIS3+n_COMIS4+n_COMIS5) *1.63 * (SC6->C6_VALOR  + nAcreCon))+((n_COMIS2)*(SC6->C6_VALOR  + nAcreCon))) / 100
 	nMC     := NOROUND(nValorDeflacionado - (nCustoMC  * nQtdItem + nImpostosnoVlrItem + nVDescComis + nFreteItem))
 
@@ -868,9 +868,9 @@ Endif
 
 
 	// CHAMADO TECNICO : AAZVST    SOLICITANTE: Marcia Silveira   DATA: 22/08/2013
-	// Favor contemplar no cÃ¡lculo do IMCR nas vendas para fora do Estado, de produtos Importados, a alÃ­quota de 4%, hoje o sistema efetua o cÃ¡lculo do campo CUSMCR da seguinte forma:
-	// Custo standart = 100,00 ( - ) % PIS ( - ) % Cofins ( - ) % ICMS do Estado de origem da venda (ESTE PERCENTUAL NESTA SITUAÃ‡Ä‚O, deve ser substituÃ­do pela alÃ­quota de 4%
-    // ( = ) Custo ReposiÃ§Äƒo
+	// Favor contemplar no cálculo do IMCR nas vendas para fora do Estado, de produtos Importados, a alíquota de 4%, hoje o sistema efetua o cálculo do campo CUSMCR da seguinte forma:
+	// Custo standart = 100,00 ( - ) % PIS ( - ) % Cofins ( - ) % ICMS do Estado de origem da venda (ESTE PERCENTUAL NESTA SITUAÇÃO, deve ser substituído pela alíquota de 4%
+    // ( = ) Custo Reposição
 
 /* //Desabilitado conforme analise custo/suprimentos em 23/12/2014
 
@@ -887,7 +887,7 @@ Endif
 	// FIM CHAMADO AAZVST
 
 	// CHAMADO TECNICO : AAZVO6    SOLICITANTE: Marcia Silveira
-    // Incluir o percentual de 8,25% no custo reposiÃ§Äƒo nas vendas que se enquadram na substituiÃ§Äƒo tributÃ¡ria para as filiais: RS , MT, PR, MG.
+    // Incluir o percentual de 8,25% no custo reposição nas vendas que se enquadram na substituição tributária para as filiais: RS , MT, PR, MG.
 	// Ajuste de Mergem Reposicao para ST
 
     cUfFilOrig := SM0->M0_ESTENT /// UF filial origem...
@@ -1058,8 +1058,8 @@ Endif
 	EndIf
 	*/
 	// Calcula a margem em percentual
-	//Indices da Margem de ContribuiÃ§Äƒo (DIVIDIR PELO VALOR TOTAL DA NOTA sem IPI, ou seja Ã© igual a base de ICM )
-	// NÄƒo Gerencial
+	//Indices da Margem de Contribuição (DIVIDIR PELO VALOR TOTAL DA NOTA sem IPI, ou seja é igual a base de ICM )
+	// Não Gerencial
 
 // ALTERACAO POR MOTIVO DA BUILD 20A POR CRISTIANO MACHADO EM 29/11/2012
 //	nIMC   := U_ValMarg(nMC  / (nTotItemSemIPI - SD2->D2_ICMSRET) * 100) //Valida a margem para manter entre -999.99 e 999.99
@@ -1088,9 +1088,9 @@ Endif
 	nTOTTotItemSemIPI 		+= nTotItemSemIPI  //acumulador da base de icm dos itens do pedido
 
 
-	//ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„@Å¼
-	//Å‚Log de variÃ¡veis para localizar diferenÃ§a nos custosÅ‚
-	//Å”Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„@Å®
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ@¿
+	//³Log de variáveis para localizar diferença nos custos³
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ@Ù
 		If lGeralog
 
 		cGeraLog := ""
@@ -1281,7 +1281,7 @@ Enddo
 
 /*
 
-If SF4->F4_DUPLIC='S'//Edivaldo GonÃ§alves Cordeiro
+If SF4->F4_DUPLIC='S'//Edivaldo Gonçalves Cordeiro
 	//Envia a Nota Fiscal por Email para o Cliente e Representante
 	MsAguarde({||SF4->(U_EmailNfHtml(SF2->F2_DOC,SF2->F2_SERIE,SF2->F2_CLIENTE,SF2->F2_LOJA,SC5->C5_NUM))},"E-mail Nota Fiscal","Enviando para cliente,representante e coordenador...")
 Endif
@@ -1291,30 +1291,30 @@ RestArea( area )
 
 Return()
 /*
-ÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœÃœ
-Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±
-Â±Â±ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã‚Ã„Ã„Ã„Ã„Ã„Ã„Ã‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Å¼Â±Â±
-Â±Â±Å‚Funcao    Å‚VERINCONS Å‚ Autor Å‚ Expedito Mendonca Jr  Å‚ Data Å‚06/06/2006Å‚Â±Â±
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Funcao    ³VERINCONS ³ Autor ³ Expedito Mendonca Jr  ³ Data ³06/06/2006³±±
 
-Â±Â±Ä‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ä¹Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„ÃÃ„Ã„Ã„Ã„Ã„Ã„Ã„ÃÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„ÃÃ„Ã„Ã„Ã„Ã„Ã„ÃÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´Â±Â±
-Â±Â±Å‚Descricao Å‚ Faz a verificacao de inconsistencias entre as tabelas      Å‚Â±Â±
-Â±Â±Å‚          Å‚ SD2 e SC9 e, se houver, gera log. O objetivo desta funcao  Å‚Â±Â±
-Â±Â±Å‚          Å‚ eh identificar a origem de problemas na quantidade         Å‚Â±Â±
-Â±Â±Å‚          Å‚ reservada dos produtos (B2_RESERVA).                       Å‚Â±Â±
-Â±Â±Ä‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ä¹Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´Â±Â±
-Â±Â±Å‚Sintaxe   Å‚ VERINCONS()                                                Å‚Â±Â±
-Â±Â±Ä‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ä¹Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´Â±Â±
-Â±Â±Å‚ParametrosÅ‚ Nenhum                                                     Å‚Â±Â±
-Â±Â±Ä‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ä¹Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´Â±Â±
-Â±Â±Å‚Retorno   Å‚ NIL                                                        Å‚Â±Â±
-Â±Â±Ä‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„ÃÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´Â±Â±
-Â±Â±Å‚         ATUALIZACOES SOFRIDAS DESDE A CONSTRUâ‚¬AO INICIAL.             Å‚Â±Â±
-Â±Â±Ä‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´Â±Â±
-Â±Â±Å‚Programador Å‚ Data   Å‚ Motivo da Alteracao                             Å‚Â±Â±
-Â±Â±Ä‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ä¹Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ä¹Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´Â±Â±
-Â±Â±Å‚            Å‚        Å‚                                                 Å‚Â±Â±
-Â±Â±Å”Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„ÃÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„ÃÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Å®Â±Â±
-Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±Â±*/
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descricao ³ Faz a verificacao de inconsistencias entre as tabelas      ³±±
+±±³          ³ SD2 e SC9 e, se houver, gera log. O objetivo desta funcao  ³±±
+±±³          ³ eh identificar a origem de problemas na quantidade         ³±±
+±±³          ³ reservada dos produtos (B2_RESERVA).                       ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Sintaxe   ³ VERINCONS()                                                ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Parametros³ Nenhum                                                     ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Retorno   ³ NIL                                                        ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³         ATUALIZACOES SOFRIDAS DESDE A CONSTRU€AO INICIAL.             ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Programador ³ Data   ³ Motivo da Alteracao                             ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³            ³        ³                                                 ³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±*/
 *********************************************************************
 Static Function VERINCONS()
 *********************************************************************
@@ -1466,7 +1466,7 @@ LOCAL nOld
 
 
 Public cUFOri := " "
-//cFilAnt -> variavel publica do sistema,	NÃºmero da Filial que estÃ¡ em uso no momento.
+//cFilAnt -> variavel publica do sistema,	Número da Filial que está em uso no momento.
 
 // recupero a UF de origem
 dbSelectArea('SA1');dbSetOrder(1)
@@ -1497,17 +1497,17 @@ If dbSeek(xFilial('SZW') + cOrigem + cDestino)
 
 Else
 	If Type("l410Auto") != "U" .And. !l410Auto
-		//u_Mensagem("O desconto de ICMS padrÄƒo para vendas com origem em "+cOrigem+" e destino "+cDestino+" nÄƒo estÃ¡ cadastrado.")
+		//u_Mensagem("O desconto de ICMS padrão para vendas com origem em "+cOrigem+" e destino "+cDestino+" não está cadastrado.")
 		Final("Erro ao gravar pedido de venda.")
 
-		ConOut("O desconto de ICMS padrÄƒo para vendas com origem em "+cOrigem+" e destino "+cDestino+" nÄƒo estÃ¡ cadastrado.")
+		ConOut("O desconto de ICMS padrão para vendas com origem em "+cOrigem+" e destino "+cDestino+" não está cadastrado.")
 		ConOut("Erro ao gravar pedido de venda.")
 	EndIf
 	nDescIcmPad	:= 0
 	nDescComExp := 0
 EndIf
 
-//Å‚ Armazena o estado de origem para calc da margemÅ‚
+//³ Armazena o estado de origem para calc da margem³
 cUFOri := cOrigem
 
 RestArea(aAreaSA1)
@@ -1519,10 +1519,10 @@ Return()
 
 //+-----------------------------------------------------------------------------------//
 //|Programa..: cComisPorOperador()
-//|Autor.....: Edivaldo GonÃ§alves Cordeiro
+//|Autor.....: Edivaldo Gonçalves Cordeiro
 //|Data......: 13/05/2010
-//|Descricao.: Atualiza comissÄƒo por Operador na gravaÃ§Äƒo da Nota Fiscal
-//|ObservaÃ§Äƒo:
+//|Descricao.: Atualiza comissão por Operador na gravação da Nota Fiscal
+//|Observação:
 //+-----------------------------------------------------------------------------------//
 *--------------------------------------------------*
 Static Function cComisPorOperador(cVendInt,cNumSE3)
@@ -1538,7 +1538,7 @@ DbSelectarea("SUA")
 DbSetOrder(1)
 
 If DbSeek(xFilial("SUA")+SC5->C5_NUMSUA)
-   If Empty(SUA->UA_OPERAD2) .OR. SUA->UA_OPERAD2=SUA->UA_OPERADO .OR. SA1->A1_GERVEN <> '000685'   //-------NÄƒo hÃ¡ dois operadores,portando nÄƒo precisa gerar a segunda comissÄƒo.
+   If Empty(SUA->UA_OPERAD2) .OR. SUA->UA_OPERAD2=SUA->UA_OPERADO .OR. SA1->A1_GERVEN <> '000685'   //-------Não há dois operadores,portando não precisa gerar a segunda comissão.
 	      Return
    Else
             cNewOperador:= SUA->UA_OPERAD2
@@ -1593,17 +1593,17 @@ If DbSeek(xFilial("SUA")+SC5->C5_NUMSUA)
 					SE3->( MsUnlock() )
 
 
-                    //Identifico os percentuais de comissÄƒo dos vendedores
+                    //Identifico os percentuais de comissão dos vendedores
                     nComVend1 := POSICIONE("SA3",1,XFILIAL("SA3") + cVendInt, "A3_COMIS") //Vendedor 1
                     nComVend2 := POSICIONE("SA3",1,XFILIAL("SA3") + cNewVend, "A3_COMIS") //Vendedor 2
 
-                    //Calcula DiferenÃ§a da ComissÄƒo entre o Cadastro(SA3) e ComissÄƒo no TÃ­tulo SE3
+                    //Calcula Diferença da Comissão entre o Cadastro(SA3) e Comissão no Título SE3
                     nDifComis       := nE3PORC / nComVend1
                     nPerComVenda    := nComVend2 *nDifComis
 
 
 
-               cSql :=" UPDATE "+RetSqlName("SE3")//--------------Atualiza a Base e o valor da ComissÄƒo para os vendedores
+               cSql :=" UPDATE "+RetSqlName("SE3")//--------------Atualiza a Base e o valor da Comissão para os vendedores
 	           cSql +=" SET "
 	           cSql +=" E3_BASE = " + STR(SE3->E3_BASE  /2 )   + " ,  "
 	           cSql +=" E3_COMIS =" + Str(ROUND(SE3->E3_BASE  /2    * SE3->E3_PORC /100 ,2))
@@ -1617,7 +1617,7 @@ If DbSeek(xFilial("SUA")+SC5->C5_NUMSUA)
 	           TCSQLExec( cSql )
 	           TCSQLExec('COMMIT')
 
-               cSql :=" UPDATE "+RetSqlName("SE3")//--------Atualiza o Percentual e valor da comissÄƒo para o vendedor2
+               cSql :=" UPDATE "+RetSqlName("SE3")//--------Atualiza o Percentual e valor da comissão para o vendedor2
 	           cSql +=" SET "
 	           cSql +=" E3_BASE = " + STR(SE3->E3_BASE  /2 )   + " ,  "
 	           cSql +=" E3_PORC = " + STR(ROUND( nPerComVenda,4 ))   + " ,  "
@@ -1646,8 +1646,8 @@ Return
 *****************************************************************************************
 USER FUNCTION _CORCOMIS() // Faz a correcao da base e do valor das comissoes da filial de
                           // Curitiba com TES com percentual de icms diferido informado.
-                          // Esse erro estÃ¡ ocorrendo no P8. No P10 nÄƒo ocorre.
-                          // Essa funÃ§Äƒo deverÃ¡ ser desativado no P10.
+                          // Esse erro está ocorrendo no P8. No P10 não ocorre.
+                          // Essa função deverá ser desativado no P10.
 *****************************************************************************************
 
 Local cSql  := ""
@@ -1680,9 +1680,9 @@ RETURN()
 
 //+-----------------------------------------------------------------------------------//
 //|Funcao....: nRetPerComisVen2()
-//|Descricao.: Retorna o percentual de comissÄƒo para o 2ÅŸ Operador do Call Center
+//|Descricao.: Retorna o percentual de comissão para o 2º Operador do Call Center
 //|Uso.......: U_SendNfTrf
-//|ObservaÃ§Äƒo: Envia o e-mail dos Boletins de Entrada
+//|Observação: Envia o e-mail dos Boletins de Entrada
 //+-----------------------------------------------------------------------------------//
 
 *************************************************
@@ -1732,9 +1732,9 @@ dbSelectArea("TRB_TEMP")
 
 //+-----------------------------------------------------------------------------------//
 //|Funcao....: fItensBoletim()
-//|Descricao.: Carrega os itens de transferÄ™ncia para envio do Boletim de Entrada
+//|Descricao.: Carrega os itens de transferência para envio do Boletim de Entrada
 //|Uso.......: U_SendNfTrf
-//|ObservaÃ§Äƒo: Envia o e-mail dos Boletins de Entrada
+//|Observação: Envia o e-mail dos Boletins de Entrada
 //+-----------------------------------------------------------------------------------//
 
 ***********************************

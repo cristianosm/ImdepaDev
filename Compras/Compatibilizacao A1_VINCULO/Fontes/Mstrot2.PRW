@@ -86,7 +86,7 @@ User function Mstrot2()
     ///JULIO JACOVENKO, em 07/10/2015
     ///variavel para controlar quando temos carro fixo
     Private nPCF:=0      
-    Private LVINCULO:=ALLTRIM(SA1->A1_VINCULO)$  ("#CM*CM*#PP*PP")
+    Private LVINCULO:=ALLTRIM(SA1->A1_VINCIMD)$  ("#CM*CM*#PP*PP")
                                                 
     nDestaca := IIF(aValores[4]>0,1,2)
     IF SA1->A1_TPFRET='F' .AND. SA1->A1_CLIFRTE<>'1'
@@ -140,7 +140,7 @@ User function Mstrot2()
 ////VALIDADO COM O EDSON e JOCILAINE
 ////
 
-//IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCULO<>'PP' .AND. SA1->A1_VINCULO<>'CM') .AND. SA1->A1_CLIFRTE<>'1'
+//IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCIMD<>'PP' .AND. SA1->A1_VINCIMD<>'CM') .AND. SA1->A1_CLIFRTE<>'1'
             ///JULIO JACOVENKO, em 10/10/2015
             /////////////////////////////////                                                       
     	    aValores[4]:=0   
@@ -320,17 +320,17 @@ User function Mstrot2()
 			aCols2   :=aClone(Acols)
 			
 			
-			//ALERT('Vinculo: '+SA1->A1_VINCULO+' Client Frete: '+SA1->A1_CLIFRTE) 
+			//ALERT('Vinculo: '+SA1->A1_VINCIMD+' Client Frete: '+SA1->A1_CLIFRTE) 
     
-		    //IF ( !(SA1->A1_VINCULO$'CM   #PP   #') .AND. SA1->A1_CLIFRTE='1') .AND. LTESTE
+		    //IF ( !(SA1->A1_VINCIMD$'CM   #PP   #') .AND. SA1->A1_CLIFRTE='1') .AND. LTESTE
 		    
 		    
 		    
-   		    LVINCULO:=ALLTRIM(SA1->A1_VINCULO)$  ("#CM*CM*#PP*PP")
-		    //IF ( !(ALLTRIM(SA1->A1_VINCULO)$'CM#PP#') .AND. SA1->A1_CLIFRTE='1') .OR. (( (ALLTRIM(SA1->A1_VINCULO)$'CM#PP#') .AND. SA1->A1_CLIFRTE='1') ) .AND. LTESTE //.AND. LTESTE  .AND. SA1->A1_TPFRET <> 'F'
+   		    LVINCULO:=ALLTRIM(SA1->A1_VINCIMD)$  ("#CM*CM*#PP*PP")
+		    //IF ( !(ALLTRIM(SA1->A1_VINCIMD)$'CM#PP#') .AND. SA1->A1_CLIFRTE='1') .OR. (( (ALLTRIM(SA1->A1_VINCIMD)$'CM#PP#') .AND. SA1->A1_CLIFRTE='1') ) .AND. LTESTE //.AND. LTESTE  .AND. SA1->A1_TPFRET <> 'F'
 		    IF ( (!LVINCULO) .AND. SA1->A1_CLIFRTE='1') .OR. (( (LVINCULO) .AND. SA1->A1_CLIFRTE='1') ) .AND. LTESTE //.AND. LTESTE  .AND. SA1->A1_TPFRET <> 'F'
 
-			    //ALERT('** GRUPO 1 = A1_VINCULO <> CM E PP e CLIFRT=SIM  - SOMENTE O MAIS BARATO')
+			    //ALERT('** GRUPO 1 = A1_VINCIMD <> CM E PP e CLIFRT=SIM  - SOMENTE O MAIS BARATO')
 			  
 			   //aSort(aCols,,,{|x,y| x[8] < y[8] })     //somente menor valor         
 			   //ASORT( aCols,,, {|x,y| x[5] + str(x[8],13,2) < y[5] + str(y[8],13,2)})
@@ -407,9 +407,9 @@ User function Mstrot2()
 		
 
 			
-			//ELSEIF ((ALLTRIM(SA1->A1_VINCULO)$'CM#PP')) .AND. LTESTE .AND. SA1->A1_TPFRET <> 'F'  //.AND. (SA1->A1_CLIFRTE='1' .OR. SA1->A1_CLIFRTE<>'1' ) ) .AND. LTESTE
+			//ELSEIF ((ALLTRIM(SA1->A1_VINCIMD)$'CM#PP')) .AND. LTESTE .AND. SA1->A1_TPFRET <> 'F'  //.AND. (SA1->A1_CLIFRTE='1' .OR. SA1->A1_CLIFRTE<>'1' ) ) .AND. LTESTE
 			ELSEIF ((LVINCULO)) .AND. LTESTE .AND. SA1->A1_TPFRET <> 'F' .AND. SA1->A1_CLIFRMP<>'S' //.AND. (SA1->A1_CLIFRTE='1' .OR. SA1->A1_CLIFRTE<>'1' ) ) .AND. LTESTE
-   			   //ALERT(' ** GRUPO 3 = A1_VINCULO = CM E PP  - MENOR PRAZO E MAIS BARATO')        
+   			   //ALERT(' ** GRUPO 3 = A1_VINCIMD = CM E PP  - MENOR PRAZO E MAIS BARATO')        
    			   
    			   ASORT( aCols,,, {|x,y| x[5] + str(x[8],13,2) < y[5] + str(y[8],13,2)})   //prazo de entrega + menor valor
    			   ASORT( aCols2,,, {|x,y| x[5] + str(x[8],13,2) < y[5] + str(y[8],13,2)})   //prazo de entrega + menor valor
@@ -530,7 +530,7 @@ User function Mstrot2()
 			@ 153,210    RADIO oDestaca VAR nDestaca 3D SIZE 50,10  ON CHANGE {|| Change_Acols(nDestaca,nSugest)} PROMPT OemToAnsi("Destaca"),OemToAnsi("Năo Destaca") OF oDlg PIXEL							
            
 	
-	    //IF ( !(ALLTRIM(SA1->A1_VINCULO)$'CM#PP#') .AND. SA1->A1_CLIFRTE='1') .OR. ((ALLTRIM(SA1->A1_VINCULO)$'CM#PP#')) .AND. SA1->A1_TPFRET <> 'F'
+	    //IF ( !(ALLTRIM(SA1->A1_VINCIMD)$'CM#PP#') .AND. SA1->A1_CLIFRTE='1') .OR. ((ALLTRIM(SA1->A1_VINCIMD)$'CM#PP#')) .AND. SA1->A1_TPFRET <> 'F'
 			//@ 153,260    RADIO oSugest VAR nSugest   3D SIZE 60,10  ON CHANGE {|| Change_Acols(nDestaca,nSugest)} PROMPT OemToAnsi("Escolha do cliente"),OemToAnsi("Sugestőes Imdepa") OF oDlg PIXEL
 			@ 153,260    RADIO oSugest VAR nSugest   3D SIZE 60,10  ON CHANGE {|| Change_Acols(nDestaca,nSugest)} PROMPT OemToAnsi("Sugestăo Imdepa"), OemToAnsi("Escolha do cliente") OF oDlg PIXEL
         //ENDIF
@@ -554,9 +554,9 @@ User function Mstrot2()
 		       oSugest:Disable()
             ENDIF                                                                                                               
 
-           	LVINCULO:=ALLTRIM(SA1->A1_VINCULO)$  ("#CM*CM*#PP*PP")
+           	LVINCULO:=ALLTRIM(SA1->A1_VINCIMD)$  ("#CM*CM*#PP*PP")
 
-            //IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCULO<>'PP' .AND. SA1->A1_VINCULO<>'CM') .AND. SA1->A1_CLIFRTE<>'1'
+            //IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCIMD<>'PP' .AND. SA1->A1_VINCIMD<>'CM') .AND. SA1->A1_CLIFRTE<>'1'
             IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (!LVINCULO) .AND. SA1->A1_CLIFRTE<>'1'
                oSugest:Disable()
             ENDIF
@@ -664,8 +664,8 @@ User function Mstrot2()
             
 
 			If nDestaca == 1
-           	    LVINCULO:=ALLTRIM(SA1->A1_VINCULO)$  ("#CM*CM*#PP*PP")
-				//IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCULO<>'PP' .AND. SA1->A1_VINCULO<>'CM') .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <>'F'
+           	    LVINCULO:=ALLTRIM(SA1->A1_VINCIMD)$  ("#CM*CM*#PP*PP")
+				//IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCIMD<>'PP' .AND. SA1->A1_VINCIMD<>'CM') .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <>'F'
 				IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (!LVINCULO) .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <>'F'
 
 					If GETMV('IM_FRETE20')
@@ -707,14 +707,14 @@ User function Mstrot2()
 
                  ///PARA FILIAL 05
                  ///QUANDO TODAS TROCAR
-                 ///IF (XFILIAL('SUA')<>'07' .OR. XFILIAL('SUA')<>'11') .AND. (SA1->A1_VINCULO<>'PP' .OR. SA1->A1_VINCULO<>'CM') .AND. (SA1->A1_CLFAMIN<>'S')
+                 ///IF (XFILIAL('SUA')<>'07' .OR. XFILIAL('SUA')<>'11') .AND. (SA1->A1_VINCIMD<>'PP' .OR. SA1->A1_VINCIMD<>'CM') .AND. (SA1->A1_CLFAMIN<>'S')
 
 			   	//MV_FILFRT='05/11'
-                //IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCULO<>'PP' .AND. SA1->A1_VINCULO<>'CM')
+                //IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCIMD<>'PP' .AND. SA1->A1_VINCIMD<>'CM')
                 
-                LVINCULO:=ALLTRIM(SA1->A1_VINCULO)$  ("#CM*CM*#PP*PP")
+                LVINCULO:=ALLTRIM(SA1->A1_VINCIMD)$  ("#CM*CM*#PP*PP")
 
-				//IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCULO<>'PP' .AND. SA1->A1_VINCULO<>'CM') .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
+				//IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCIMD<>'PP' .AND. SA1->A1_VINCIMD<>'CM') .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
                   IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (!LVINCULO) .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
 
                 
@@ -1178,7 +1178,7 @@ User Function MSTROT2Query(nPesoTotal,dDisp,aHeaderTmp,aColsTmp)
                 ///CARROFIXO
                 ////MOSTRA CARROS FIXO PARA SP, SEGMENTO E ESPECIAL
                 ////SE FALTO EM TUDO NAO MOSTRA CARRO FIXO                
-                LVINCULO:=ALLTRIM(SA1->A1_VINCULO)$  ("#CM*CM*#PP*PP")
+                LVINCULO:=ALLTRIM(SA1->A1_VINCIMD)$  ("#CM*CM*#PP*PP")
                 
                 
                 //CARRO FIXO
@@ -1413,7 +1413,7 @@ Static Function Ver_M_TeV(__nDestaca,_nSugest) //Analista: Cristiano ... Data: 2
                 ///CARROFIXO
                 ////MOSTRA CARROS FIXO PARA SP, SEGMENTO E ESPECIAL
                 ////SE FALTO EM TUDO NAO MOSTRA CARRO FIXO                
-                LVINCULO:=ALLTRIM(SA1->A1_VINCULO)$  ("#CM*CM*#PP*PP")
+                LVINCULO:=ALLTRIM(SA1->A1_VINCIMD)$  ("#CM*CM*#PP*PP")
                    //SP             =1ou3          <>CM...           nao FOB
                 
                 //CARRO FIXO
@@ -1529,11 +1529,11 @@ Static Function Ver_M_TeV(__nDestaca,_nSugest) //Analista: Cristiano ... Data: 2
             ////JULIO JACOVENKO, em 25/09/2015
             ////Regras para mostrar no browse das rotas
             ////       
-            ////(SA1->A1_VINCULO<>'PP' .AND. SA1->A1_VINCULO<>'CM') .AND. SA1->A1_CLIFRTE<>'1'
+            ////(SA1->A1_VINCIMD<>'PP' .AND. SA1->A1_VINCIMD<>'CM') .AND. SA1->A1_CLIFRTE<>'1'
             ////
             ////lVlrPrz:=.F.
             ////lVlr   :=.F. 
-            ////IF SA1->A1_VINCULO $ ("CM #PP ")  //mostra menor valor, menor prazo
+            ////IF SA1->A1_VINCIMD $ ("CM #PP ")  //mostra menor valor, menor prazo
             ////   lVlrPrz:=.T.
             ////EndIf
             ////
@@ -1629,7 +1629,7 @@ Static Function Change_Acols( _nDestaca , _nSugest )
                 ///CARROFIXO
                 ////MOSTRA CARROS FIXO PARA SP, SEGMENTO E ESPECIAL
                 ////SE FALTO EM TUDO NAO MOSTRA CARRO FIXO                
-                LVINCULO:=ALLTRIM(SA1->A1_VINCULO)$  ("#CM*CM*#PP*PP")
+                LVINCULO:=ALLTRIM(SA1->A1_VINCIMD)$  ("#CM*CM*#PP*PP")
                    //SP             =1ou3          <>CM...           nao FOB
                 
                 
@@ -1714,9 +1714,9 @@ Static Function Change_Acols( _nDestaca , _nSugest )
 
 
 
-			   LVINCULO:=ALLTRIM(SA1->A1_VINCULO)$  ("#CM*CM*#PP*PP")
+			   LVINCULO:=ALLTRIM(SA1->A1_VINCIMD)$  ("#CM*CM*#PP*PP")
                                                                                                                   // .AND. SA1->A1_TPFRET <> 'F'
-    //IF ( !(ALLTRIM(SA1->A1_VINCULO)$'CM#PP#') .AND. SA1->A1_CLIFRTE='1') .OR. ((ALLTRIM(SA1->A1_VINCULO)$'CM#PP#'))
+    //IF ( !(ALLTRIM(SA1->A1_VINCIMD)$'CM#PP#') .AND. SA1->A1_CLIFRTE='1') .OR. ((ALLTRIM(SA1->A1_VINCIMD)$'CM#PP#'))
     IF ( (!LVINCULO) .AND. SA1->A1_CLIFRTE='1') .OR. (LVINCULO)
 		    //IF _NSUGEST = 1  ///ESCOLHA CLIENTE
 		    IF _NSUGEST = 2  ///ESCOLHA CLIENTE
@@ -1766,8 +1766,8 @@ Static Function Change_Acols( _nDestaca , _nSugest )
     
 
 
-    LVINCULO:=ALLTRIM(SA1->A1_VINCULO)$  ("#CM*CM*#PP*PP")
-    //IF ( !(ALLTRIM(SA1->A1_VINCULO)$'CM#PP#') .AND. SA1->A1_CLIFRTE='1') .OR. (( (ALLTRIM(SA1->A1_VINCULO)$'CM#PP#') .AND. SA1->A1_CLIFRTE='1') ) .AND. LTESTE //.AND. LTESTE  .AND. SA1->A1_TPFRET <> 'F'
+    LVINCULO:=ALLTRIM(SA1->A1_VINCIMD)$  ("#CM*CM*#PP*PP")
+    //IF ( !(ALLTRIM(SA1->A1_VINCIMD)$'CM#PP#') .AND. SA1->A1_CLIFRTE='1') .OR. (( (ALLTRIM(SA1->A1_VINCIMD)$'CM#PP#') .AND. SA1->A1_CLIFRTE='1') ) .AND. LTESTE //.AND. LTESTE  .AND. SA1->A1_TPFRET <> 'F'
     IF ( (!LVINCULO) .AND. SA1->A1_CLIFRTE='1') .OR. (( (LVINCULO) .AND. SA1->A1_CLIFRTE='1') ) .AND. LTESTE //.AND. LTESTE  .AND. SA1->A1_TPFRET <> 'F'
 
        //portanto fica somente com o primeiro registro do aCols
@@ -1856,7 +1856,7 @@ Static Function Change_Acols( _nDestaca , _nSugest )
                 ENDIF
     
     //PP e CM
-    //ELSEIF ((ALLTRIM(SA1->A1_VINCULO)$'CM#PP#')) .AND. LTESTE .AND. SA1->A1_TPFRET <> 'F' //(SA1->A1_CLIFRTE='1' .OR. SA1->A1_CLIFRTE<>'1' ) ) .AND. LTESTE
+    //ELSEIF ((ALLTRIM(SA1->A1_VINCIMD)$'CM#PP#')) .AND. LTESTE .AND. SA1->A1_TPFRET <> 'F' //(SA1->A1_CLIFRTE='1' .OR. SA1->A1_CLIFRTE<>'1' ) ) .AND. LTESTE
     ELSEIF ((LVINCULO)) .AND. LTESTE .AND. SA1->A1_TPFRET <> 'F' .AND. SA1->A1_CLIFRMP<>'S' //(SA1->A1_CLIFRTE='1' .OR. SA1->A1_CLIFRTE<>'1' ) ) .AND. LTESTE
         
   			   ASORT( aCols,,, {|x,y| x[5] + str(x[8],13,2) < y[5] + str(y[8],13,2)})   //prazo de entrega + menor valor

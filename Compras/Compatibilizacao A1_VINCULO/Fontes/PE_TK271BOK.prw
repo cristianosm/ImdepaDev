@@ -93,7 +93,7 @@ Tk273Refresh(.T.)
     
      
    //Nao permite gravar o Pedido se a Rota estiver em branco sem antes selecionar uma Rota  
-		LVINCULO:=ALLTRIM(SA1->A1_VINCULO)$  ("#CM*CM*#PP*PP")
+		LVINCULO:=ALLTRIM(SA1->A1_VINCIMD)$  ("#CM*CM*#PP*PP")
 		If (M->UA_TPFRETE=='C' .AND. M->UA_OPER=='1')
 			If ( Empty(M->UA_CODROTA)) ;
 					.OR. ((M->UA_TPFRETE=='C' .AND.  M->UA_FRETRAN==0 ) .AND. ;
@@ -127,7 +127,7 @@ Endif
 ///////////////////////////////////////////////////////////////
 /*
 
-****Clientes contratos e programas (campo A1_vinculo = PP e CM) .
+****Clientes contratos e programas (campo A1_VINCIMD = PP e CM) .
 
 ****Vendas feitas pela filial ES estar?o liberadas para vendas com frete CIF.
 
@@ -150,15 +150,15 @@ que identifique o cliente estrat?gico para fretes.
 
 ////PARA USAR FILIAL 05
 ////QUANDO TODOS TROCAR
-////IF (XFILIAL('SUA')<>'07' .OR. XFILIAL('SUA')<>'11') .AND. (SA1->A1_VINCULO<>'PP' .OR. SA1->A1_VINCULO<>'CM') .AND. (SA1->A1_CLFAMIN<>'S') 
+////IF (XFILIAL('SUA')<>'07' .OR. XFILIAL('SUA')<>'11') .AND. (SA1->A1_VINCIMD<>'PP' .OR. SA1->A1_VINCIMD<>'CM') .AND. (SA1->A1_CLFAMIN<>'S') 
   
 
 //MV_FILFRT='05/11'
-  //IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCULO<>'PP' .AND. SA1->A1_VINCULO<>'CM')
-		LVINCULO:=ALLTRIM(SA1->A1_VINCULO)$  ("#CM*CM*#PP*PP")
+  //IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCIMD<>'PP' .AND. SA1->A1_VINCIMD<>'CM')
+		LVINCULO:=ALLTRIM(SA1->A1_VINCIMD)$  ("#CM*CM*#PP*PP")
 		IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (!LVINCULO) .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
 //
-//IF (XFILIAL('SUA')=='05') .AND. (SA1->A1_VINCULO<>'PP' .OR. SA1->A1_VINCULO<>'CM')  
+//IF (XFILIAL('SUA')=='05') .AND. (SA1->A1_VINCIMD<>'PP' .OR. SA1->A1_VINCIMD<>'CM')  
 
 
 			IF LRETURN
@@ -170,7 +170,7 @@ que identifique o cliente estrat?gico para fretes.
 ////////////JULIO JACOVENKO, em 19/10/2105
 ////////////para nova regra do frete Grupo1 e Grupo3
 /////////////////////////////////////////////////////////
-		LVINCULO:=ALLTRIM(SA1->A1_VINCULO)$  ("#CM*CM*#PP*PP")
+		LVINCULO:=ALLTRIM(SA1->A1_VINCIMD)$  ("#CM*CM*#PP*PP")
 
 //CARRO FIXO SP
 //CMEPP OU ESPECIAL LIBERA CARRO FIXO         LCLISPFRT :=.F. LIBERA
@@ -245,7 +245,7 @@ que identifique o cliente estrat?gico para fretes.
 
 /*
 IF ( (!LVINCULO) .AND. SA1->A1_CLIFRTE='1') .OR. (LVINCULO) .AND. SA1->A1_TPFRET <> 'F'
-//IF ( !(ALLTRIM(SA1->A1_VINCULO)$'CM#PP#') .AND. SA1->A1_CLIFRTE='1') .OR. (LVINCULO) .AND. SA1->A1_TPFRET <> 'F'
+//IF ( !(ALLTRIM(SA1->A1_VINCIMD)$'CM#PP#') .AND. SA1->A1_CLIFRTE='1') .OR. (LVINCULO) .AND. SA1->A1_TPFRET <> 'F'
    IF ((AVALORES[4]< M->UA_FRETCAL) .AND. NDESTACA=1)
       LRETURN:=.F.
       AVALORES[4]:=M->UA_FRETCAL                             

@@ -48,7 +48,7 @@ cQUERY+=" AND A1_ULTCOM>='20151001' AND A1_ULTCOM<='20151231' "         //PARA P
 //cQUERY+=" AND A1_ULTCOM>=TO_CHAR(SYSDATE-"+STR(NDIASAVG)+",'YYYYMMDD') " //PARA AS PROXIMAS CARGAS        //pega a data do banco e volta 90 dias
 //cQUERY+=" AND A1_TPFRET<>'F' "                                    //nao pode ser FOB
 //cQUERY+=" AND A1_CLIFRTE = '1' "                                  //tem de ser cliente especial
-//cQUERY+=" AND A1_VINCULO NOT IN ('#CM','CM','#PP','PP') "           //nao pode ser CM ou PP
+//cQUERY+=" AND A1_VINCIMD NOT IN ('#CM','CM','#PP','PP') "           //nao pode ser CM ou PP
 cQUERY+=" AND D_E_L_E_T_ <>'*' "
 cQuery := ChangeQuery(cQuery)
 TCQUERY cQuery NEW ALIAS "TRBSA1"

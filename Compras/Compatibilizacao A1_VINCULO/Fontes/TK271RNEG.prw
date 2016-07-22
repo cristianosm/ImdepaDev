@@ -56,7 +56,7 @@ DBSelectArea("SA1");DBSetOrder(1);DbGoTop()
 If DBSeek(xFilial("SA1")+cCliente+cLoja)
 	cClasVE  := SA1->A1_CLASVEN
 	cGrpVen  := SA1->A1_GRPVEN
-	cVinculo := SA1->A1_VINCULO
+	cVinculo := SA1->A1_VINCIMD
 EndIf
 
 //AGORA FAZ A BUSCA DA REGRA PRA GUARDAR NA VARIAVEL PUBLICA aImdCodR

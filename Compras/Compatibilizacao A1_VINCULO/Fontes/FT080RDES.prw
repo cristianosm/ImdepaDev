@@ -80,7 +80,7 @@ If ACO->(RecCount()) > 0 .And. lTMKA271
 	Private cCurva 		:= Space(Len(SB1->B1_CURVA))
 	
 	Private cGrpVen 	:= Space(Len(SA1->A1_GRPVEN))
-	Private cVinculo 	:= Space(Len(SA1->A1_VINCULO))
+	Private cVinculo 	:= Space(Len(SA1->A1_VINCIMD))
 	Private cClasVen	:= Space(Len(SA1->A1_CLASVEN))
 	Private lPromo		:= .F.
 			
@@ -191,13 +191,13 @@ If ACO->(RecCount()) > 0 .And. lTMKA271
 	//ŔÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄŮ
 	If AllTrim(SA1->A1_COD+SA1->A1_LOJA) == AllTrim(cCliente+cLoja)
 		cGrpVen 	:= 	SA1->A1_GRPVEN				//	NAO COLOCAR AllTrim QUANDO NAO TEM ChangeQuery
-		cVinculo	:= 	SA1->A1_VINCULO
+		cVinculo	:= 	SA1->A1_VINCIMD
 		cClasVen	:= 	SA1->A1_CLASVEN
 	Else
 		DbselectArea("SA1");DbSetOrder(1);DbGoTop()
 		If DbSeek(xFilial("SA1")+cCliente+cLoja)
 			cGrpVen 	:= 	SA1->A1_GRPVEN
-			cVinculo	:= 	SA1->A1_VINCULO
+			cVinculo	:= 	SA1->A1_VINCIMD
 			cClasVen	:= 	SA1->A1_CLASVEN
 		EndIf
 	EndIf

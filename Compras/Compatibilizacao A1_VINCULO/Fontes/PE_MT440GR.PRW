@@ -77,7 +77,7 @@ User Function MT440GR()
 		AADD( aCarta, SA1->A1_GRPSEG     ) // 17 - POS_GRPSEGMENTO_CLIENTE
 		AADD( aCarta, SA1->A1_SATIV1     ) // 18 - POS_SEGMENTO_CLIENTE
 		AADD( aCarta, 0                  ) // 19 - POS_PERC_DESCONTO_CLIENTE
-		AADD( aCarta, SA1->A1_VINCULO    ) // 20 - POS_VINCULO_CLIENTE
+		AADD( aCarta, SA1->A1_VINCIMD    ) // 20 - POS_VINCULO_CLIENTE
 		AADD( aCarta, ""					   ) // 21 - POS_VEND_B2B
 		AADD( aCarta, 0                  ) // 22 - POS_PERC_DENCONTO_B2B
 		AADD( aCarta, ""					   ) // 23 - POS_VEND_VI

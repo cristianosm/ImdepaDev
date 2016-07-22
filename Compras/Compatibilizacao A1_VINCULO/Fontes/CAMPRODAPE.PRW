@@ -68,14 +68,14 @@ ElseIf cPonto == "U_TMKVCP" // Atualiza Variavel Percentual Frete
 	
 	
 	//MV_FILFRT='05/11'                                             
-	LVINCULO:=ALLTRIM(SA1->A1_VINCULO)$  ("#CM*CM*#PP*PP")
-	//IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCULO<>'PP' .AND. SA1->A1_VINCULO<>'CM') .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
+	LVINCULO:=ALLTRIM(SA1->A1_VINCIMD)$  ("#CM*CM*#PP*PP")
+	//IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCIMD<>'PP' .AND. SA1->A1_VINCIMD<>'CM') .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
 
 	IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (!LVINCULO) .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'	
 		
 		//ALERT('FILIAL: '+XFILIAL('SUA'))
 		
-		//IF (XFILIAL('SUA')=='05') .AND. (SA1->A1_VINCULO<>'PP' .OR. SA1->A1_VINCULO<>'CM')
+		//IF (XFILIAL('SUA')=='05') .AND. (SA1->A1_VINCIMD<>'PP' .OR. SA1->A1_VINCIMD<>'CM')
 		
 		//ALERT('...VIA RODAPE...'+STR(_NFRETE)+'  '+M->UA_TPCIF)
 		//ALERT('...VIA RODAPE II...'+STR(NMERC)+'  '+M->UA_TPCIF)
@@ -127,8 +127,8 @@ ElseIf cPonto == "U_TMKVCP" // Atualiza Variavel Percentual Frete
 		aValores[_nPosPeF] := Round( NVALFRT / _NFRETE * 100 , 2 )
 		//aValores[_nPosPeF] := Round( AVALORES[4] / _NFRETE * 100 , 2 )
 		
-		LVINCULO:=ALLTRIM(SA1->A1_VINCULO)$  ("#CM*CM*#PP*PP")
-		//If (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCULO<>'PP' .AND. SA1->A1_VINCULO<>'CM') .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
+		LVINCULO:=ALLTRIM(SA1->A1_VINCIMD)$  ("#CM*CM*#PP*PP")
+		//If (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCIMD<>'PP' .AND. SA1->A1_VINCIMD<>'CM') .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
 		If (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (!LVINCULO) .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
 			aValores[_nPosFrtMin] := NVALFRT //Robson - 14/11/2014 - Mostrar frete minimo na tela
 		EndIf
@@ -138,8 +138,8 @@ ElseIf cPonto == "U_TMKVCP" // Atualiza Variavel Percentual Frete
 		///ORIGINAL
 		aValores[_nPosPeF] := Round( M->UA_FRETCAL / nMerc * 100 , 2 )
 		
-		LVINCULO:=ALLTRIM(SA1->A1_VINCULO)$  ("#CM*CM*#PP*PP")
-		//If (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCULO<>'PP' .AND. SA1->A1_VINCULO<>'CM') .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
+		LVINCULO:=ALLTRIM(SA1->A1_VINCIMD)$  ("#CM*CM*#PP*PP")
+		//If (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCIMD<>'PP' .AND. SA1->A1_VINCIMD<>'CM') .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
 		If (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (!LVINCULO) .AND. SA1->A1_CLIFRTE<>'1' .AND. SA1->A1_TPFRET <> 'F'
 			aValores[_nPosFrtMin] := _NVALFRT //Robson - 14/11/2014 - Mostrar frete minimo na tela
 		EndIf
@@ -201,7 +201,7 @@ Else
 		cSegmento := AllTrim(ZZV->ZZV_COD)
 	EndIf	
 	
-	cVinculo	:=	SA1->A1_VINCULO
+	cVinculo	:=	SA1->A1_VINCIMD
 	cDtUltComp	:=	DtoC(SA1->A1_ULTCOM)
 	cLimCred	:=	AllTrim(Transform( SA1->A1_LC, '@E 999,999,999.99'))
 	cSaldoHist	:=	AllTrim(Transform( SA1->A1_SALDUP, '@E 999,999,999.99'))
@@ -223,7 +223,7 @@ Else
 				
 	/*
 	oObjSeg  		:= TSay():New( 012, 485,{|| "Segmento: "+AllTrim(ZZV->ZZV_COD) },oGrpCli,,,.F.,.F.,.F.,.T.,CLR_BLACK,CLR_WHITE, 080,008 )
-	oObjVinc	  	:= TSay():New( 023, 485,{|| "Vinculo:  "+SA1->A1_VINCULO  },oGrpCli,,,.F.,.F.,.F.,.T.,CLR_BLACK,CLR_WHITE, 080,008 )
+	oObjVinc	  	:= TSay():New( 023, 485,{|| "Vinculo:  "+SA1->A1_VINCIMD  },oGrpCli,,,.F.,.F.,.F.,.T.,CLR_BLACK,CLR_WHITE, 080,008 )
 	oObjDtUCom		:= TSay():New( 034, 485,{|| "Ult.Compra: "+DtoC(SA1->A1_ULTCOM)  },oGrpCli,,,.F.,.F.,.F.,.T.,CLR_BLACK,CLR_WHITE, 080,008 )
 
 	oObjLC  		:= TSay():New( 012, 545,{|| "Limite Crédito R$  "+AllTrim(Transform( SA1->A1_LC, '@E 999,999,999.99'))   },oGrpCli,,,.F.,.F.,.F.,.T.,CLR_BLACK,CLR_WHITE, 080,008 )

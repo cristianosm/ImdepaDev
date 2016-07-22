@@ -341,7 +341,7 @@ User Function SF1100i()
 											cVendB2B := SC6->( Posicione( "SU7", 1, xFilial( "SU7" ) + SUA->UA_OPERADO, "U7_CODVEN" ) )
 										EndIf
 
-										AADD( aCarta, SA1->A1_VINCULO    ) // 20 - POS_VINCULO_CLIENTE
+										AADD( aCarta, SA1->A1_VINCIMD    ) // 20 - POS_VINCULO_CLIENTE
 										AADD( aCarta, cVendB2B           ) // 21 - POS_VEND_B2B
 										AADD( aCarta, 0                  ) // 22 - POS_PERC_DENCONTO_B2B
 										AADD( aCarta, SA1->A1_VENDEXT    ) // 23 - POS_VEND_VI

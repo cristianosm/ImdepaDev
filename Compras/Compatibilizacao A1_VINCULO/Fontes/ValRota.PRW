@@ -50,7 +50,7 @@ Endif
 
 
 
-    //EDI IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCULO<>'PP' .AND. SA1->A1_VINCULO<>'CM')
+    //EDI IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCIMD<>'PP' .AND. SA1->A1_VINCIMD<>'CM')
 
 	
 	  //	JULIO:=.T.
@@ -148,15 +148,15 @@ ELSEIF 	M->UA_TPFRETE == "C"
 	// Valida aqui o frete calculado zerado somente se tiver sido escolhida a rota, pois será validado novamente na confirmaçao do pedido
 
 
-//IF (XFILIAL('SUA')<>'07' .OR. XFILIAL('SUA')<>'11') .OR. (A1_VINCULO<>'PP' .OR. A1_VINCULO<>'CM') .OR. (A1_CLFAMIN<>'S') 
+//IF (XFILIAL('SUA')<>'07' .OR. XFILIAL('SUA')<>'11') .OR. (A1_VINCIMD<>'PP' .OR. A1_VINCIMD<>'CM') .OR. (A1_CLFAMIN<>'S') 
 
 
     
-    //ORIGINAL JULIO IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCULO<>'PP' .AND. SA1->A1_VINCULO<>'CM') .AND. SA1->A1_CLIFRTE<>'1'
-    IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCULO<>'PP' .OR. SA1->A1_VINCULO=='CM') .OR. SA1->A1_CLIFRTE<>'1' //.AND. SA1->A1_TPFRET <> 'F'
+    //ORIGINAL JULIO IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCIMD<>'PP' .AND. SA1->A1_VINCIMD<>'CM') .AND. SA1->A1_CLIFRTE<>'1'
+    IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCIMD<>'PP' .OR. SA1->A1_VINCIMD=='CM') .OR. SA1->A1_CLIFRTE<>'1' //.AND. SA1->A1_TPFRET <> 'F'
    //Return(.T.)//EDI
 
-//IF (XFILIAL('SUA')=='05') .AND. (SA1->A1_VINCULO<>'PP' .OR. SA1->A1_VINCULO<>'CM') 
+//IF (XFILIAL('SUA')=='05') .AND. (SA1->A1_VINCIMD<>'PP' .OR. SA1->A1_VINCIMD<>'CM') 
     lRet := .T.
     ELSE
 	IF lRet .AND. M->UA_FRETCAL == 0
@@ -201,14 +201,14 @@ IF lRet
 					If   !(M->UA_FRETCAL-nTolerancia <= __aRotasDisponiveis[nPos,xFreteNormal] .and. __aRotasDisponiveis[nPos,xFreteNormal] <= M->UA_FRETCAL+nTolerancia )//!Entre(M->UA_FRETCAL-nTolerancia,M->UA_FRETCAL+nTolerancia, __aRotasDisponiveis[nPos,8]) //M->UA_FRETCAL <> __aRotasDisponiveis[nPos,8]
 						cMens :=  AllTrim(STR(__aRotasDisponiveis[nPos,xFreteNormal]))
 
-								//IF (XFILIAL('SUA')<>'07' .OR. XFILIAL('SUA')<>'11') .OR. (A1_VINCULO<>'PP' .OR. A1_VINCULO<>'CM') .OR. (A1_CLFAMIN<>'S') 
+								//IF (XFILIAL('SUA')<>'07' .OR. XFILIAL('SUA')<>'11') .OR. (A1_VINCIMD<>'PP' .OR. A1_VINCIMD<>'CM') .OR. (A1_CLFAMIN<>'S') 
 								
 								
 								
 								//MV_FILFRT='05/11'
-    //IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCULO<>'PP' .AND. SA1->A1_VINCULO<>'CM')
-			IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCULO<>'PP' .AND. SA1->A1_VINCULO<>'CM') .AND. SA1->A1_CLIFRTE<>'1' //.AND. SA1->A1_TPFRET <> 'F'														
-										//IF (XFILIAL('SUA')=='05') .AND. (SA1->A1_VINCULO<>'PP' .OR. SA1->A1_VINCULO<>'CM') 
+    //IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCIMD<>'PP' .AND. SA1->A1_VINCIMD<>'CM')
+			IF (XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (SA1->A1_VINCIMD<>'PP' .AND. SA1->A1_VINCIMD<>'CM') .AND. SA1->A1_CLIFRTE<>'1' //.AND. SA1->A1_TPFRET <> 'F'														
+										//IF (XFILIAL('SUA')=='05') .AND. (SA1->A1_VINCIMD<>'PP' .OR. SA1->A1_VINCIMD<>'CM') 
 										  lRet := .T. 
 			ELSE
 										  lRet := .F.
@@ -251,7 +251,7 @@ IF lRet
 	///projeto novo frete
 	//LRET:=.T.
 	
-	If ((XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (Alltrim(SA1->A1_VINCULO)=='PP' .OR. Alltrim(SA1->A1_VINCULO)=='CM' .OR. Alltrim(SA1->A1_CLIFRTE)=='1'))
+	If ((XFILIAL('SUA') $ GETMV('MV_FILFRT') ) .AND. (Alltrim(SA1->A1_VINCIMD)=='PP' .OR. Alltrim(SA1->A1_VINCIMD)=='CM' .OR. Alltrim(SA1->A1_CLIFRTE)=='1'))
 		Return(.T.)
 	Endif   
 	
@@ -269,7 +269,7 @@ ENDIF
 
 
     /*
-	IF (XFILIAL('SUA')=='05') .AND. (SA1->A1_VINCULO<>'PP' .OR. SA1->A1_VINCULO<>'CM') 
+	IF (XFILIAL('SUA')=='05') .AND. (SA1->A1_VINCIMD<>'PP' .OR. SA1->A1_VINCIMD<>'CM') 
 		///JULIO JACOVENKO, em 01/08/2014
 		///projeto novo frete
 		///VERIFICAR COM EDIVALDO como contornar estas

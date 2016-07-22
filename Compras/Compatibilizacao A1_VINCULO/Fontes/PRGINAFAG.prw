@@ -68,7 +68,7 @@ _cQuery +=" (SELECT CNPJCLI, PRODUTO, SUM(COMPRADO) COMPRADO, SUM(CONSULTADO) CO
 	_cQuery +=" WHERE   SA1.A1_FILIAL='"+xFilial("SA1")+"'"
 	_cQuery += " AND    SA1.A1_COD NOT IN ('N00000', 'N00001','000000') "
 	_cQuery += " AND    SA1.A1_MSBLQL   <> '1' "
-	_cQuery += " AND    SA1.A1_VINCULO   IN ('R2','R9') "
+	_cQuery += " AND    SA1.A1_VINCIMD   IN ('R2','R9') "
 	_cQuery += " AND    SA1.D_E_L_E_T_  =  ' ' "
 	
 	_cQuery += " AND    ZA0.ZA0_CLIENT  = SA1.A1_COD "
@@ -102,7 +102,7 @@ _cQuery +=" (SELECT CNPJCLI, PRODUTO, SUM(COMPRADO) COMPRADO, SUM(CONSULTADO) CO
 	_cQuery += " AND D2.D2_EMISSAO BETWEEN TO_CHAR( ADD_MONTHS( SYSDATE, -12 ), 'yyyymmdd' ) AND TO_CHAR( SYSDATE, 'yyyymmdd') "
 	_cQuery += " AND D2.D2_TIPO      = 'N' "
 	_cQuery += " AND A1.A1_MSBLQL    <> '1' "
-	_cQuery += " AND A1.A1_VINCULO   IN ('R2','R9') "
+	_cQuery += " AND A1.A1_VINCIMD   IN ('R2','R9') "
 	_cQuery += " AND B1.B1_GRMAR2    IN ('000001','000002') "
 	_cQuery += " AND F4.F4_ESTOQUE   = 'S' "
 	_cQuery += " AND F4.F4_DUPLIC    = 'S' "

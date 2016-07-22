@@ -132,7 +132,7 @@ If lRet
 		EndIf
 	
 		M->UA_TEL 		:= IIF(!Empty(SA1->A1_DDD), '('+AllTrim(SA1->A1_DDD)+') ', '')+AllTrim(SA1->A1_TEL)
-		M->UA_VINCULO	:=	SA1->A1_VINCULO
+		M->UA_VINCULO	:=	SA1->A1_VINCIMD
 		M->UA_DESCSEG	:=	Posicione("ZZV",1,xFilial("ZZV")+SA1->A1_GRPSEG,"ZZV_COD") 
 			
 		cTabela	:=	SA1->A1_TABELA

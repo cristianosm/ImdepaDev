@@ -73,7 +73,7 @@ Static Function Executar()
 //	_cQuery += "AND D2.D2_EMISSAO   BETWEEN TO_CHAR(SYSDATE-10,'yyyymmdd') and TO_CHAR(SYSDATE-1,'yyyymmdd') "
 	_cQuery += "AND D2.D2_TIPO      = 'N' "
 	_cQuery += "AND A1.A1_MSBLQL    <> '1' "
-	_cQuery += "AND A1.A1_VINCULO   IN ('R2','R9') "
+	_cQuery += "AND A1.A1_VINCIMD   IN ('R2','R9') "
 	_cQuery += "AND B1.B1_GRMAR2    IN ('000001','000002') "
 	_cQuery += "AND F4.F4_ESTOQUE   = 'S' "
 	_cQuery += "AND F4.F4_DUPLIC    = 'S' "
