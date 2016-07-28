@@ -18,27 +18,27 @@
 #DEFINE POS_RECNO			16
 
 /*/
-�����������������������������������������������������������������������������
-�������������������������������������������������������������������������Ŀ��
-���Programa  � IMDA630     � Autor �Jorge Oliveira      � Data � 18/08/10 ���
-�������������������������������������������������������������������������Ĵ��
-���Descri��o � Ajustar as quantidades do Orcado X Ofertado.               ���
-�������������������������������������������������������������������������Ĵ��
-���Sintaxe   � U_IMDA630()                                                ���
-�������������������������������������������������������������������������Ĵ��
-���Parametros� Nenhum                                                     ���
-�������������������������������������������������������������������������Ĵ��
-���Retorno   � NIL                                                        ���
-�������������������������������������������������������������������������Ĵ��
-���Uso       � Call Center                                                ���
-�������������������������������������������������������������������������Ĵ��
-��� ATUALIZACOES SOFRIDAS DESDE A CONSTRUCAO INICIAL.                     ���
-�������������������������������������������������������������������������Ĵ��
-��� PROGRAMADOR  � DATA   � DESCRICAO                                     ���
-�������������������������������������������������������������������������Ĵ��
-���              �        �                                               ���
-��������������������������������������������������������������������������ٱ�
-�����������������������������������������������������������������������������
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HH?Programa  : IMDA630     ? Autor ?Jorge Oliveira      ? Data ? 18/08/10 HH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH?JHH
+HH?DescriHHo : Ajustar as quantidades do Orcado X Ofertado.               HH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH?JHH
+HH?Sintaxe   : U_IMDA630()                                                HH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH?JHH
+HH?Parametros: Nenhum                                                     HH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH?JHH
+HH?Retorno   : NIL                                                        HH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH?JHH
+HH?Uso       : Call Center                                                HH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH?JHH
+HH? ATUALIZACOES SOFRIDAS DESDE A CONSTRUCAO INICIAL.                     HH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH?JHH
+HH? PROGRAMADOR  | DATA   | DESCRICAO                                     HH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH?JHH
+HH?              |        |                                               HH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 /*/
 *******************************************************************************
 User Function IMDA630()
@@ -65,12 +65,12 @@ User Function IMDA630()
 	EndIf
 
 	If MV_PAR10 < MV_PAR09
-		Alert("Per�odo Inv�lido")
+		Alert("Per?odo Inv?lido")
 		Return()
 	Endif
 
 	aAdd( aCombo, "Cliente"   	)
-	aAdd( aCombo, "Or�amento" 	)
+	aAdd( aCombo, "Or?amento" 	)
 	aAdd( aCombo, "Produto"   	)
 	aAdd( aCombo, "Data"      )
 
@@ -79,7 +79,7 @@ User Function IMDA630()
 
 
 	If Len( aDados ) == 0
-		Aviso( "Or�ado X Ofertado", "O Filtro n�o Retornou Dados", {"Ok"} )
+		Aviso( "Or?ado X Ofertado", "O Filtro n?o Retornou Dados", {"Ok"} )
 		Return()
 	Endif
 
@@ -91,12 +91,12 @@ Return()
 Static Function JanelaPrincipal()
 *****************************************************************************************
 
-	DEFINE MSDIALOG oDlg TITLE "Or�ado X Ofertado" FROM 000,000 TO 500,900 PIXEL
+	DEFINE MSDIALOG oDlg TITLE "Or?ado X Ofertado" FROM 000,000 TO 500,900 PIXEL
 
 	@ 005,005 LISTBOX oLbx FIELDS HEADER ;
-		""                   , OemToAnsi("Filial"), OemToAnsi("Cliente"), OemToAnsi("Or�amento"),;
-		OemToAnsi("Produto"), OemToAnsi("Qtde. Or�ado"), OemToAnsi("Qtde. Ofertado"),;
-		OemToAnsi("Valor Ofertado"), OemToAnsi("Data / Hora" ), OemToAnsi("Pre�o");
+		""                   , OemToAnsi("Filial"), OemToAnsi("Cliente"), OemToAnsi("Or?amento"),;
+		OemToAnsi("Produto"), OemToAnsi("Qtde. Or?ado"), OemToAnsi("Qtde. Ofertado"),;
+		OemToAnsi("Valor Ofertado"), OemToAnsi("Data / Hora" ), OemToAnsi("Pre?o");
 		SIZE 442,210 of oDlg PIXEL ON DBLCLICK( A630MARCA( oLbx:nAt ) )
 
 	oLbx:SetArray( aDados )
@@ -111,7 +111,7 @@ Static Function JanelaPrincipal()
 		AllTrim( Transform( aDados[ oLbx:nAt, POS_DATAHORA ], "@R 99/99/99 99:99" ) ),;
 		AllTrim( Transform( aDados[ oLbx:nAt, POS_PRECO ], "@R 9,999,999.99" ) ) }}
 
-	@ 222,005 SAY "Ordena��o:"             SIZE  65, 8 PIXEL OF oDlg
+	@ 222,005 SAY "OrdenaHHo:"             SIZE  65, 8 PIXEL OF oDlg
 	@ 220,035 COMBOBOX oCombo VAR cCombo ITEMS aCombo SIZE 55,10 PIXEL OF oDlg ON CHANGE A630TELA()
 
 	@ 220,355 BUTTON "&Gravar"	SIZE 40,13 ACTION {|| Grava(), oDlg:End() }	PIXEL Of oDlg
@@ -138,7 +138,7 @@ Static Function A630MARCA( nPos )
 
 	If aDados[ nPos, POS_MARCADO ]
 
-		DEFINE MSDIALOG oDlg1 TITLE "Altera��o" FROM 000, 000  TO 150, 150 PIXEL
+		DEFINE MSDIALOG oDlg1 TITLE "AlteraHHo" FROM 000, 000  TO 150, 150 PIXEL
 
 		@ 010, 025 SAY oSay1 		PROMPT "Quantidade:"	SIZE 036, 008 PIXEL OF oDlg1
 		@ 025, 015 MSGET oQuant VAR nQuant Picture "@E 999,999,999" Valid nQuant > 0	SIZE 050, 010 PIXEL OF oDlg1
@@ -181,7 +181,7 @@ Static Function A630TELA()//Ordenar os dados da tela conforme a selecao.
 	Do Case
 	Case cCombo == "Cliente"
 		ASort( aDados,,, {|x,y| x[POS_CLIENTE]+x[POS_DATAHORA]+x[POS_NUMORC] < y[POS_CLIENTE]+y[POS_DATAHORA]+y[POS_NUMORC] } )
-	Case cCombo == "Or�amento"
+	Case cCombo == "Or?amento"
 		ASort( aDados,,, {|x,y| x[POS_NUMORC]+x[POS_DATAHORA] < y[POS_NUMORC]+y[POS_DATAHORA] } )
 	Case cCombo == "Produto"
 		ASort( aDados,,, {|x,y| x[POS_PRODUTO]+x[POS_NUMORC] < y[POS_PRODUTO]+y[POS_NUMORC] } )
@@ -205,11 +205,11 @@ Static Function Grava()// Grava Dados..
 	aScan( aDados, {|x| If( x[ POS_MARCADO ], nQtde++, nQtde ) } )
 
 	If nQtde <= 0
-		MsgInfo( "N�o foram selecionados nenhum registro para altera��o." )
+		MsgInfo( "N?o foram selecionados nenhum registro para alteraHHo." )
 		Return
 	EndIf
 
-	If MsgYesNo( "Confirma a atualiza��o do Or�ado X Ofertado ?", "Atualiza��o" )
+	If MsgYesNo( "Confirma a atualizaHHo do Or?ado X Ofertado ?", "AtualizaHHo" )
 
 		DbSelectArea( "ZA0" )
 
@@ -233,7 +233,7 @@ Static Function Grava()// Grava Dados..
 //					ZA0->ZA0_VOFERT := aDados[ _i, POS_VOFERT ]
 					MsUnlock()
 				Else
-					MsgInfo( "N�o foi poss�vel alterar o Atendimento: " + aDados[ _i, POS_NUMORC ] )
+					MsgInfo( "N?o foi poss?vel alterar o Atendimento: " + aDados[ _i, POS_NUMORC ] )
 					conout( "IMDA630 => Nao foi possivel alterar o Atendimento: " + aDados[ _i, POS_NUMORC ] )
 				Endif
 
@@ -263,7 +263,7 @@ Static Function Grava()// Grava Dados..
 					ZAJ->ZAJ_HORA		:= Time()
 
 				Else
-					MsgInfo( "N�o foi poss�vel gravar log do Atendimento: " + aDados[ _i, POS_NUMORC ] )
+					MsgInfo( "N?o foi poss?vel gravar log do Atendimento: " + aDados[ _i, POS_NUMORC ] )
 					conout( "IMDA630 => Nao foi possivel gravar log do Atendimento: " + aDados[ _i, POS_NUMORC ] )
 				Endif
 
@@ -285,9 +285,9 @@ Static Function A630LEDADO()//| Consulta e carrega os dados no array utilizado n
 
 	Local aEntrega := {}
 
-	//��������������������������������������������������������������Ŀ
-	//� Monta a query                                                �
-	//����������������������������������������������������������������
+	//HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH?
+	//? Monta a query                                                ?
+	//HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 	cQuery := "SELECT DISTINCT ZA0.ZA0_FILIAL, ZA0.ZA0_NUMORC, ZA0.ZA0_PRODUT, SB1.B1_DESC, ZA0.ZA0_QUANTD "
 	cQuery += "     , ZA0.ZA0_QOFERT, ZA0.ZA0_VOFERT, ZA0.ZA0_DTNECL, ZA0.ZA0_HRNECL, ZA0.ZA0_PRECO "
 	cQuery += "     , ZA0.R_E_C_N_O_ RECZA0, SUA.UA_CLIENTE, SUA.UA_LOJA "
@@ -354,8 +354,8 @@ Static Function X1Pergunta()
 	aAdd(aPerg,{ "Ate Cliente ?"	,"Ate Cliente ?"  ,"Ate Cliente ?"  ,"mv_ch2","C", 6,0,0,"G","NaoVazio()","mv_par02","","","","","","","","","","","","","","","","","","","","","","","","","SA1","","" })
 	aAdd(aPerg,{ "Da Loja ?"   		,"Da Loja ?" 	  ,"Da Loja ?"      ,"mv_ch3","C", 2,0,0,"G",""		  ,"mv_par03","","","","","","","","","","","","","","","","","","","","","","","","",""   ,"","" })
 	aAdd(aPerg,{ "Ate Loja ?"		,"Ate Loja ?" 	  ,"Ate Loja ?"     ,"mv_ch4","C", 2,0,0,"G","NaoVazio()","mv_par04","","","","","","","","","","","","","","","","","","","","","","","","",""   ,"","" })
-	aAdd(aPerg,{ "Do Or�amento ?"	,"Do Or�amento ?" ,"Do Or�amento ?" ,"mv_ch5","C", 6,0,0,"G",""		  ,"mv_par05","","","","","","","","","","","","","","","","","","","","","","","","",""   ,"","" })
-	aAdd(aPerg,{ "Ate Or�amento ?"	,"Ate Or�amento ?","Ate Or�amento ?","mv_ch6","C", 6,0,0,"G","NaoVazio()","mv_par06","","","","","","","","","","","","","","","","","","","","","","","","",""   ,"","" })
+	aAdd(aPerg,{ "Do Or?amento ?"	,"Do Or?amento ?" ,"Do Or?amento ?" ,"mv_ch5","C", 6,0,0,"G",""		  ,"mv_par05","","","","","","","","","","","","","","","","","","","","","","","","",""   ,"","" })
+	aAdd(aPerg,{ "Ate Or?amento ?"	,"Ate Or?amento ?","Ate Or?amento ?","mv_ch6","C", 6,0,0,"G","NaoVazio()","mv_par06","","","","","","","","","","","","","","","","","","","","","","","","",""   ,"","" })
 	aAdd(aPerg,{ "Do Produto ?"		,"Do Produto ?"   ,"Do Produto ?"   ,"mv_ch7","C",14,0,0,"G",""		  ,"mv_par07","","","","","","","","","","","","","","","","","","","","","","","","","SB1","","" })
 	aAdd(aPerg,{ "Ate Produto ?"	,"Ate Produto ?"  ,"Ate Produto ?"  ,"mv_ch8","C",14,0,0,"G","NaoVazio()","mv_par08","","","","","","","","","","","","","","","","","","","","","","","","","SB1","","" })
 	aAdd(aPerg,{ "Da Consulta ?"	,"Da Consulta ?"  ,"Da Consulta ?"  ,"mv_ch9","D", 8,0,0,"G",""		  ,"mv_par09","","","","","","","","","","","","","","","","","","","","","","","","",""   ,"","" })

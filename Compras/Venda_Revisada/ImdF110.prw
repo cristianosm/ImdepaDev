@@ -7,25 +7,25 @@
 #define _ENTERHTM	'<br>'
 //#Define 	DBRI_DELETED       1
 /*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄ¿±±
-±±³Fun‡ao    ³ IMDF110  ³ Autor ³ Expedito Mendonca Jr. ³ Data ³ 30/04/2003 ³±±
-±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄ´±±
-±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄ¿±±
-±±³ 06/09/06 ³Reestruturação da Rotina IMDF110 com a Nova Versão do         ³±±
-±±³          ³   Orçado X Ofertado - Por Edivaldo Gonçalves Cordeiro        ³±±
-±±³ 12/12/06 ³Implementada a alimentacao do ZA0_PRECO on-line no atendimento³±±
-±±³          ³   portanto, foi retirado a pesquisa ao SUB no schedule       ³±±
-±±³ 24/01/07 ³Quantidade ofertada deve ser o minimo entre a consulta e o    ³±±
-±±³		      ³   saldo e não entre o SUB e o Saldo.                          ³±±
-±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄ´±±
-±±³Descri‡…o ³ Registro de quantidade ofertada e venda perdida              ³±±
-±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
-±±³ Uso      ³ESPECIFICO PARA IMDEPA	        					             ³±±
-±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HH?Fun?ao    ? IMDF110  ? Autor ? Expedito Mendonca Jr. ? Data ? 30/04/2003 HH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH?JHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HH? 06/09/06 ?ReestruturaHHo da Rotina IMDF110 com a Nova Vers?o do         HH
+HH?          ?   Or?ado X Ofertado - Por Edivaldo Gon?alves Cordeiro        HH
+HH? 12/12/06 ?Implementada a alimentacao do ZA0_PRECO on-line no atendimentoHH
+HH?          ?   portanto, foi retirado a pesquisa ao SUB no schedule       HH
+HH? 24/01/07 ?Quantidade ofertada deve ser o minimo entre a consulta e o    HH
+HH?		      ?   saldo e n?o entre o SUB e o Saldo.                        HH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH?JHH
+HH?DescriHHo ? Registro de quantidade ofertada e venda perdida              HH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH?JHH
+HH? Uso      ?ESPECIFICO PARA IMDEPA	        					        HH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 */
 
 *******************************************************************************
@@ -382,7 +382,7 @@ Static Function SendErros()// Envia por email o log de erro..
 	cLeg			+= '<tr>'
 	cLeg			+= '<td>CNE</td>'
 	cLeg			+= '<td>-></td>'
-	cLeg			+= '<td>Capa do Orcamento não encontrado.</td>'
+	cLeg			+= '<td>Capa do Orcamento n?o encontrado.</td>'
 	cLeg			+= '</tr>'
 
 	cLeg			+= '<tr>'
@@ -442,14 +442,14 @@ Static Function CorrigErros(nRecZA0, cErro)//| Corrige Erros que foram encontrad
 		Return(lRetorno)
 	EndIf
 
-	//| Capa do Orcamento não encontrado.
+	//| Capa do Orcamento n?o encontrado.
 	If cErro == "CNE"
 
 		cSqlAux := cSqlCNE + cRecZA0 + " "
 
 		U_ExecMySQl(cSqlAux,"","E",lTeste)
 
-		If ValCorrecao("CNE",nRecZA0) == lCorrigido // Valida Correçao
+		If ValCorrecao("CNE",nRecZA0) == lCorrigido // Valida Corre?ao
 			nQECoCNE		+=  1
 			lRetorno		:= .T.
 		Else
@@ -474,7 +474,7 @@ Static Function CorrigErros(nRecZA0, cErro)//| Corrige Erros que foram encontrad
 
 	EndIf
 
-	//| Item do Orcamento não encontrado.
+	//| Item do Orcamento n?o encontrado.
 	If cErro == "INE"
 		//nQECoINE	+= 1
 	EndIF

@@ -1,23 +1,23 @@
 #Include "Totvs.ch"
 
 /*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄ¿±±
-±±³Fun‡ao    ³ Write_OrcOfert  ³ Autor ³ Edivaldo/ Márcio³ Data ³ 06/08/2006³±±
-±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄ´±±
-±±³Descri‡…o ³ Registro de quantidade ofertada e venda perdida              ³±±
-±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
-±±³Data Atu. ³ Descricao                                                    ³±±
-±±³          ³                                                              ³±±
-±±³11/12/06  ³ Adicionado parametro nLinha pois durante a Atualização da    ³±±
-±±³          ³ data e hora considerava a linha n e não a linha que estava   ³±±
-±±³          ³ sendo alterada                                               ³±±
-±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
-±±³ Uso      ³ESPECIFICO PARA O CLIENTE IMDEPA                              ³±±
-±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HH?Fun?ao    : Write_OrcOfert  ? Autor ? Edivaldo/ M?rcio? Data ? 06/08/2006HH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH?JHH
+HH?DescriHHo : Registro de quantidade ofertada e venda perdida              HH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH?JHH
+HH?Data Atu. : Descricao                                                    HH
+HH?          :                                                              HH
+HH?11/12/06  : Adicionado parametro nLinha pois durante a AtualizaHHo da    HH
+HH?          : data e hora considerava a linha n e n?o a linha que estava   HH
+HH?          : sendo alterada                                               HH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH?JHH
+HH? Uso      :ESPECIFICO PARA O CLIENTE IMDEPA                              HH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 */
 
 **********************************************************************
@@ -32,9 +32,9 @@ User Function Write_OrcOfert(cParX, nLinha)
 			cChavePub 	+= "+Acols[n][GdFieldPos('UB_TES')]+ NC(Acols[n][GdFieldPos('UB_VRCACRE')])"
 
 	
-	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-	//³   AJUSTE DESCONTO\ACRESCIMO GERAL 	³
-	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	//HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+	//?   AJUSTE DESCONTO\ACRESCIMO GERAL 	?
+	//HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH?
   	nBckLine := n
     If Type('nLinha') <> 'U' 
     	If nLinha != Nil
@@ -126,8 +126,8 @@ Static Function Grava_Atualiza_Consultado()// Inicia a Gravacao/Atualizacao do C
 	//| inicializa as variaveis...
 	Carrega_Privates()
 
-	If  VerReg() 		//| Verifica se já existe o Registro no ZA0...
-		ZA0_Atualiza() 	//| Atualiza quando o registro já existe e a quantidade digitada for superior....
+	If  VerReg() 		//| Verifica se j? existe o Registro no ZA0...
+		ZA0_Atualiza() 	//| Atualiza quando o registro j? existe e a quantidade digitada for superior....
 
 	ElseIf lDelet
 		ZA0_Novo()  	//| Inclue novo registro....
@@ -188,7 +188,7 @@ Static Function Carrega_Privates()
 
 Return()
 **********************************************************************
-Static Function VerReg() //Verifica se já existe o Registro...
+Static Function VerReg() //Verifica se j? existe o Registro...
 **********************************************************************
 	Local nReg 		:= 	0
 	Local ljaExiste :=	.F.
@@ -209,7 +209,7 @@ Static Function VerReg() //Verifica se já existe o Registro...
 		ljaExiste 	:= 	.T.
 	EndIF
 
-	//| Verifica se eh Necessário Altualizar a Data e Hora de Todos os itens do Orcamento... Isso normalmente ocorre quando Orcamento eh Importado...
+	//| Verifica se eh Necess?rio Altualizar a Data e Hora de Todos os itens do Orcamento... Isso normalmente ocorre quando Orcamento eh Importado...
 	If nRECNO_ZA0 > 0
 
 		If ZA0->ZA0_FILIAL <> cUB_FILIAL .OR. ZA0->ZA0_NUMORC <> cUB_NUM
