@@ -3,10 +3,10 @@
 #DEFINE POS_MARCADO	  		1
 #DEFINE POS_FILIAL	  		2
 #DEFINE POS_CLIENTE	  		3
-#DEFINE POS_LOJA	  			4
+#DEFINE POS_LOJA	  		4
 #DEFINE POS_NUMORC	  		5
 #DEFINE POS_PRODUTO	  		6
-#DEFINE POS_DESC	  			7
+#DEFINE POS_DESC	  		7
 #DEFINE POS_QUANTD	  		8
 #DEFINE POS_QUANTD_ORIG		9
 #DEFINE POS_QOFERT	   		10
@@ -65,12 +65,12 @@ User Function IMDA630()
 	EndIf
 
 	If MV_PAR10 < MV_PAR09
-		Alert("Per?odo Inv?lido")
+		Alert("Periodo Invalido")
 		Return()
 	Endif
 
 	aAdd( aCombo, "Cliente"   	)
-	aAdd( aCombo, "Or?amento" 	)
+	aAdd( aCombo, "Orcamento" 	)
 	aAdd( aCombo, "Produto"   	)
 	aAdd( aCombo, "Data"      )
 
@@ -79,7 +79,7 @@ User Function IMDA630()
 
 
 	If Len( aDados ) == 0
-		Aviso( "Or?ado X Ofertado", "O Filtro n?o Retornou Dados", {"Ok"} )
+		Aviso( "Orcado X Ofertado", "O Filtro nao Retornou Dados", {"Ok"} )
 		Return()
 	Endif
 
@@ -91,12 +91,12 @@ Return()
 Static Function JanelaPrincipal()
 *****************************************************************************************
 
-	DEFINE MSDIALOG oDlg TITLE "Or?ado X Ofertado" FROM 000,000 TO 500,900 PIXEL
+	DEFINE MSDIALOG oDlg TITLE "Orcado X Ofertado" FROM 000,000 TO 500,900 PIXEL
 
 	@ 005,005 LISTBOX oLbx FIELDS HEADER ;
-		""                   , OemToAnsi("Filial"), OemToAnsi("Cliente"), OemToAnsi("Or?amento"),;
-		OemToAnsi("Produto"), OemToAnsi("Qtde. Or?ado"), OemToAnsi("Qtde. Ofertado"),;
-		OemToAnsi("Valor Ofertado"), OemToAnsi("Data / Hora" ), OemToAnsi("Pre?o");
+		""                   , OemToAnsi("Filial"), OemToAnsi("Cliente"), OemToAnsi("Orcamento"),;
+		OemToAnsi("Produto"), OemToAnsi("Qtde. Orcado"), OemToAnsi("Qtde. Ofertado"),;
+		OemToAnsi("Valor Ofertado"), OemToAnsi("Data / Hora" ), OemToAnsi("Preco");
 		SIZE 442,210 of oDlg PIXEL ON DBLCLICK( A630MARCA( oLbx:nAt ) )
 
 	oLbx:SetArray( aDados )
@@ -111,7 +111,7 @@ Static Function JanelaPrincipal()
 		AllTrim( Transform( aDados[ oLbx:nAt, POS_DATAHORA ], "@R 99/99/99 99:99" ) ),;
 		AllTrim( Transform( aDados[ oLbx:nAt, POS_PRECO ], "@R 9,999,999.99" ) ) }}
 
-	@ 222,005 SAY "OrdenaHHo:"             SIZE  65, 8 PIXEL OF oDlg
+	@ 222,005 SAY "Ordenacao:"             SIZE  65, 8 PIXEL OF oDlg
 	@ 220,035 COMBOBOX oCombo VAR cCombo ITEMS aCombo SIZE 55,10 PIXEL OF oDlg ON CHANGE A630TELA()
 
 	@ 220,355 BUTTON "&Gravar"	SIZE 40,13 ACTION {|| Grava(), oDlg:End() }	PIXEL Of oDlg
@@ -138,7 +138,7 @@ Static Function A630MARCA( nPos )
 
 	If aDados[ nPos, POS_MARCADO ]
 
-		DEFINE MSDIALOG oDlg1 TITLE "AlteraHHo" FROM 000, 000  TO 150, 150 PIXEL
+		DEFINE MSDIALOG oDlg1 TITLE "Alteracao" FROM 000, 000  TO 150, 150 PIXEL
 
 		@ 010, 025 SAY oSay1 		PROMPT "Quantidade:"	SIZE 036, 008 PIXEL OF oDlg1
 		@ 025, 015 MSGET oQuant VAR nQuant Picture "@E 999,999,999" Valid nQuant > 0	SIZE 050, 010 PIXEL OF oDlg1
@@ -181,7 +181,7 @@ Static Function A630TELA()//Ordenar os dados da tela conforme a selecao.
 	Do Case
 	Case cCombo == "Cliente"
 		ASort( aDados,,, {|x,y| x[POS_CLIENTE]+x[POS_DATAHORA]+x[POS_NUMORC] < y[POS_CLIENTE]+y[POS_DATAHORA]+y[POS_NUMORC] } )
-	Case cCombo == "Or?amento"
+	Case cCombo == "Orcamento"
 		ASort( aDados,,, {|x,y| x[POS_NUMORC]+x[POS_DATAHORA] < y[POS_NUMORC]+y[POS_DATAHORA] } )
 	Case cCombo == "Produto"
 		ASort( aDados,,, {|x,y| x[POS_PRODUTO]+x[POS_NUMORC] < y[POS_PRODUTO]+y[POS_NUMORC] } )
@@ -205,11 +205,11 @@ Static Function Grava()// Grava Dados..
 	aScan( aDados, {|x| If( x[ POS_MARCADO ], nQtde++, nQtde ) } )
 
 	If nQtde <= 0
-		MsgInfo( "N?o foram selecionados nenhum registro para alteraHHo." )
+		MsgInfo( "Nao foram selecionados nenhum registro para alteracao." )
 		Return
 	EndIf
 
-	If MsgYesNo( "Confirma a atualizaHHo do Or?ado X Ofertado ?", "AtualizaHHo" )
+	If MsgYesNo( "Confirma a atualizacao do Orcado X Ofertado ?", "Atualizacao" )
 
 		DbSelectArea( "ZA0" )
 
@@ -233,7 +233,7 @@ Static Function Grava()// Grava Dados..
 //					ZA0->ZA0_VOFERT := aDados[ _i, POS_VOFERT ]
 					MsUnlock()
 				Else
-					MsgInfo( "N?o foi poss?vel alterar o Atendimento: " + aDados[ _i, POS_NUMORC ] )
+					MsgInfo( "Nao foi possivel alterar o Atendimento: " + aDados[ _i, POS_NUMORC ] )
 					conout( "IMDA630 => Nao foi possivel alterar o Atendimento: " + aDados[ _i, POS_NUMORC ] )
 				Endif
 
@@ -263,7 +263,7 @@ Static Function Grava()// Grava Dados..
 					ZAJ->ZAJ_HORA		:= Time()
 
 				Else
-					MsgInfo( "N?o foi poss?vel gravar log do Atendimento: " + aDados[ _i, POS_NUMORC ] )
+					MsgInfo( "Nao foi possovel gravar log do Atendimento: " + aDados[ _i, POS_NUMORC ] )
 					conout( "IMDA630 => Nao foi possivel gravar log do Atendimento: " + aDados[ _i, POS_NUMORC ] )
 				Endif
 
