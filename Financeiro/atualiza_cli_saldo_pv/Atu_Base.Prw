@@ -2,21 +2,22 @@
 #Include 'protheus.ch'
 
 /*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³Atu_Base_CliºAutor  ³Cristiano Machado º Data ³  05/17/13   º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDesc.     ³Verifica Saldo em Pedidos de Determinado Cliente e Corrige  º±±
-±±º          ³se Necessario no cadastro de clientes... Varre toda a base  º±±
-±±º          ³de clientes com ultima compra dentro dos ultimos 3 anos.    º±±
-±±º          ³Deve ser executado semanalmente no Workflow...              º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³                                                            º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HHHPrograma  HAtu_Base_CliHAutor  HCristiano Machado H Data H  05/17/13   HHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHÍ¹HH
+HHHDesc.     HVerifica Saldo em Pedidos de Determinado Cliente e Corrige  HHH
+HHH          Hse Necessario no cadastro de clientes... Varre toda a base  HHH
+HHH          Hde clientes com ultima compra dentro dos ultimos 3 anos.    HHH
+HHH          HDeve ser executado semanalmente no Workflow...              HHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHÍ¹HH
+HHHUso       H                                                            HHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 */
+
 *********************************************************************
 User Function Atu_Base_Cli(cCod, cLoja)
 *********************************************************************
@@ -43,7 +44,7 @@ oAtuCli:AtuCliente()
 
 Dispara()
 
-Reset Environment
+RESET ENVIROMENT
 
 
 Return()
@@ -56,11 +57,14 @@ cData36m := dToS( dDatabase - ( 365 * 3) )
 cSql := ""
 cSql := "Select Count(1) TOTCLI  From Sa1010 Where A1_UltCom >= '"+cData36m+"' And d_e_l_e_t_ = ' ' "
 
-U_ExecMySql(cSql, "TEMP","Q", .F.)/// Seleciona os Clientes...
+//cSql := "Select Count(1) TOTCLI  From Sa1010 Where A1_UltCom = ' ' And d_e_l_e_t_ = ' ' "
 
-DbSelectArea("TEMP");DbGotop()
+
+U_ExecMySql(cSql, "NREG","Q", .F.)/// Seleciona os Clientes...
+
+DbSelectArea("NREG");DbGotop()
  
-nTotal := Val(cValToChar(TEMP->TOTCLI))
+nTotal := Val(cValToChar(NREG->TOTCLI))
 
 cSql := ""
 cSql := "Select ROWNUM NUM, AUX.A1_COD, AUX.A1_LOJA  From ( select A1_COD, A1_LOJA FROM Sa1010 Where A1_UltCom >= '"+cData36m+"' And d_e_l_e_t_ = ' '  ORDER BY A1_COD, A1_LOJA ) AUX"
@@ -69,19 +73,20 @@ Conout("ATUCLI - Query: "+cSql)
 
 U_ExecMySql(cSql, "TEMP","Q", .F.)/// Seleciona os Clientes...
 
-
+Conout("ATUCLI - Executando Atualizacao para Clientes com Ult.Com dentro dos ultimos 36 meses... ") 
 DbSelectArea("TEMP");DbGotop()
 While !Eof()
 
+	conout("ATUCLI - Registro "+cValToChar(TEMP->NUM) +" de "+cValToChar(nTotal)+" : "+TEMP->A1_COD +"."+ TEMP->A1_LOJA + Space(10) + cValToChar(dDataBase) + "  " + Time() )
+	
 	oAtuCli:Cliente( TEMP->A1_COD , TEMP->A1_LOJA ) //| Troca Cliente...
 
 	oAtuCli:AtuCliente()
 	
 	oAtuCli:RefazCLI()
-
-	conout("ATUCLI - Registro "+cValToChar(TEMP->NUM) +" de "+cValToChar(nTotal)+" : "+TEMP->A1_COD +"."+ TEMP->A1_LOJA + Space(10) + cValToChar(dDataBase) + "  " + Time() )
 	
-	DbSelectArea("TEMP");DbSkip()
+	DbSelectArea("TEMP")
+	DbSkip()
 
 End While
 

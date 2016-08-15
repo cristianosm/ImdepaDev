@@ -40,6 +40,7 @@ HH?              |        |                                               HH
 HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 /*/
+
 *******************************************************************************
 User Function IMDA630()
 *******************************************************************************
@@ -224,8 +225,6 @@ Static Function Grava()// Grava Dados..
 				EndIf
 
 				ZA0->( DbGoTo( aDados[ _i, POS_RECNO ] ) )
-				
-				<TODO>
 				
 				If RecLock( "ZA0", .F. )
 					ZA0->ZA0_QUANTD := aDados[ _i, POS_QUANTD ]

@@ -3,18 +3,18 @@
 
 //| Classe Verifica Saldo em Pedido de Determinado Cliente e Corrige se Necessario...
 /*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-ฑฑษออออออออออัออออออออออหอออออออัออออออออออออออออออออหออออออัอออออออออออออปฑฑ
-ฑฑบPrograma  ณCLPVSLFI  บAutor  ณCristiano Machado   บ Data ณ  05/17/13   บฑฑ
-ฑฑฬออออออออออุออออออออออสอออออออฯออออออออออออออออออออสออออออฯอออออออออออออนฑฑ
-ฑฑบDesc.     ณVerifica Saldo em Pedido de Determinado Cliente e Corrige   บฑฑ
-ฑฑบ          ณse Necessario...                                            บฑฑ
-ฑฑฬออออออออออุออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออนฑฑ
-ฑฑบUso       ณ                                                            บฑฑ
-ฑฑศออออออออออฯออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผฑฑ
-ฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑฑ
-฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿฿
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHอปHH
+HHHPrograma  HCLPVSLFI  HAutor  HCristiano Machado   H Data H  05/17/13   HHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHอนHH
+HHHDesc.     HVerifica Saldo em Pedido de Determinado Cliente e Corrige   HHH
+HHH          Hse Necessario...                                            HHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHอนHH
+HHHUso       H                                                            HHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHอผHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 */
 
 Class PvSldFin
@@ -201,9 +201,100 @@ EndClass
 	Mv_Par03 := ::cCliente 	//|Do Cliente ?
 	Mv_Par04 := ::cCliente 	//|Ate Cliente ?
 	Mv_Par05 := Replicate(' ',6) 	//|Do Fornecedor ?
-	Mv_Par06 := Replicate('Z',6) 	//|Ate Fornecedor ?
+	Mv_Par06 := Replicate(' ',6) 	//|Ate Fornecedor ?
 
-	Fa410Processa(lDireto)
+	//Fa410Processa(lDireto)
+	ExecProcFin003(Mv_Par01,Mv_Par02,Mv_Par03,Mv_Par04,Mv_Par05,Mv_Par06)
+	
 	//Fina410(lDireto) //|
 
 	Return()
+*******************************************************************
+Static Function ExecProcFin003(Mv_Par01,Mv_Par02,Mv_Par03,Mv_Par04,Mv_Par05,Mv_Par06)
+*******************************************************************	
+Local xResult 	:= Nil
+Local cProcNam 	:= IIF(FindFunction("GetSPName"), GetSPName("FIN003","09"), "FIN003")
+
+//Alert(cProcNam)
+
+
+xResult := TCSPExec( 'FIN003_09_01',;
+                                   '2',; //IN_MVPAR01 CHAR(200);
+                                 '1',; //IN_MVPAR02 CHAR(200);
+                      				 '1',; // IN_MCUSTO CHAR(200);
+                         Dtos(dDatabase),; //IN_DATABASE CHAR(200);
+                               '/NCC/RA',; //IN_TIPOCR VARCHAR2(200);
+                                      '',; // IN_TIPOCR1 VARCHAR2(200);
+                                      '',; //  IN_TIPOCP VARCHAR2(200);
+                                      '',; // IN_TIPOLC VARCHAR2(200);
+                                MV_PAR03,; // IN_CLIDE CHAR(200);
+                                MV_PAR04,; // IN_CLIATE CHAR(200);
+                                '      ',; //  IN_FORDE CHAR(200);
+                                '      ',; // IN_FORATE CHAR(200);
+                                	'  ',; //IN_ARRAYFIL1 VARCHAR2(200);
+                                	  '',; ////IN_ARRAYFIL2 VARCHAR2(200);
+                                	  '',; //IN_ARRAYFIL1 VARCHAR2(200);
+                                	  '',; //IN_ARRAYFIL1 VARCHAR2(200);
+                                	  '',;//IN_ARRAYFIL1 VARCHAR2(200);
+                                	  '',;//IN_ARRAYFIL1 VARCHAR2(200);
+                                	  '',;//IN_ARRAYFIL1 VARCHAR2(200);
+                                	  '',;//IN_ARRAYFIL1 VARCHAR2(200);
+                                	  '',; //IN_ARRAYFIL9 VARCHAR2(200);
+                                	   2,; //IN_TAMFIL NUMBER;
+                                      6,; //IN_MODULO FLOAT;
+                                '000001',; //IN_CLIPAD CHAR(200);
+                                    '01',; //IN_LOJPAD CHAR(200);
+                                     ' ' ) //IN_RASTRO CHAR(200);
+                                     
+                          
+                   
+
+  // Alert( 'xResult: ' + cValToChar(xResult) + ' ' + TcSqlError()  )
+
+Return()
+/*
+	IN_MVPAR01 := '2';
+  IN_MVPAR02 := '1';
+  IN_MCUSTO := '1';
+  IN_DATABASE := '20160810';
+  IN_TIPOCR := NULL;
+  IN_TIPOCR1 := NULL;
+  IN_TIPOCP := NULL;
+  IN_TIPOLC := NULL;
+  IN_CLIDE := '009015';
+  IN_CLIATE := '009015';
+  IN_FORDE := NULL;
+  IN_FORATE := NULL;
+  IN_ARRAYFIL1 := '  ';
+  IN_ARRAYFIL2 := NULL;
+  IN_ARRAYFIL3 := NULL;
+  IN_ARRAYFIL4 := NULL;
+  IN_ARRAYFIL5 := NULL;
+  IN_ARRAYFIL6 := NULL;
+  IN_ARRAYFIL7 := NULL;
+  IN_ARRAYFIL8 := NULL;
+  IN_ARRAYFIL9 := NULL;
+  IN_TAMFIL := 2;
+  IN_MODULO := 6;
+  IN_CLIPAD := '000001';
+  IN_LOJPAD := '01';
+  IN_RASTRO := NULL;
+
+ */
+ 
+ 
+
+ 
+  
+
+  
+  
+  
+  
+  
+	
+	
+	
+	
+	
+	
