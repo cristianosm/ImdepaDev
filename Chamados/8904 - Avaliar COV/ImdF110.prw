@@ -6,26 +6,27 @@
 #Define 	_ENTER 		CHR(13) + CHR(10)
 #define _ENTERHTM	'<br>'
 //#Define 	DBRI_DELETED       1
+
 /*
-*******************************************************************************
-*******************************************************************************
-***************************************************************************Ŀ**
-***Fun*ao    * IMDF110  * Autor * Expedito Mendonca Jr. * Data * 30/04/2003 ***
-***************************************************************************Ĵ**
-***************************************************************************Ŀ**
-*** 06/09/06 *Reestrutura**o da Rotina IMDF110 com a Nova Vers*o do         ***
-***          *   Or*ado X Ofertado - Por Edivaldo Gon*alves Cordeiro        ***
-*** 12/12/06 *Implementada a alimentacao do ZA0_PRECO on-line no atendimento***
-***          *   portanto, foi retirado a pesquisa ao SUB no schedule       ***
-*** 24/01/07 *Quantidade ofertada deve ser o minimo entre a consulta e o    ***
-***		      *   saldo e n*o entre o SUB e o Saldo.                          ***
-***************************************************************************Ĵ**
-***Descri**o * Registro de quantidade ofertada e venda perdida              ***
-***************************************************************************Ĵ**
-*** Uso      *ESPECIFICO PARA IMDEPA	        					             ***
-****************************************************************************ٱ*
-*******************************************************************************
-*******************************************************************************
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HH?Fun?ao    ? IMDF110  ? Autor ? Expedito Mendonca Jr. ? Data ? 30/04/2003 HH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH?JHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HH? 06/09/06 ?ReestruturaHHo da Rotina IMDF110 com a Nova Vers?o do         HH
+HH?          ?   Or?ado X Ofertado - Por Edivaldo Gon?alves Cordeiro        HH
+HH? 12/12/06 ?Implementada a alimentacao do ZA0_PRECO on-line no atendimentoHH
+HH?          ?   portanto, foi retirado a pesquisa ao SUB no schedule       HH
+HH? 24/01/07 ?Quantidade ofertada deve ser o minimo entre a consulta e o    HH
+HH?		      ?   saldo e n?o entre o SUB e o Saldo.                        HH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH?JHH
+HH?DescriHHo ? Registro de quantidade ofertada e venda perdida              HH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH?JHH
+HH? Uso      ?ESPECIFICO PARA IMDEPA	        					        HH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 */
 
 *******************************************************************************
@@ -35,7 +36,7 @@ User Function ImdF110()
 	Private nQtd 			:= 0 	//| Quantidade de Itens Marcados
 	Private cLogE			:= ""	//| Grava o Log de Incosistencia encontradas...
 	Private cLogTab		:= ""	//| Grava o Log de Incosistencia encontradas...
-	
+
 	Private lAchouERRO	:= .F.	//| Flag informando que foi encontrado inconsistencia em algum registro...
 	Private aErros			:= {}	//|
 	Private nQtdCor		:= 0  	//| Quantidade de itens Corrigidos
@@ -73,7 +74,7 @@ User Function ImdF110()
 
 	RegExec(7) //| Registra Execucao
 
-	
+
 	//IF !lTeste
 	Reset Environment
 	//EndIf
@@ -112,19 +113,19 @@ Static Function Executa()// Inicia a Execucao do Programa...
 	If nQECoCNE > 0 //|  Registros CNE Corrigidos
 		RegExec(10)
 	EndIF
-	
+
 	If nQECoDTE > 0 //|  Registros DTE Corrigidos
 		RegExec(11)
 	EndIF
-	
+
 	If nQECoINE > 0 //|  Registros INE Corrigidos
 		RegExec(12)
 	EndIF
-	
+
 	If nQECoQTD > 0 //|  Registros QTD Corrigidos
 		RegExec(13)
 	EndIF
-	
+
 	If nQECoCLI > 0 //|  Registros CLI Corrigidos
 		RegExec(14)
 	EndIF
@@ -187,7 +188,7 @@ Static Function SelRegistros()// Seleciona os Registros que devem ser atualizado
 	U_ExecMySql(cSql , "REG", "Q", lTeste )
 
 	DbSelectArea("REG"); DbGotop()
-	
+
 // VOLTAR --- RECNO E FLAGOFER CRISTIANO.
 
 Return()
@@ -222,7 +223,7 @@ Static Function ValidaZA0(nRecZA0, cQual)// Valida Registro ZA0 a Procura de Inc
 	Private lPosicSUA	:= .F.
 
 	Default cQual := Space(03)
-	
+
 	DbSelectArea("ZA0");DbGotop()
 	Dbgoto(nRecZA0)
 
@@ -235,7 +236,7 @@ Static Function ValidaZA0(nRecZA0, cQual)// Valida Registro ZA0 a Procura de Inc
 		lPosicSUA := SUA->( DbSeek( ZA0->ZA0_FILIAL + ZA0->ZA0_NUMORC, .F. ))
 		//Alert("Pesquisa Retorna : "+cValToChar(lPosicSUA))
 	EndIf
-	
+
 	If lPosicSUA
 		If ( SUA->UA_CLIENTE+SUA->UA_LOJA <> ZA0->ZA0_CLIENT + ZA0->ZA0_LOJACL )
 			cErro += "CLI " //| CLI -> Cliente Divergente
@@ -350,47 +351,47 @@ Return()
 *******************************************************************************
 Static Function SendErros()// Envia por email o log de erro..
 *******************************************************************************
-	Local cFrom 		:= "protheus@imdepa.com.br"
-	Local cTo			:= "cristiano.machado@imdepa.com.br"
-	Local cBcc			:= ""
+	Local cFrom 	:= "protheus@imdepa.com.br"
+	Local cTo		:= Alltrim( SuperGetsMv("IM_LOGF100", .F., "cristiano.machado@imdepa.com.br", Nil) )
+	Local cBcc		:= ""
 	Local cSubject	:= ""
 	Local cHtmCab	:= ""
 	Local cAttach	:= ""
 	Local cBody		:= ""
 	Local cLeg 		:= ""
-  
+
 	cHtmCab += '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">'
 	cHtmCab += '<html>'
 	cHtmCab += '<body>'
 	cHtmCab += '<style>'
-	
+
 	cHtmCab += '	table.legenda{
 	cHtmCab += 'border: 0px solid black;
 		cHtmCab += '   width :100%;
 		cHtmCab += '   text-align: left;
 		cHtmCab += '}
-	
+
 	cHtmCab += 'table.tabela{
 	cHtmCab += '   border: 2px solid black;
 		cHtmCab += '   width :100%;
 		cHtmCab += '   text-align: center;
 		cHtmCab += '}
 	cHtmCab += '</style>'
-	
+
 	cLeg 		+= " LEGENDA: " + _ENTERHTM + _ENTERHTM
 	cLeg			+= '<table class="legenda">'
 	cLeg			+= '<tr>'
 	cLeg			+= '<td>CNE</td>'
 	cLeg			+= '<td>-></td>'
-	cLeg			+= '<td>Capa do Orcamento n*o encontrado.</td>'
+	cLeg			+= '<td>Capa do Orcamento n?o encontrado.</td>'
 	cLeg			+= '</tr>'
-	
+
 	cLeg			+= '<tr>'
 	cLeg			+= '<td>DTE</td>'
 	cLeg			+= '<td>-></td>'
 	cLeg			+= '<td>Divergencia na data de necessidade do Cliente.</td>'
 	cLeg			+= '</tr>'
-	
+
 	cLeg			+= '<tr>'
 	cLeg			+= '<td>QTD</td>'
 	cLeg			+= '<td>-></td>'
@@ -406,9 +407,9 @@ Static Function SendErros()// Envia por email o log de erro..
 	cLeg 		+= _ENTERHTM + _ENTERHTM + _ENTERHTM
 
 	//cLogE += SPACE(10)+ " || --- ANALIZAR E CORRIDIR TODAS AS DIVERGENCIAS ENCONTRADAS ACIMA !!!  --- ||" + _ENTERHTM + _ENTERHTM
-	
+
 	cBody := cHtmCab + cLogE + cLeg + cLogTab + '</body></html>'
-	
+
 	If !lAchouERRO
 		RegExec(8)
 		cSubject	:= "IMDF110 - Nenhuma Inconsistencia nos Dados da Tabela ZA0"
@@ -420,11 +421,11 @@ Static Function SendErros()// Envia por email o log de erro..
 	If ( nQtdErr > nQtdCor ) //| Compara Erros Enconrados com Corrigidos ....
 		cSubject += " - Exitem ERROS nao Corrigidos !!!
 	EndIf
-	
+
 	U_EnvMyMail(cFrom,cTo,cBcc,cSubject,cBody,cAttach)	//|
-	
+
 	//ConOut("cbody:"+cBody)
-	
+
 	RegExec(6)
 
 Return()
@@ -442,20 +443,20 @@ Static Function CorrigErros(nRecZA0, cErro)//| Corrige Erros que foram encontrad
 		Return(lRetorno)
 	EndIf
 
-	//| Capa do Orcamento n*o encontrado.
+	//| Capa do Orcamento n?o encontrado.
 	If cErro == "CNE"
 
 		cSqlAux := cSqlCNE + cRecZA0 + " "
 
 		U_ExecMySQl(cSqlAux,"","E",lTeste)
-		
-		If ValCorrecao("CNE",nRecZA0) == lCorrigido // Valida Corre*ao
+
+		If ValCorrecao("CNE",nRecZA0) == lCorrigido // Valida Corre?ao
 			nQECoCNE		+=  1
 			lRetorno		:= .T.
 		Else
 			lRetorno		:= .F.
 		EndIf
-		
+
 	EndIF
 
 	//| Divergencia na data de necessidade do Cliente. " + _ENTER
@@ -464,24 +465,24 @@ Static Function CorrigErros(nRecZA0, cErro)//| Corrige Erros que foram encontrad
 		cSqlAux := cSqlDTE + cRecZA0 + " "
 
 		U_ExecMySQl(cSqlAux,"","E",lTeste)
-		
+
 		If ValCorrecao("DTE",nRecZA0) == lCorrigido
 			nQECoDTE	+= 1
 			lRetorno	:= .T.
 		Else
 			lRetorno	:= .F.
 		EndIf
-		
+
 	EndIf
 
-	//| Item do Orcamento n*o encontrado.
+	//| Item do Orcamento n?o encontrado.
 	If cErro == "INE"
 		//nQECoINE	+= 1
 	EndIF
 
 	//| Quantidade Consultada (ZA0) menor que digitada (SUB).
 	If cErro == "QTD"
-		
+
 		cSqlAux := cSqlQTD + cRecZA0 + " "
 
 		U_ExecMySQl(cSqlAux,"","E",lTeste)
@@ -523,10 +524,10 @@ Static Function ValCorrecao(cTipo,nRecZA0)// Verifica se a Correcao Funcionou...
 	DbSelectArea("ZA0")
 	DbGotop()
 	DbGoto(nRecZA0)
-	
-	
+
+
 	If cTipo == "CNE"
-	
+
 		If !( DBRecordInfo(DBRI_DELETED) )
 			Return(lNCor)
 		EndIF
@@ -540,8 +541,8 @@ Static Function ValCorrecao(cTipo,nRecZA0)// Verifica se a Correcao Funcionou...
 		Else
 			lPosicSUA := SUA->( DbSeek( ZA0->ZA0_FILIAL + ZA0->ZA0_NUMORC, .F. ))
 		EndIf
-	
-	
+
+
 		If cErro == "DTE"
 
 			DbSelectArea("SUB")
@@ -556,20 +557,20 @@ Static Function ValCorrecao(cTipo,nRecZA0)// Verifica se a Correcao Funcionou...
 	//*****
 
 		ElseIf cErro == "QTD"
-	
+
 			DbSelectArea("SUB")
 			If ( SUB->( DbSeek(ZA0->ZA0_FILIAL + ZA0->ZA0_NUMORC + ZA0->ZA0_PRODUT, .F. )) )
-		
+
 				While ( &cChaveZA. == &cChaveUB. .And. !EOF() )
 					nQuant := nQuant + SUB->UB_QUANT
 					DbSkip()
 				EndDo
-				
+
 				If ( nQuant > ZA0->ZA0_QUANTD )
 					Return(lNCor)
 				EndIf
 			EndIF
-		
+
 		ElseIf cErro == "CLI"
 
 			If ( SUA->UA_CLIENTE+SUA->UA_LOJA <> ZA0->ZA0_CLIENT + ZA0->ZA0_LOJACL )
@@ -739,7 +740,7 @@ Static Function MontaLog()
 
 	DbSelectArea("IMDF");DbGotop()
 	While !EOF()
-	
+
 		cHtmbody += "<tr>"
 	//cLog += " | "
 		cHtmbody += "<td>" + Transform(IMDF->PERIODO,"@R 9999.99")  +  "</td>" 	// Periodo AAAAMM
@@ -748,16 +749,16 @@ Static Function MontaLog()
 		cHtmbody +=	"<td>" + Transform(IMDF->ERROTOT,"@E 99,999,999,999") + "</td>" // Total de Erros Encontrados...
 		cHtmbody +=	"<td>" + Transform(IMDF->ERROCNE,"@E 99,999,999,999") + "</td>"// Erros CNE encontrados...
 		cHtmbody +=	"<td>" + Transform(IMDF->ERRODTE,"@E 99,999,999,999") + "</td>" // Erros DTE encontrados...
-	//cHtmbody +=	"<td>" + Transform(IMDF->ERROINE,"@E 99,999,999,999") + "</td>" + _ENTER	// Erros INE encontrados...	
+	//cHtmbody +=	"<td>" + Transform(IMDF->ERROINE,"@E 99,999,999,999") + "</td>" + _ENTER	// Erros INE encontrados...
 		cHtmbody +=	"<td>" + Transform(IMDF->ERROQTD,"@E 99,999,999,999") + "</td>" 	// Erros QTD encontrados...
 		cHtmbody +=	"<td>" + Transform(IMDF->ERROCLI,"@E 99,999,999,999") + "</td>" 	// Erros CLI encontrados..
 		cHtmbody +=	"<td>" + Transform(IMDF->RELTOTE,"@R 9,999.99 %") + "</td>" 	// Relacao Total Consultado / Erros encontrados... (%)
 		cHtmbody +=	"<td>" + Transform(IMDF->RELECOR,"@R 9,999.99 %") + "</td>"
 		cHtmbody +=	"</tr>"
-	
+
 		DbSelectArea("IMDF")
 		DbSkip()
-	
+
 	EndDo
 
 	cHtmbody += "</table>" + _ENTER
@@ -824,7 +825,7 @@ Static Function CriaouAbretab()
 	{	"ERROCLI" , "N", 14, 0 	} ,; // Erros CLI encontrados..
 	{	"RELTOTE" , "N",  7, 2 	} ,; // Relacao Total Consultado / Erros encontrados... (%)
 	{	"RELECOR" , "N",  7, 2 	} }	 // Relacao Total Corrigidos / Erros Encontrados... (%)
-	
+
 
 	Local aStruIndex	:= { "PERIODO" }
 
