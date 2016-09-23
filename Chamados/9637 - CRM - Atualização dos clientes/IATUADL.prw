@@ -4,8 +4,8 @@
 **---------------------------------------------------------------------------**
 ** FUNCAO : IATUADL         | AUTOR : Cristiano Machado | DATA : 22/09/2016  **
 **---------------------------------------------------------------------------**
-** DESCRICAO:                                                                **
-**                                                                           **
+** DESCRICAO: Sincroniza Entidades (Prospect e Clientes) para manter a tabela**
+**            ADL -  Controle Contato do Vendedor atualizada.                **
 **                                                                           **
 **---------------------------------------------------------------------------**
 ** USO : Especifico para o cliente                                           **
@@ -39,6 +39,8 @@ User function IATUADL( cQuem, cCli, cLoj, cTp )
 
 	If !Empty(TAlias) .And. !Empty(cCli) .And. !Empty(cLoj)
 
+		//Alert("SincADL( TAlias="+TAlias+", cCodCli="+cCodCli+", cLojaCl="+cLojaCl+", TipoOpe="+TipoOpe+")" )
+
 		SincADL( TAlias, cCodCli, cLojaCl, TipoOpe )
 
 	EndIf
@@ -47,13 +49,15 @@ User function IATUADL( cQuem, cCli, cLoj, cTp )
 *******************************************************************************
 Static Function SincADL( TAlias, cCodCli, cLojaCl, TipoOpe )
 *******************************************************************************
-	Local cPref := TAlias+"->"+Substr(TAlias,2,2)+"_" // Monta o Prefixo ex.: "SA1->A1_"
-	Local cVend :=  cPref+"VENDEXT"
-	Local cNome :=  cPref+"NOME"
-	Local cCgc  :=  cPref+"CGC"
+	Local cPref := Prefixo(TAlias)
+	Local cVend := cPref+"VENDEXT"
+	Local cNome := cPref+"NOME"
+	Local cCgc  := cPref+"CGC"
 
 	//| Apaga todos os registros da entidade....
-	Deleta( TAlias, cCodCli, cLojaCl  )
+	Deleta( &cCgc. )
+
+	//Alert( cVend + " = " + &cVend. )
 
 	If !Empty(&cVend.) .And. TipoOpe <> "E"
 
@@ -78,16 +82,27 @@ Static Function SincADL( TAlias, cCodCli, cLojaCl, TipoOpe )
 
 	Return()
 *******************************************************************************
-Static Function Deleta( TAlias, cCodCli, cLojaCl  )
+Static Function Prefixo(TAlias)
+*******************************************************************************
+Local cPrev := ""
+
+If TAlias == "SUS"
+	cPrev := "M->US_"
+ElseIf TAlias == "SA1"
+	cPrev := "SA1->A1_"
+EndIf
+
+Return(cPrev)
+*******************************************************************************
+Static Function Deleta( cCgc )
 *******************************************************************************
 
 	Local cSql 		:= ""
 
-	cSql := " Delete " + TAlias + "010 "
-	cSql += " Where ADL_CODENT = '" + cCodCli + "' "
-	cSql += " And   ADL_LOJENT = '" + cLojaCl + "' "
+	cSql := " DELETE ADL010 WHERE ADL_CGC = '" + cCgc + "' "
+	//cSql += " And   ADL_LOJENT = '" + cLojaCl + "' "
 	//cSql += " And   ADL_ENTIDA = '" + TAlias  + "' "
 
-	U_ExecMySQl( cSql , "", "E", .F.)
+	U_ExecMySQl( cSql , "E", "E", .T.)
 
 Return()

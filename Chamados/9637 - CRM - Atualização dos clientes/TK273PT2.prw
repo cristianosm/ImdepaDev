@@ -23,6 +23,7 @@
 User function TK273PT2()
 *******************************************************************************
 
+//|  CHAMADO: 9637 -> CRM - Atualização dos clientes por Vendedores
 U_IATUADL( "SA1", SA1->A1_COD, SA1->A1_LOJA )
 
 Return()
