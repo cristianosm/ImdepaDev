@@ -42,8 +42,8 @@ User Function TMK260OK()
 	Restarea(aArea)
 
 	If lRet
-		//|  CHAMADO: 9637 -> CRM - Atualização dos clientes por Vendedores
+		//|  CHAMADO: 9637 -> CRM - Atualizacao dos clientes por Vendedores
 		U_IATUADL( "SUS", M->US_COD, M->US_LOJA )
 	EndIf
 
-Return(lRet)
+Return lRet 

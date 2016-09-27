@@ -105,4 +105,4 @@ Static Function Deleta( cCgc )
 
 	U_ExecMySQl( cSql , "E", "E", .T.)
 
-Return()
+Return

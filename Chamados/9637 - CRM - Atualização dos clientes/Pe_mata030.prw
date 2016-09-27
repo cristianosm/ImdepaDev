@@ -3,7 +3,7 @@
 
 
 *******************************************************************************
-User Function M030Exc()//| APÓS CONFIRMAR A EXCLUSÃO Este P.E. será executado após o usuário confirmar a exclusão; Depois da execução do mesmo, será feita a exclusão efetiva dos dados do Cliente no arquivo.
+User Function M030Exc()//| APoS CONFIRMAR A EXCLUSAO Este P.E. sera executado apos o usuario confirmar a exclusao; Depois da execucao do mesmo, sera feita a exclusao efetiva dos dados do Cliente no arquivo.
 *******************************************************************************
 
 
@@ -11,13 +11,13 @@ Reclock("SA1",.F.)
 A1_IMDREP := "9"
 MsUnlock()
 
-//|  CHAMADO: 9637 -> CRM - Atualização dos clientes por Vendedores
+//|  CHAMADO: 9637 -> CRM - Atualizacao dos clientes por Vendedores
 U_IATUADL( "SA1", SA1->A1_COD, SA1->A1_LOJA , "D" )
 
 
 Return(.T.)
 *******************************************************************************
-User Function M030Inc() //| APÓS INCLUSÃO DO CLIENTE Este Ponto de Entrada é chamado após a inclusão dos dados do cliente no Arquivo.
+User Function M030Inc() //| APoS INCLUSao DO CLIENTE Este Ponto de Entrada e chamado apos a inclusao dos dados do cliente no Arquivo.
 *******************************************************************************
 /*
 Reclock("SA1",.f.)
@@ -25,7 +25,7 @@ A1_IMDREP := "1"
 MsUnlock()
 */
 
-//|  CHAMADO: 9637 -> CRM - Atualização dos clientes por Vendedores
+//|  CHAMADO: 9637 -> CRM - Atualizacao dos clientes por Vendedores
 U_IATUADL( "SA1", SA1->A1_COD, SA1->A1_LOJA )
 
 
@@ -40,13 +40,15 @@ MsUnlock()
 
 Return(.T.)
 *******************************************************************************
-User Function M030PALT() //| Este ponto de entrada realiza validação de usuário, após a confirmação da alteração do cliente.
+User Function M030PALT() //| Este ponto de entrada realiza validacao de usuario, apos a confirmacao da alteracao do cliente.
 *******************************************************************************
+Local lret := .T.
 
-//|  CHAMADO: 9637 -> CRM - Atualização dos clientes por Vendedores
+//|  CHAMADO: 9637 -> CRM - Atualizacao dos clientes por Vendedores
 U_IATUADL( "SA1", SA1->A1_COD, SA1->A1_LOJA )
 
-Return(.T.)
+Return lret
+
 
 /*******************************************************************************
 User Function M030del(uRet)
