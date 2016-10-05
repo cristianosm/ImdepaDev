@@ -103,6 +103,6 @@ Static Function Deleta( cCgc )
 	//cSql += " And   ADL_LOJENT = '" + cLojaCl + "' "
 	//cSql += " And   ADL_ENTIDA = '" + TAlias  + "' "
 
-	U_ExecMySQl( cSql , "E", "E", .T.)
+	U_ExecMySQl( cSql , "E", "E", .F.)
 
 Return
