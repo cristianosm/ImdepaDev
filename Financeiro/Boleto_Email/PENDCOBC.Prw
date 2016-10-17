@@ -22,19 +22,19 @@
 #Define _2VIA_SEMPRE  		1 //|  Envia email 2via para clientes que sempre devem receber. A1_2VIA = SEMPRE
 #Define _2VIA_HOJE  			2 //|  Envia email 2via para Clientes que Hoje devem receber. A1_2via = HOJE
 #Define _2VIA_GREVE  			3 //|  Envia email 2via para Clientes que possuem Banco em Greve e A1_2Via = NUNCA
-#Define _2VIA_PENDENTES 	4 //|  Envia email 2via para Clientes que estão com titulos atrasados...
+#Define _2VIA_PENDENTES 	4 //|  Envia email 2via para Clientes que estÔøΩo com titulos atrasados...
 #Define _PROCESSO_				3 //| Contem o Numero de vezes que deve ser executa o For para atender os defines _2VIA....
 
 /*
 ‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ±±…ÕÕÕÕÕÕÕÕÕÕ—ÕÕÕÕÕÕÕÕÕÕÀÕÕÕÕÕÕÕ—ÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÀÕÕÕÕÕÕ—ÕÕÕÕÕÕÕÕÕÕÕÕÕª±±
-±±∫Programa  ≥PENDCOBC  ∫Autor  ≥   AGOSTINHO LIMA   ∫ Data ≥  18/01/2011 ∫±±
+±±∫Programa  ≥PENDCOBC  ∫Autor  ≥Cristiano MAchado   ∫ Data ≥  18/01/2011 ∫±±
 ±±ÃÕÕÕÕÕÕÕÕÕÕÿÕÕÕÕÕÕÕÕÕÕ ÕÕÕÕÕÕÕœÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕ ÕÕÕÕÕÕœÕÕÕÕÕÕÕÕÕÕÕÕÕπ±±
 ±±∫Desc.     ≥GERA RELATORIO DE PENDENCIAS DE COBRANCA PARA OS CLIENTES   ∫±±
 ±±∫          ≥                                                            ∫±±
 ±±ÃÕÕÕÕÕÕÕÕÕÕÿÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕπ±±
-±±∫Uso       ≥ AP8 IMDEPA ROLAMENTOS - FINANCEIRO                         ∫±±
+±±∫Uso       ≥ AP10 Imdepa Rolamentos                                     ∫±±
 ±±»ÕÕÕÕÕÕÕÕÕÕœÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕº±±
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂ
@@ -46,8 +46,8 @@ User Function PENDCOBC()
 
 	Private cLink				:= ""
 	Private cBanco				:= ""
-	Private lmodoTeste 		:= .F.
-	Private cEmailTeste		:= "cristiano.machado@imdepa.com.br"
+	Private lmodoTeste 			:= .F.
+	Private cEmailTeste			:= "cristiano.machado@imdepa.com.br"
 	Private aParMV   				  		//| Dados em Formato Array, contem os parametros de execucao nos pendentes...
 	Private nFreq				:= 0  		//| Posicao da array do Parametro (MV_DIAPFIN) que deve ser utilizado.
 	Private aParFreq	  		:= {} 		//| Conteudo do parametro que deve ser utilizado conforme selecionado o (nFreq)
@@ -55,12 +55,12 @@ User Function PENDCOBC()
 	Private l2V_SEMPRE 		:= .F. 	//|  Envia email 2via para clientes que sempre devem receber. A1_2VIA = SEMPRE
 	Private l2V_HOJE  		:= .F.		//|  Envia email 2via para Clientes que Hoje devem receber. A1_2via = HOJE
 	Private l2V_GREVE  		:= .F. 	//|  Envia email 2via para Clientes que possuem Banco em Greve e A1_2Via = NUNCA
-	Private l2V_PENDENTES	:= .F. 	//|  Envia email 2via para Clientes que estão com titulos atrasados...
+	Private l2V_PENDENTES	:= .F. 	//|  Envia email 2via para Clientes que estÔøΩo com titulos atrasados...
 	Private aFreq				:= {3,4}	//| Informar as posicoes no Array do Parametro MV_DIAPFIN que serao usados no Modo: _2VIA_PENDENTES para avaliar as datas dos titulos em atraso
 
-	If !lmodoTeste
+	//If !lmodoTeste
 		Prepare Environment Empresa '01' Filial '09' FunName 'PENDCOBF' Tables 'SE1','SA1'
-	EndIf
+	//EndIf
 
 	aParMV   		:= SX6->(&( U_GetSx6("MV_DIAPFIN") ))  //| Dados em Formato Array, contem os parametros de execucao nos pendentes...
 
@@ -91,6 +91,8 @@ User Function PENDCOBC()
 	If !lmodoTeste
 		Reset Environment
 	EndIf
+
+ALERT("FIM-PENDCOBC")
 
 Return()
 *******************************************************************************
@@ -167,6 +169,8 @@ Static Function DisparaQuery()// Executa a Query para obter os clientes que deve
 	cQuery += "	AND   E1.E1_LOJA     = A1.A1_LOJA "
 
 	cQuery += "	WHERE E1_FILIAL      = ' ' "
+	cQuery += "	AND A1.D_E_L_E_T_    = ' ' "
+	cQuery += " AND E1.D_E_L_E_T_ 	 = ' ' "
 
 	cQuery += cFiltro
 
@@ -190,35 +194,32 @@ Static Function Filtro()// Filtro utilizado no where da query Conforme tipo exec
 	If  l2V_SEMPRE 	//|  Envia email 2via para clientes que sempre devem receber. A1_2VIA = SEMPRE
 
 		cFiltro += "   AND   A1.A1_RECBOLE  = 'S' "
+		cFiltro += "   AND   E1.E1_EMISSAO  < '"+cDthoje+"' "
+		cFiltro += "   AND   E1.E1_VENCREA  > '"+cDthoje+"' "
+		cFiltro += "   AND   E1.E1_DEMACOB  = ' ' "
 
 	ElseIf l2V_HOJE 	//|  Envia email 2via para Clientes que Hoje devem receber. A1_2via = HOJE
 
 		cFiltro += "   AND   A1.A1_RECBOLE  = 'H' "
+		cFiltro += "   AND   E1.E1_VENCREA  >= '"+cDthoje+"' "
+		cFiltro += "   AND   E1.E1_DEMACOB  <  '"+cDthoje+"' "
 
 	ElseIf l2V_GREVE	//|  Envia email 2via para Clientes que possuem Banco em Greve e A1_2Via =	 NUNCA
 
 		cPortadores 	:= BancosGreve() // Obtem os Bancos que estao em greve....
 		cFiltro += "   AND   E1.E1_PORTADO  IN("+cPortadores+")"
+		cFiltro += "   AND   E1.E1_VENCREA  >= '"+cDthoje+"' "
+		cFiltro += "   AND   E1.E1_DEMACOB  = ' ' "
 
 	EndIf
 
-	If l2V_PENDENTES	//|  Envia email 2via para Clientes que estão com titulos atrasados...
+	If l2V_PENDENTES	//|  Envia email 2via para Clientes que estao com titulos atrasados...
 
-		cDtVencNova	:= Dtos( dDatabase - Val(aParFreq[_DIASI]) )
+		cDtVencNova		:= Dtos( dDatabase - Val(aParFreq[_DIASI]) )
 		cDtVencVelha	:= Dtos( dDatabase - Val(aParFreq[_DIASF]) )
 
 		cFiltro += "   AND   E1.E1_VENCREA     BETWEEN  '"+cDtVencVelha+"' AND  '"+cDtVencNova+"' "
 		cFiltro += "   AND   E1.E1_DEMACOB    <  '"+cDtVencVelha+"' "
-
-	ElseIf  l2V_HOJE // em dia....
-
-		cFiltro += "   AND   E1.E1_VENCREA   < '"+cDthoje+"' "
-		cFiltro += "   AND   E1.E1_DEMACOB   < '"+cDthoje+"' "
-
-	Else
-
-		cFiltro += "   AND   E1.E1_VENCREA   < '"+cDthoje+"' "
-		cFiltro += "   AND   E1.E1_DEMACOB  = ' ' "
 
 	EndIf
 
@@ -227,7 +228,7 @@ Static Function Filtro()// Filtro utilizado no where da query Conforme tipo exec
 	cFiltro += "   AND   E1.E1_OCORREN  		> ' ' "
 	cFiltro += "   AND   E1.E1_DATABOR  		> ' ' "
 	cFiltro += "   AND   E1.E1_TIPO       IN  " + cTipoAtraso +  " "
-	cFiltro += "   AND   E1.D_E_L_E_T_ 	 = ' ' "
+
 
 
 Return(cFiltro)
@@ -235,20 +236,20 @@ Return(cFiltro)
 Static Function 	ProcessaDados() // Processa os Dados obtido na Query....
 *******************************************************************************
 
-	Private 	lEnvCli				:= SX6->( U_GetSx6("MV_ENVPCLI") )//
-	Private 	cNomeCli 			:= AllTrim(PEND1->E1_NOMCLI)
-	Private 	cFone					:= AllTrim("("+RIGHT(AllTrim(PEND1->A1_DDD),2)+") "+PEND1->A1_TEL)
-	Private 	cTabCodLj 			:= "PEND1->E1_CLIENTE+PEND1->E1_LOJA"
+	Private 	lEnvCli			:= SX6->( U_GetSx6("MV_ENVPCLI") )//
+	Private 	cNomeCli 		:= AllTrim(PEND1->E1_NOMCLI)
+	Private 	cFone			:= AllTrim("("+RIGHT(AllTrim(PEND1->A1_DDD),2)+") "+PEND1->A1_TEL)
+	Private 	cTabCodLj 		:= "PEND1->E1_CLIENTE+PEND1->E1_LOJA"
 	Private 	cGetMailCli		:= "IF(!Empty(PEND1->A1_MAILFIN),AllTrim(PEND1->A1_MAILFIN),IF(!Empty(PEND1->A1_MAILNFE),AllTrim(PEND1->A1_MAILNFE),AllTrim(PEND1->A1_EMAIL)))"
-	Private 	cHtml     			:= ""
-	Private 	cHtmlCab				:= ""
-	Private 	cHtmldet				:= ""
-	Private 	cHtmlRod				:= ""
-	Private 	cCgc 					:= PEND1->A1_CGC //AllTrim(Transform(PEND1->A1_CGC,LEFT(PicPes(PEND1->A1_PESSOA),LEN(PicPes(PEND1->A1_PESSOA))-2)))
-	Private 	cEMailcli 			:= ""				// Salva o email do cliente para posterior envio
+	Private 	cHtml     		:= ""
+	Private 	cHtmlCab		:= ""
+	Private 	cHtmldet		:= ""
+	Private 	cHtmlRod		:= ""
+	Private 	cCgc 			:= PEND1->A1_CGC //AllTrim(Transform(PEND1->A1_CGC,LEFT(PicPes(PEND1->A1_PESSOA),LEN(PicPes(PEND1->A1_PESSOA))-2)))
+	Private 	cEMailcli 		:= ""				// Salva o email do cliente para posterior envio
 	Private	cCorLin				:= "White" 	// Cor que vai ser utilizada na Linha...
-	Private 	nTotalCli			:= 0					// Armazena saldo total do cliente....
-	Private 	aMarkTitCl			:= {} 				// Array com Titulos que devem ser Marcados como enviados aos clientes...
+	Private 	nTotalCli		:= 0					// Armazena saldo total do cliente....
+	Private 	aMarkTitCl		:= {} 				// Array com Titulos que devem ser Marcados como enviados aos clientes...
 
 	DbSelectArea("PEND1");DbGotop()
 	While !( Eof() )
@@ -292,9 +293,9 @@ Static Function 	ProcessaDados() // Processa os Dados obtido na Query....
 		// Monta Html e Envia email...
 		If !Empty(cEMailcli) .And. lEnvCli
 
-			cHtmlCli := MontaHtml("CAB")  //|  Montas Html de Cabeçalho...
+			cHtmlCli := MontaHtml("CAB")  //|  Montas Html de Cabecalho...
 			cHtmlCli += cHtmlCab + cHtmldet + cHtmlRod//cHtml
-			cHtmlCli += MontaHtml("ROD")  //|  Montas Html de Cabeçalho...
+			cHtmlCli += MontaHtml("ROD")  //|  Montas Html de Cabecalho...
 
 			SendMail() // Envia o Email ao Cliente...
 
@@ -419,8 +420,12 @@ Static Function MontaHtml(cQuem) // Monta o Html Conforme parametros..
 
 		cHtmAux += '<pre width="800"><font face= "Arial" ><b>CNPJ Cedente: 88613922001278 - Imdepa Rolamentos.</b></font></pre>'
 		cHtmAux += '<pre width="800"><font face= "verdana" color="red"><b>SE O PAGAMENTO J&Aacute; FOI EFETUADO, FAVOR DESCONSIDERAR ESTE E-MAIL.</b></font></pre><br><br>'
+
+		cHtmAux += '<pre width="800"><p><font face= "verdana" color="blue">***AP&Oacute;S 5 DIAS CORRIDOS DO VENCIMENTO, O ENVIO DO BOLETO PARA CART&Oacute;RIO &Eacute; AUTOMATICO***</font><br>'
+
 		cHtmAux += '<pre width="800"><p><font face="Arial">Em caso de necessidade de segunda via de boleto, favor </font><font face= "verdana" color="blue">&nbsp;CLICAR NO NOME DO BANCO</font><font face="Arial">.<br><br>'
-		cHtmAux += 'Se preferir, solicitar a Segunda Via no email boletos@imdepa.com.br ou &nbsp; entre em contato pelo telefone: (51) 2121-0025</font>.</pre>'
+		cHtmAux += 'Se preferir, solicitar a Segunda Via no email boletos@imdepa.com.br ou &nbsp; entre em contato pelo telefone: (51) 2121-0025.<br><br>
+		cHtmAux += 'BOLETOS &Aacute; VENCER OU COM VENCIMENTO NO DIA, FAVOR SOLICITAR PARA A FILIAL DA COMPRA, DIRETO COM O SEU VENDEDOR</font>.</pre>'
 		cHtmAux += '<br>'
 		cHtmAux += '<pre width="800"><font face="Arial">Atenciosamente,</pre>'
 		cHtmAux += '<pre width="800">Imdepa Rolamentos<br><br>'
@@ -435,7 +440,7 @@ Return( cHtmAux )
 Static Function ObtemLink(cLink, cBanco)// Obtem Link e Banco  Conforme o Banco...
 *******************************************************************************
 	Local aLink  := {}
-	Local cPar		:= ( SX6->(U_GetSx6("MV_LINK"+PEND1->E1_PORTADO,""," ")) )
+	Local cPar	 :=  SuperGetMV("MV_LINK"+PEND1->E1_PORTADO, .F., "{'http://www.imdepa.com.br/','Contate a Imdepa'}", Nil ) //( SX6->(U_GetSx6("MV_LINK"+PEND1->E1_PORTADO,""," ")) )
 
 	//Alert("cLink: " + cLink + " cBanco: " + cBanco + " cPar: " + cPar )
 
@@ -459,7 +464,7 @@ Static Function SendMail() // Envia o Email ao Cliente...
 	Local cFrom 			:= _EMAILBOL
 	Local cTo				:= cEMailcli
 	Local cCopia    	:= SX6->(U_GetSx6("MV_ECONTTI"))
-	Local cBcc				:= ""
+	Local cBcc				:= cCopia
 	Local cSubject		:= ""
 	Local cBody			:= cHtmlCli
 	Local cAttach		:= ""
@@ -472,7 +477,7 @@ Static Function SendMail() // Envia o Email ao Cliente...
 	Case l2V_HOJE
 		cSubject		:= "Boleto Solicitado"
 	Case l2V_GREVE
-		cSubject		:= "Boleto Devido a Greve"
+		cSubject		:= "Segunda via Boleto"
 	Case l2V_PENDENTES
 		cSubject		:= "Pendencias Financeiras"
 	End Do
@@ -496,7 +501,7 @@ Static Function SendMail() // Envia o Email ao Cliente...
 
 Return()
 *******************************************************************************
-Static Function MarcaTitulos()// Marca os Titulos Enviados aos clientes Por alguma Razão
+Static Function MarcaTitulos()// Marca os Titulos Enviados aos clientes Por alguma RazÔøΩo
 *******************************************************************************
 
 	Local	cUpdate := ""
@@ -513,9 +518,11 @@ Static Function MarcaTitulos()// Marca os Titulos Enviados aos clientes Por algu
 		cUpdate 	+= " E1_PARCELA =  '"	 					+ aMarkTitCl[N][6] + "' And "
 		cUpdate 	+= " D_E_L_E_T_ =  ' ' "
 
-		U_ExecMySql(cUpdate,"","E",.F.)
+		if !lmodoTeste
+			U_ExecMySql(cUpdate,"","E",lmodoTeste)
+		EndIf
 
-	 	// Desmarca em os Cliente nas execuções ... Apenas Hoje...
+	 	// Desmarca em os Cliente nas execucoes ... Apenas Hoje...
 		If  l2V_HOJE //
 			cUpdate	:= "Update "
 			cUpdate 	+= "SA1010 Set A1_RECBOLE = 'N' "
@@ -524,7 +531,7 @@ Static Function MarcaTitulos()// Marca os Titulos Enviados aos clientes Por algu
 			cUpdate 	+= " A1_COD||A1_LOJA  =  '"	+ aMarkTitCl[N][3] + "' And "
 			cUpdate 	+= " D_E_L_E_T_ =  ' ' "
 
-			U_ExecMySql(cUpdate,"","E",.F.)
+			U_ExecMySql(cUpdate,"","E",lmodoTeste)
 
 		EndIf
 
