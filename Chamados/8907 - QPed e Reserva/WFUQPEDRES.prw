@@ -45,7 +45,7 @@ U_EnvMyMail('protheus@imdepa.com.br','cristiano.machado@imdepa.com.br','','AJUST
 U_EnvMyMail('protheus@imdepa.com.br','edivaldo@imdepa.com.br','','AJUSTE B2_QPEDVEN e B2_RESERVA', _ENTER + _ENTER + "Foram Atualizados " + cValToChar(nReg) + ' Registros... ','',.F.)//| U_EnvMyMail(De, Para, Copia, Assunto, Corpo, Anexo )
 
 RESET ENVIRONMENT
-
+//atual
 
 Return()
 *******************************************************************************
