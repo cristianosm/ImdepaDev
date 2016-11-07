@@ -85,8 +85,8 @@ Static Function ObtDados()//| Obtem Dados do Relatorio em Tabela Auxiliar
 	cSql += "      END PRIORIDADE, "
 	cSql += "      AD8_PERC COMPLETO, "
 	cSql += "      CASE  "
-	cSql += "        WHEN AD8_CODCLI > ' ' THEN AD8_CODCLI || ' ' || AD8_LOJCLI "
-	cSql += "        WHEN AD8_PROSPE > ' ' THEN AD8_PROSPE || ' ' || AD8_LOJPRO "
+	cSql += "        WHEN AD8_CODCLI > ' ' THEN 'C:' || AD8_CODCLI || '.' || AD8_LOJCLI || '-' || SA1.A1_NOME "
+	cSql += "        WHEN AD8_PROSPE > ' ' THEN 'P:' || AD8_PROSPE || '.' || AD8_LOJPRO || '-' || SUS.US_NOME "
 	cSql += "        ELSE 'NAO INFORMADO' "
 	cSql += "      END ENTIDADE, "
 	cSql += "      NVL(AD8_COMENTARIO, ' ') COMENTARIO "
@@ -98,6 +98,14 @@ Static Function ObtDados()//| Obtem Dados do Relatorio em Tabela Auxiliar
 	cSql += "      WHERE D_E_L_E_T_ = ' ' "
 	cSql += "      GROUP BY YP_CHAVE) COM "
 	cSql += "ON  AD8.AD8_CODMEM = COM.YP_CHAVE "
+
+	cSql += "	LEFT JOIN SA1010 SA1 "
+	cSql += "ON  AD8_CODCLI = SA1.A1_COD "
+	cSql += "AND AD8_LOJCLI = SA1.A1_LOJA "
+
+	cSql += "   LEFT JOIN SUS010 SUS "
+	cSql += "ON  AD8.AD8_PROSPE = SUS.US_COD "
+	cSql += "AND AD8.AD8_LOJPRO = SUS.US_LOJA "
 	//cSql += "      SA3010 SA3 "
 
 	cSql += "WHERE AD8.D_E_L_E_T_ = ' ' "
@@ -116,6 +124,11 @@ Static Function ObtDados()//| Obtem Dados do Relatorio em Tabela Auxiliar
 	If !Empty(cValToChar(DtoS(MV_PAR05))) .And. !Empty(cValToChar(DtoS(MV_PAR06)))
 		cSql += "AND AD8.AD8_DTREMI BETWEEN '"+DtoS(MV_PAR05)+"' AND '"+DtoS(MV_PAR06)+"' "
 	EndIF
+
+	cSql += "AND AD8.AD8_CODCLI BETWEEN '"+(MV_PAR07)+"' AND '"+(MV_PAR08)+"' "
+	cSql += "AND AD8.AD8_PROSPE BETWEEN '"+(MV_PAR09)+"' AND '"+(MV_PAR10)+"' "
+
+
 	cSql += "AND AD8.AD8_CODUSR = '"+SA3->A3_CODUSR+"' "
 	//cSql += "AND SA3.A3_COD = '"+SA3->A3_CODUSR+"' "
 	//cSql += "AND SA3.D_E_L_E_T_ = ' ' "
