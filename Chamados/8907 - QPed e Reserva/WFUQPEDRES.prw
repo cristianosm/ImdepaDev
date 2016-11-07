@@ -29,6 +29,7 @@ PREPARE ENVIRONMENT EMPRESA cEmp FILIAL cFil FUNNAME 'WFUQPEDRES'  TABLES 'SM0',
 Private lTest := .F.
 Private lShow := .F.
 Private nReg  :=  0
+Private cLog  := _ENTER + _ENTER
 
 conout( 'WFUQPEDRES - INICIANDO                                     ' + dToc(dDataBase) + ' ' + time() )
 
@@ -41,7 +42,7 @@ ExecUpdate()
 
 conout( 'WFUQPEDRES - FINALIZADO                                    ' + dToc(dDataBase) + ' ' + time() )
 
-U_EnvMyMail('protheus@imdepa.com.br','cristiano.machado@imdepa.com.br','','AJUSTE B2_QPEDVEN e B2_RESERVA', _ENTER + _ENTER + "Foram Atualizados " + cValToChar(nReg) + ' Registros... ','',.F.)//| U_EnvMyMail(De, Para, Copia, Assunto, Corpo, Anexo )
+U_EnvMyMail('protheus@imdepa.com.br','cristiano.machado@imdepa.com.br','','AJUSTE B2_QPEDVEN e B2_RESERVA ', _ENTER + _ENTER + "Foram Atualizados " + cValToChar(nReg) + ' Registros...' + _ENTER + _ENTER + cLog,.F.)//| U_EnvMyMail(De, Para, Copia, Assunto, Corpo, Anexo )
 U_EnvMyMail('protheus@imdepa.com.br','edivaldo@imdepa.com.br','','AJUSTE B2_QPEDVEN e B2_RESERVA', _ENTER + _ENTER + "Foram Atualizados " + cValToChar(nReg) + ' Registros... ','',.F.)//| U_EnvMyMail(De, Para, Copia, Assunto, Corpo, Anexo )
 
 RESET ENVIRONMENT
@@ -188,7 +189,9 @@ While !EOF()
 
 
 	conout( 'WFUQPEDRES - Update abaixo:                                ' + dToc(dDataBase) + ' ' + time() )
-	conout( Alltrim(QPR->AJUSTE) + ";")
+	conout( 'WFUQPEDRES - '+Alltrim(QPR->AJUSTE) + ";")
+	
+	cLog += Alltrim(QPR->AJUSTE) + _ENTER
 
 	U_ExecMySql( Alltrim(QPR->AJUSTE) , '' , "E", lShow, .F. )
 
