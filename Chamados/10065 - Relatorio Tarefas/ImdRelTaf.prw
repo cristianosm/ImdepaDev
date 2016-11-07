@@ -1,5 +1,5 @@
 #Include 'Totvs.ch'
-#Include "Protheus.ch" 
+#Include "Protheus.ch"
 
 
 #Define _NORMAL 1 //1->Normal Opções de exibição da janela da aplicação executada:
@@ -25,7 +25,7 @@ User function ImdRelTaf()
 	Private oProcess 	:= Nil
 
 
-	If !Valida()//| Valida se a Execucao e possivel 
+	If !Valida()//| Valida se a Execucao e possivel
 		Return()
 	EndIF
 
@@ -38,36 +38,36 @@ User function ImdRelTaf()
 	oProcess := MsNewProcess():New( {|lEnd| ExpDados(@oProcess, @lEnd)} , "Exportando Resultado... ", "", .T. )
 	oProcess:Activate()
 //| Exporta os Dados para CSV
-	
+
 Return()
 *******************************************************************************
 Static Function Valida()//| Valida se a Execucao e possivel
 *******************************************************************************
  Local lVal := .T.
-   
+
    Pergunte( "IRELTF"   , .T. ) // Parametros do Relatorio
-   
+
    If Type("MV_PAR03") == "A"
    	 lVal := .F.
    EndIf
    If Empty(SA3->A3_CODUSR)
    	 lVal := .F.
-   	 Iw_MsgBox("Vendedor sem Codigo de Usuario relacionado ao seu Cadastro !!!","Cadastro de Vendedores","ALERT")   	 
+   	 Iw_MsgBox("Vendedor sem Codigo de Usuario relacionado ao seu Cadastro !!!","Cadastro de Vendedores","ALERT")
    EndIf
 
 Return(lVal)
 *******************************************************************************
 Static Function PreparaVar()//| Prepara/Inicializa Todas as Variaveis Utilizadas
 *******************************************************************************
-            
+
   _SetOwnerPrvt( 'cTab'		, "TREP"	) //| Nome da Tabela auxiliar resultado da Query |
-  _SetOwnerPrvt( 'lShowSql' , .F.		) //| Se mostra o SQL antes de envio ao Banco |
-  
-Return() 
+  _SetOwnerPrvt( 'lShowSql' , .T.		) //| Se mostra o SQL antes de envio ao Banco |
+
+Return()
 *******************************************************************************
 Static Function ObtDados()//| Obtem Dados do Relatorio em Tabela Auxiliar
 *******************************************************************************
-	Local cSql := "" 
+	Local cSql := ""
 
 	cSql += "SELECT AD8_TAREFA TAREFA,AD8_TOPICO ASSUNTO,AD8_NROPOR OPORTUNIDADE,AD8_DTINI INICIO,AD8_DTFIM TERMINO,AD8_DTREMI LEMBRETE, "
 	cSql += "      CASE  "
@@ -85,33 +85,43 @@ Static Function ObtDados()//| Obtem Dados do Relatorio em Tabela Auxiliar
 	cSql += "      END PRIORIDADE, "
 	cSql += "      AD8_PERC COMPLETO, "
 	cSql += "      CASE  "
-	cSql += "        WHEN AD8_CODCLI > ' ' THEN AD8_CODCLI || ' ' || AD8_LOJCLI " 
+	cSql += "        WHEN AD8_CODCLI > ' ' THEN AD8_CODCLI || ' ' || AD8_LOJCLI "
 	cSql += "        WHEN AD8_PROSPE > ' ' THEN AD8_PROSPE || ' ' || AD8_LOJPRO "
-	cSql += "        ELSE 'NAO INFORMADO' "       
+	cSql += "        ELSE 'NAO INFORMADO' "
 	cSql += "      END ENTIDADE, "
-	cSql += "      AD8_COMENTARIO COMENTARIO "
-     	
-	cSql += "FROM AD8010 AD8, "
-	cSql += "    ( SELECT YP_CHAVE, LISTAGG(REPLACE(TRIM(YP_TEXTO),'\13\10',' '), ' ') " 
+	cSql += "      NVL(AD8_COMENTARIO, ' ') COMENTARIO "
+
+	cSql += "FROM AD8010 AD8 LEFT JOIN "
+	cSql += "    ( SELECT YP_CHAVE, LISTAGG(REPLACE(TRIM(YP_TEXTO),'\13\10',' '), ' ') "
 	cSql += "      WITHIN GROUP (ORDER BY YP_SEQ) AD8_COMENTARIO "
 	cSql += "      FROM SYP010  "
 	cSql += "      WHERE D_E_L_E_T_ = ' ' "
 	cSql += "      GROUP BY YP_CHAVE) COM "
+	cSql += "ON  AD8.AD8_CODMEM = COM.YP_CHAVE "
 	//cSql += "      SA3010 SA3 "
 
 	cSql += "WHERE AD8.D_E_L_E_T_ = ' ' "
-	cSql += "AND AD8.AD8_DTINI >= '"+DtoS(MV_PAR01)+"' "
-	cSql += "AND AD8.AD8_DTFIM <= '"+DtoS(MV_PAR02)+"' "
-	cSql += "AND AD8.AD8_STATUS IN ("+PVV(MV_PAR03)+") "
-	cSql += "AND AD8.AD8_PRIOR  IN ("+PVV(MV_PAR04)+") "
-	cSql += "AND AD8.AD8_DTREMI BETWEEN '"+DtoS(MV_PAR05)+"' AND '"+DtoS(MV_PAR06)+"' "	
-
+	If !Empty(cValToChar(DtoS(MV_PAR01)))
+		cSql += "AND AD8.AD8_DTINI >= '"+DtoS(MV_PAR01)+"' "
+	EndIF
+	If !Empty(cValToChar(DtoS(MV_PAR02)))
+		cSql += "AND AD8.AD8_DTFIM <= '"+DtoS(MV_PAR02)+"' "
+	EndIf
+	If !Empty(MV_PAR03)
+		cSql += "AND AD8.AD8_STATUS IN ("+PVV(MV_PAR03)+") "
+	EndIf
+	If !Empty(MV_PAR04)
+		cSql += "AND AD8.AD8_PRIOR  IN ("+PVV(MV_PAR04)+") "
+	EndIf
+	If !Empty(cValToChar(DtoS(MV_PAR05))) .And. !Empty(cValToChar(DtoS(MV_PAR06)))
+		cSql += "AND AD8.AD8_DTREMI BETWEEN '"+DtoS(MV_PAR05)+"' AND '"+DtoS(MV_PAR06)+"' "
+	EndIF
 	cSql += "AND AD8.AD8_CODUSR = '"+SA3->A3_CODUSR+"' "
 	//cSql += "AND SA3.A3_COD = '"+SA3->A3_CODUSR+"' "
 	//cSql += "AND SA3.D_E_L_E_T_ = ' ' "
 
-	cSql += "AND AD8.AD8_CODMEM = COM.YP_CHAVE "
-	
+	//cSql += "AND AD8.AD8_CODMEM = COM.YP_CHAVE "
+
 	cSql += "ORDER BY AD8.AD8_TAREFA "
 
 	U_ExecMySql(cSql, cTab    , "Q"  , lShowSql, .F. )
@@ -119,36 +129,36 @@ Static Function ObtDados()//| Obtem Dados do Relatorio em Tabela Auxiliar
 	TCSetField ( cTab, "INICIO"  , "D", 8, 0 )
 	TCSetField ( cTab, "TERMINO" , "D", 8, 0 )
 	TCSetField ( cTab, "LEMBRETE", "D", 8, 0 )
-				
+
 Return()
 *******************************************************************************
 Static Function ExpDados()//| Exporta os Dados para CSV
 *******************************************************************************
-	
+
 	Local lHeader			:= .T.
 	Local aArrayTab			:= {}
-	
+
 	Local cDelimitador		:= ';'
 	Local cPath				:= GetTempPath()
-	
+
 	Local cFileOK			:= ''
 	Local cDrive			:= Nil
 	Local cDir				:= Nil
 	Local cNome				:= Nil
 	Local cExt				:= Nil
-	
+
 	aArrayTab 	:= U_TabToArray( cTab, lHeader )
 	cFileOK		:= U_ArrayToFCsv( aArrayTab , cPath, cNome, cDelimitador )
-	
+
 	SplitPath( cFileOK, @cDrive, @cDir, @cNome, @cExt )
-	
+
 	ShellExecute("Open", cFileOK, "", cDrive+cDir , _NORMAL )
 
 Return()
 *******************************************************************************
-Static Function PVV(cConteudo)//| Converte Separador ; para , 
+Static Function PVV(cConteudo)//| Converte Separador ; para ,
 *******************************************************************************
-	 
+
 	cConteudo := StrTran(cConteudo,';',',')+'0'
-	
+
 Return(cConteudo)
