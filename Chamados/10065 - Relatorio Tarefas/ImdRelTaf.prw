@@ -61,7 +61,7 @@ Static Function PreparaVar()//| Prepara/Inicializa Todas as Variaveis Utilizadas
 *******************************************************************************
 
   _SetOwnerPrvt( 'cTab'		, "TREP"	) //| Nome da Tabela auxiliar resultado da Query |
-  _SetOwnerPrvt( 'lShowSql' , .T.		) //| Se mostra o SQL antes de envio ao Banco |
+  _SetOwnerPrvt( 'lShowSql' , .F.		) //| Se mostra o SQL antes de envio ao Banco |
 
 Return()
 *******************************************************************************
