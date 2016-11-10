@@ -47,17 +47,19 @@ Local nPosition	:= ALLALIGN
 Local lClosable := .F.
 Local lMovable  := .T.
 Local lFoatable := .T.
-
+Local cIniCpos  := "+ITEM" 
 // Objetos
 Local oDlgIli
 Local oMainDock
 Local oWindowDock
 
-Local aAltCpo 	:= {"ITEM","PRODUTO","QUANT" } 	//Variavel contendo o campo editavel no Grid
+Local aAltCpo 	:= {"PRODUTO","QUANT" } 	//Variavel contendo o campo editavel no Grid
 Local aBotoes	:= {}         					//Variavel onde sera incluido o botao para a legenda
 
 Local  aHeaderL := {}        				 	//Variavel que montara o aHeader do Grid
 Local  aColsL 	:= {}        					//Variavel que recebera os dados do Acols
+
+Local bChanged := NIL //{||oBrowseN:aCols[oBrowseN:nAt][1] := StrZero(oBrowseN:nAt,2)}
 
 Private  oBrowseL := Nil     					//Declarando o objeto do browser Lista
 
@@ -73,7 +75,7 @@ DEFINE MSDIALOG oDlgIli TITLE "Inserir Produtos em Lista" FROM 000, 000  TO 250,
 	oWindowDock := TWindowDock():New(nRow,nCol,nWidth,nHeight+20, cText, oDlgIli, lFloat, nPosition, lClosable, lMovable, lFoatable ) 
 
 	//Monta o browser com inclusao, remocao e atualizacao
-	oBrowseN := MsNewGetDados():New(nRow,nCol,nHeight,nWidth,(GD_INSERT+GD_DELETE+GD_UPDATE),'AllwaysTrue()','AllwaysTrue()','', aAltCpo ,000,999,'AllwaysTrue()','','AllwaysTrue()',oWindowDock,aHeaderL,aColsL )
+	oBrowseN := MsNewGetDados():New(nRow,nCol,nHeight,nWidth,(GD_INSERT+GD_DELETE+GD_UPDATE),'AllwaysTrue()','AllwaysTrue()',cIniCpos, aAltCpo ,000,999,'AllwaysTrue()','','AllwaysTrue()',oWindowDock,aHeaderL,aColsL,bChanged )
 
 	//Alinho o grid para ocupar todo o meu formulario
 	oBrowseN:oBrowse:Align := CONTROL_ALIGN_ALLCLIENT
@@ -103,8 +105,8 @@ Static Function IniaColsL(aColsL, aHeaderL) //| Funcao que cria a estrutura Acol
 
 	aColsL := { Array(nTHead + 1) }
     
-	aColsL[1][nCpo] 			:=  "01" 		; nCpo += 1	//CriaVar(aHeaderL[nCpo,2]) ; nCpo += 1
-	aColsL[1][nCpo] 			:=  SPACE(15)	; nCpo += 1 //CriaVar(aHeaderL[nCpo,2]) ; nCpo += 1
+	aColsL[1][nCpo] 			:=  "01"   		; nCpo += 1	//CriaVar(aHeaderL[nCpo,2]) ; nCpo += 1
+	aColsL[1][nCpo] 			:=  Space(15)	; nCpo += 1 //CriaVar(aHeaderL[nCpo,2]) ; nCpo += 1
 	aColsL[1][nCpo] 			:=  0			; nCpo += 1 //CriaVar(aHeaderL[nCpo,2]) ; nCpo += 1
 	aColsL[1][nTHead + 1] 	:= .F.
 
@@ -115,11 +117,16 @@ Static Function X3CpoHeader(cCampo)// Obtem estrutura do Header baseado no campo
 	Local aAreaAnt := GetArea()
 	Local aAreaSx3 := SX3->( GetArea() )
 	Local aAuxiliar := {}
-
+	Local cValidacao := ""
 	DbSelectArea("SX3");DbSetOrder(2)
 
 	If DbSeek(cCampo,.F.)
-		aAuxiliar := { Trim(x3_titulo), SUBSTR(x3_campo,4) , x3_picture, x3_tamanho, x3_decimal, "AllwaysTrue()", " " /*x3_usado*/, x3_tipo, x3_f3, " " /*x3_context*/ }
+		If Alltrim(cCampo) == "UB_PRODUTO"
+			cValidacao :=  "ExistCpo('SB1', M->PRODUTO, 1)"
+		Else
+			cValidacao := "AllwaysTrue()"
+		EndIf
+		aAuxiliar := { Trim(x3_titulo), SUBSTR(x3_campo,4) , x3_picture, x3_tamanho, x3_decimal, cValidacao, " " /*x3_usado*/, x3_tipo, x3_f3, " " /*x3_context*/ }
 	EndIf
 
 	RestArea(aAreaSx3)
