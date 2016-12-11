@@ -2,8 +2,8 @@
 #include 'parmtype.ch'
 #Include "Tbiconn.ch"
 
-#Define  ORD_NAME  1
-#Define  ENTER   CHR(13)+CHR(10)
+#Define  ORD_NAME  	1
+#Define  ENTER   	CHR(13)+CHR(10)
 
 /// estrutura csv
 /*
@@ -35,8 +35,6 @@
 #Define F_PRODUTO	 11
 #Define F_QUANT	 	 12
 #Define F_VALOR	 	 13
-
-
 
 #Define CANO       '2017'
 
@@ -95,6 +93,10 @@ Static Function TelaPar(aFiles) // Tela com Diretorio dos arquivos para carga do
 Static Function Executa(aFiles) // Executa a importacao dos arquivos
 	*********************************************************************
 
+    conout(" METAS - Limpando Periodo: " + CANO )
+
+	CleanPeriodo()
+
 	For nF := 1 To Len(aFiles)
 
 		LeCsv(cDircsv+aFiles[nF][1], aFiles[nF][2])
@@ -147,8 +149,6 @@ Static Function ImpFile(nHdl, cFile, nTamFile)
 
 
 	conout(" METAS - Iniciando File: " + cFile )
-    conout(" METAS - Limpando Periodo: " + CANO )
-	CleanPeriodo()
 
 	nNewRec := HowRecno() // Recno a ser utilizado...
 
@@ -266,7 +266,11 @@ Static Function ContDocSeq(aLin)
 //	cSEQUEN
 
 	//| Incrementa a Sequencia por padrao...
-	cSequen := soma1(cSequen)
+	if cSequen == 'ZZZ'
+		cSequen := '001'
+	Else
+		cSequen := soma1(cSequen)
+	EndIf
 
 	//| Troca de Filial...
 	If aLin[F_FILIAL] <> cFilAtu
@@ -318,5 +322,3 @@ Return(cDescri)
 Static Function toc(cval) // Converte para caracter qualquer tipo de variavel
 *********************************************************************
 Return( cValToChar(cval) )
-
-
