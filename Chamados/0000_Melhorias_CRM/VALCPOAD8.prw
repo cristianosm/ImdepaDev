@@ -10,8 +10,8 @@
 **---------------------------------------------------------------------------**
 ** FUNÇÃO   : F3AC8CRM    | AUTOR : Cristiano Machado  | DATA : 15/12/2016   **
 **---------------------------------------------------------------------------**
-** DESCRIÇÃO: Monta a Pesquisa F3 para o Campo AD8->AD8_CONTATO devido a     **
-**          : necessidade de regras especificas e multi tabelas .            **
+** DESCRIÇÃO: Valida Data e Hora do lembrete, usado nas tarefas do vendedor  **
+**          : tabela AD8.(CRM)                                               **
 **---------------------------------------------------------------------------**
 ** USO      : Especifico para o cliente Imdepa Rolamentos                    **
 **---------------------------------------------------------------------------**
