@@ -55,7 +55,7 @@
 
 *********************************************************************
 User Function ImpMetasFla()
-	*********************************************************************
+*********************************************************************
 
 	Local   aFiles 	:= {} // Ira creceber os arquivos contidos no diretorio
 	Private cDircsv := ""
@@ -72,10 +72,10 @@ User Function ImpMetasFla()
 
 	RESET ENVIRONMENT
 
-	Return()
-	*********************************************************************
+Return()
+*********************************************************************
 Static Function TelaPar(aFiles) // Tela com Diretorio dos arquivos para carga dos files
-	*********************************************************************
+*********************************************************************
 	Private oLeDir		:= Nil
 	Private oButton1	:= Nil
 	Private oButton2	:= Nil
@@ -88,10 +88,10 @@ Static Function TelaPar(aFiles) // Tela com Diretorio dos arquivos para carga do
 
 	aFiles := Directory( cDircsv+"*.csv", Nil, Nil, Nil, ORD_NAME)
 
-	Return()
-	*********************************************************************
+Return()
+*********************************************************************
 Static Function Executa(aFiles) // Executa a importacao dos arquivos
-	*********************************************************************
+*********************************************************************
 
     conout(" METAS - Limpando Periodo: " + CANO )
 
@@ -103,10 +103,10 @@ Static Function Executa(aFiles) // Executa a importacao dos arquivos
 
 	Next
 
-	Return()
-	*********************************************************************
+Return()
+*********************************************************************
 Static Function LeCsv(cFile, nTamFile)
-	*********************************************************************
+*********************************************************************
 
 	Private nHdl    := FT_FUSE(cFile) //| fOpen(cDircsv,68)
 
@@ -118,10 +118,10 @@ Static Function LeCsv(cFile, nTamFile)
 	// Inicializa a regua de processamento
 	Processa({|| ImpFile(@nHdl, cFile,  nTamFile ) },"Importando arquivo"+cFile,"Aguarde...")
 
-	Return()
-	*********************************************************************
+Return()
+*********************************************************************
 Static Function ImpFile(nHdl, cFile, nTamFile)
-	*********************************************************************
+*********************************************************************
 
 	Local   cBuffer	 := ""
 	Local 	aLin 	 := {}
@@ -180,7 +180,7 @@ Static Function ImpFile(nHdl, cFile, nTamFile)
 
 	FT_FUSE()// O arquivo texto deve ser fechado, bem como o dialogo criado na funcao anterior.
 
-	Return()
+Return()
 *********************************************************************
 Static Function InsereReg(aLin) // Insere o Registro na SCT
 *********************************************************************
@@ -321,4 +321,5 @@ Return(cDescri)
 *********************************************************************
 Static Function toc(cval) // Converte para caracter qualquer tipo de variavel
 *********************************************************************
+
 Return( cValToChar(cval) )

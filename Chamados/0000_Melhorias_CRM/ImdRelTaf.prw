@@ -1,7 +1,6 @@
 #Include 'Totvs.ch'
 #Include "Protheus.ch"
 
-
 #Define _NORMAL 1 //1->Normal Opções de exibição da janela da aplicação executada:
 /*****************************************************************************\
 **---------------------------------------------------------------------------**
@@ -23,45 +22,59 @@
 User function ImdRelTaf()
 *******************************************************************************
 	Private oProcess 	:= Nil
+	Private cCodUser	:= RetCodUsr()
 
+	PreparaVar() //| Prepara/Inicializa Todas as Variaveis Utilizadas
 
 	If !Valida()//| Valida se a Execucao e possivel
 		Return()
 	EndIF
 
-	PreparaVar() //| Prepara/Inicializa Todas as Variaveis Utilizadas
-
 	oProcess := MsNewProcess():New( {|lEnd| ObtDados(@oProcess, @lEnd)} , "Obtendo Dados... ", "", .T. )
 	oProcess:Activate()
-//| Obtem Dados do Relatorio em Tabela Auxiliar
+	//| Obtem Dados do Relatorio em Tabela Auxiliar
 
 	oProcess := MsNewProcess():New( {|lEnd| ExpDados(@oProcess, @lEnd)} , "Exportando Resultado... ", "", .T. )
 	oProcess:Activate()
-//| Exporta os Dados para CSV
+	//| Exporta os Dados para CSV
 
 Return()
 *******************************************************************************
 Static Function Valida()//| Valida se a Execucao e possivel
 *******************************************************************************
- Local lVal := .T.
+	Local lVal 		:= .T.
+	Local nNvlVen	:=  0
+	Local aAreaSA3	:= SA3->(GetArea())
+	
+	Pergunte( "IRELTF"   , .T. ) // Parametros do Relatorio
 
-   Pergunte( "IRELTF"   , .T. ) // Parametros do Relatorio
+	If Type("MV_PAR03") == "A"
+		lVal := .F.
+	EndIf
 
-   If Type("MV_PAR03") == "A"
-   	 lVal := .F.
-   EndIf
-   If Empty(SA3->A3_CODUSR)
-   	 lVal := .F.
-   	 Iw_MsgBox("Vendedor sem Codigo de Usuario relacionado ao seu Cadastro !!!","Cadastro de Vendedores","ALERT")
-   EndIf
+	If Empty(SA3->A3_CODUSR)
+		lVal := .F.
+		Iw_MsgBox("Vendedor sem Codigo de Usuario relacionado ao seu Cadastro !!!","Cadastro de Vendedores","ALERT")
+	EndIf
 
+	//| Verifica se o Usuario pode ver todos os vendedores da filial
+	nNvlVen := Val(Posicione("SA3",7,xFilial("SA3")+cCodUser,"A3_NVLVEN"))
+	If nNvlVen >= 3 //| [1-INTERNO, 2-EXTERNO, 3-COORDENADOR, 4-CHEFE, 5-GERENTE, 6-DIRETOR]
+		lVerTodos := .T.
+		cFilTodos := xFilial("AD8")	
+	EndIf
+
+	RestArea(aAreaSA3)
+	
 Return(lVal)
 *******************************************************************************
 Static Function PreparaVar()//| Prepara/Inicializa Todas as Variaveis Utilizadas
 *******************************************************************************
 
-  _SetOwnerPrvt( 'cTab'		, "TREP"	) //| Nome da Tabela auxiliar resultado da Query |
-  _SetOwnerPrvt( 'lShowSql' , .F.		) //| Se mostra o SQL antes de envio ao Banco |
+	_SetOwnerPrvt( 'cTab'		, "TREP"	) //| Nome da Tabela auxiliar resultado da Query |
+	_SetOwnerPrvt( 'lShowSql' 	, .F.		) //| Se mostra o SQL antes de envio ao Banco |
+	_SetOwnerPrvt( 'lVerTodos'	, .F.       ) //| Indica se o usuario tem acesso para ver todos os vendedores
+	_SetOwnerPrvt( 'cFilTodos'	, "00"      ) //| indica a filial a ser filtrada no caso de relatorio com todos os vendedores
 
 Return()
 *******************************************************************************
@@ -103,10 +116,13 @@ Static Function ObtDados()//| Obtem Dados do Relatorio em Tabela Auxiliar
 	cSql += "ON  AD8_CODCLI = SA1.A1_COD "
 	cSql += "AND AD8_LOJCLI = SA1.A1_LOJA "
 
-	cSql += "   LEFT JOIN SUS010 SUS "
+	cSql += "   LEFT JOIN SUS010 SUS  "
 	cSql += "ON  AD8.AD8_PROSPE = SUS.US_COD "
 	cSql += "AND AD8.AD8_LOJPRO = SUS.US_LOJA "
 	//cSql += "      SA3010 SA3 "
+
+	cSql += "LEFT JOIN SA3010 SA3 "
+	cSql += "ON  SA3.A3_CODUSR = AD8.AD8_CODUSR "
 
 	cSql += "WHERE AD8.D_E_L_E_T_ = ' ' "
 	If !Empty(cValToChar(DtoS(MV_PAR01)))
@@ -128,11 +144,14 @@ Static Function ObtDados()//| Obtem Dados do Relatorio em Tabela Auxiliar
 	cSql += "AND AD8.AD8_CODCLI BETWEEN '"+(MV_PAR07)+"' AND '"+(MV_PAR08)+"' "
 	cSql += "AND AD8.AD8_PROSPE BETWEEN '"+(MV_PAR09)+"' AND '"+(MV_PAR10)+"' "
 
-	cSql += "AND AD8.AD8_CODUSR = '"+SA3->A3_CODUSR+"' "
-	//cSql += "AND SA3.A3_COD = '"+SA3->A3_CODUSR+"' "
-	//cSql += "AND SA3.D_E_L_E_T_ = ' ' "
+	If lVerTodos  // Pode ver todos....
+		cSql += "AND AD8.AD8_FILIAL = '"+cFilTodos+"' "
+		cSql += "AND SA3.A3_COD 	BETWEEN '"+(MV_PAR11)+"' AND '"+(MV_PAR12)+"' "
+	Else
+		cSql += "AND AD8.AD8_CODUSR = '"+SA3->A3_CODUSR+"' "
+	EndIf
 
-	//cSql += "AND AD8.AD8_CODMEM = COM.YP_CHAVE "
+	cSql += "AND SA3.D_E_L_E_T_ = ' ' "
 
 	cSql += "ORDER BY AD8.AD8_TAREFA "
 
