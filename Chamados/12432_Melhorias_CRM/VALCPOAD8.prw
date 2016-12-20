@@ -27,12 +27,16 @@
 User function VALCPOAD8(cQuem)
 *******************************************************************************
 
-	Local lRetVal := .T.
+	Local lRetVal := .F.
 	Local xValCpo := &(__ReadVar)
-
+	Local aArea	  := GetArea() 
+	Local aArAD8  := AD8->(GetArea())
+	
 	Private nPCData := Ascan(aHeader,{|x| Alltrim(x[2]) == "AD8_DTREMI"})
 	Private nPCHora := Ascan(aHeader,{|x| Alltrim(x[2]) == "AD8_HRREMI"})
 	Private lshow 	:= .T. // Se deve apresentar a Mensagem
+	Private nPosRec := Ascan(aHeader,{|x| Alltrim(x[2]) == "AD8_REC_WT"})
+	Private nRecAD8 := Acols[N][nPosRec]
 	
 	If cQuem == _HORA
 
@@ -43,9 +47,13 @@ User function VALCPOAD8(cQuem)
 		lRetVal := ValData(xValCpo)
 
 	EndIf
-	// AHEADER[11][2] = AD8_DTREMI
-	// ACOLS[1][11] = 19/12/16
 
+	
+	ClearStatus(lRetVal)// Em alteracoes deve limpar o status de execucao do workflow
+	
+	RestArea(aArAD8)
+	RestArea(aArea)
+	
 	Return(lRetVal)
 *******************************************************************************
 Static Function ValHora(xValCpo, dValDt)//| Valida Hora e dValDt=data a ser considerada....
@@ -76,7 +84,7 @@ Static Function ValHora(xValCpo, dValDt)//| Valida Hora e dValDt=data a ser cons
 		IF(lshow,Iw_MsgBox("Data do Lembrete é inválida! Por favor, ajuste a data do lembrete primeiro.","Atenção","ALERT"),'')
 		lRetVal := .F.
 	EndIf
-
+	
 	Return(lRetVal)
 *******************************************************************************
 Static Function ValData(xValCpo)//| Valida Data
@@ -132,3 +140,16 @@ Static Function add30min()
 	cHora		:= Substr(cHora,1,5)
 
 Return (cHora)
+*******************************************************************************
+Static Function	ClearStatus(lRetVal) // Em alteracoes deve limpar o status de execucao do workflow
+*******************************************************************************
+ Local cSql := ''
+	
+	If lRetVal .And. nRecAD8 > 0
+		
+		DbSelectArea("AD8");Dbgoto(nRecAD8)
+		AD8->AD8_WFST := ' '
+
+	EndIf
+
+Return()
