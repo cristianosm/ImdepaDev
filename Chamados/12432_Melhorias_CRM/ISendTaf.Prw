@@ -6,9 +6,9 @@
 
 /*****************************************************************************\
 **---------------------------------------------------------------------------**
-** FUNÇÃO   : ISendTaf     | AUTOR : Cristiano Machado  | DATA : 30/04/2003  **
+** FUNCAO   : ISendTaf     | AUTOR : Cristiano Machado  | DATA : 30/04/2003  **
 **---------------------------------------------------------------------------**
-** DESCRIÇÃO: Workflow para envio do Lembrete da agenda do vendedor          **
+** DESCRICAO: Workflow para envio do Lembrete da agenda do vendedor          **
 **---------------------------------------------------------------------------**
 ** USO      : Especifico para o cliente Imdepa Rolamentos                    **
 **---------------------------------------------------------------------------**
@@ -29,13 +29,18 @@ User Function ISendTaf()
 	PREPARE ENVIRONMENT EMPRESA "01" FILIAL "05" FUNNAME 'ISendTaf'  TABLES 'SM0','AD8'
 
 	Private cArqTab := "STAV"
-
+	
+	Conout('ISENTAF - Inicio - ' + DToC(dDataBase) + ' ' + Time() )
+	Conout('ISENTAF - Verificando Tarefas - ' + DToC(dDataBase) + ' ' + Time() )
+	
 	If SelTarefas(cArqTab) //| Seleciona os Lembretes das Tarefas dos Vendedores.
 
 		EnvTarefas(cArqTab)//| Envia os Lembretes aos Vendedores.
+		Conout('ISENTAF - Enviando Tarefas - ' + DToC(dDataBase) + ' ' + Time() )
 
 	EndIf
-
+	
+	Conout('ISENTAF - Fim - ' + DToC(dDataBase) + ' ' + Time() ) 
 	RESET ENVIRONMENT
 
 Return()
