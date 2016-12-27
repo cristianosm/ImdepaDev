@@ -17,7 +17,7 @@
 #Define PAPER_A4 9 //| Tamanho do Papel A4
 #Define FNIPPAG	22	//| Numero de Itens que podem ser impressos na Primeira Pagina...
 #Define FNISPAG	37	//| Numero de Itens que podem ser impressos apartir da Segunda Pagina
-#Define POS_M_MARK 12	//| Linha entre os itens que sera imprema a mensagem de Marketing
+#Define POS_M_MARK 12	//| ok Linha entre os itens que sera imprema a mensagem de Marketing
 
 //| Cores
 #define CLR_CONTIN RGB( 255, 185, 0 )
@@ -189,8 +189,8 @@ Static Function ConfigVar(_lPerg) //| Configura as Variaves necessarias
 	_SetOwnerPrvt( 'nFPG' , 0 ) //| nFPG -> Fator utilizado para posicionar Linhas apartir da pagina 2
 	_SetOwnerPrvt( 'dEmisOrc' , 0 ) //| dEmisOrc -> Data de Emissao do Orcamento conforme Gravado em SUA->UA_EMISSAO
 	_SetOwnerPrvt( 'aTES'	, {} ) //| Salva as TES's Utilizadas no Orcamento para posterior tratamento em Mensagens
-	_SetOwnerPrvt( 'cLocalPath'	, "C:\MP11\" ) //| Local no cliente onde os arquivos PDF irão ser Salvos....
-	_SetOwnerPrvt( 'cPathInServer', "\pdf\" ) //| Local no Servidor Protheus onde os arquivos PDF irão ser Salvos....
+	_SetOwnerPrvt( 'cLocalPath'	, "C:\MP11\" ) //| Local no cliente onde os arquivos PDF irï¿½o ser Salvos....
+	_SetOwnerPrvt( 'cPathInServer', "\pdf\" ) //| Local no Servidor Protheus onde os arquivos PDF irï¿½o ser Salvos....
     _SetOwnerPrvt( 'cArqName', "" ) //| Nome que o arquivo pdf recebeu no momento em que foi criado ....
 
 	//| Verifica se ja foi faturado o Pedido
@@ -1047,7 +1047,7 @@ Static Function PLayout(oPrn) //|Imprime Layout Completo do Or amento
 
 	//| *************************** Textos Titulo *********************************
 	oFont := TFont():New( 'Courier new' , , -20);	oFont:Bold := .T.
-	oPrn:Say( 115 , 70 , Iif( lEhOrc , 'ORÇAMENTO', ' PEDIDO ' ) , oFont , , 255 , )
+	oPrn:Say( 115 , 70 , Iif( lEhOrc , 'ORï¿½AMENTO', ' PEDIDO ' ) , oFont , , 255 , )
 
 	//| *************************** Textos Vendedor *********************************
 	If eVal(bPriPag)
@@ -1208,7 +1208,7 @@ Static Function TelaEmail()//| Apresenta Tela com Email
 	cDe	:= Alltrim( SA3->(PswRet()[1][14]) ) + Space(100)
 	cPara	:= Alltrim(aCliente[C_MAILCEM]) + Space(50)
 	cCopia := vCopia(cCopia)
-	cAssunto	:= Iif(lEhOrc , 'Orçamento de Venda Imdepa' , 'Pedido de Venda Imdepa' )
+	cAssunto	:= Iif(lEhOrc , 'Orï¿½amento de Venda Imdepa' , 'Pedido de Venda Imdepa' )
 	cAnexo := Alltrim( oPrn:cPathpdf ) + Substr(Alltrim(oPrn:cFileName),1,Len(Alltrim(oPrn:cFileName))-3)+"pdf"
 
 	cArqName := Substr(Alltrim(oPrn:cFileName),1,Len(Alltrim(oPrn:cFileName))-4)
@@ -1217,7 +1217,7 @@ Static Function TelaEmail()//| Apresenta Tela com Email
 	U_EnvMyMail( cDe , Lower(cPara) , lower(cCopia) , cAssunto , 'Segue anexo '+ cAssunto , cAnexo , .T.)
 
 
-	DeletaFile() // Apaga os arquivos anexos... para não ficar ocupando espaco desnecessario no cliente e server
+	DeletaFile() // Apaga os arquivos anexos... para nï¿½o ficar ocupando espaco desnecessario no cliente e server
 
 
 	Return(cAnexo)
@@ -1404,8 +1404,8 @@ Return(cRefGates)
 *************************************************************************************
 Static Function DeletaFile()//| Apaga os arquivos pdf e rel criados, no cliente e servidor ...
 *************************************************************************************
-	Local aFilesDir := {} // O array receberá os nomes dos arquivos e do diretório
-	Local aSizesDir := {} // O array receberá os tamanhos dos arquivos e do diretorio
+	Local aFilesDir := {} // O array receberï¿½ os nomes dos arquivos e do diretï¿½rio
+	Local aSizesDir := {} // O array receberï¿½ os tamanhos dos arquivos e do diretorio
 
 	//| Carrega todos os arquivos que deve ser exluidos no cliente...
 	ADir(cLocalPath+cArqName+".*" , aFilesDir, aSizesDir )
