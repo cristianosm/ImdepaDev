@@ -17,7 +17,7 @@
 #Define PAPER_A4 9 //| Tamanho do Papel A4
 #Define FNIPPAG	22	//| Numero de Itens que podem ser impressos na Primeira Pagina...
 #Define FNISPAG	37	//| Numero de Itens que podem ser impressos apartir da Segunda Pagina
-#Define POS_M_MARK 12	//| ok Linha entre os itens que sera imprema a mensagem de Marketing
+#Define POS_M_MARK 12	//| Linha entre os itens que sera imprema a mensagem de Marketing
 
 //| Cores
 #define CLR_CONTIN RGB( 255, 185, 0 )
@@ -189,8 +189,8 @@ Static Function ConfigVar(_lPerg) //| Configura as Variaves necessarias
 	_SetOwnerPrvt( 'nFPG' , 0 ) //| nFPG -> Fator utilizado para posicionar Linhas apartir da pagina 2
 	_SetOwnerPrvt( 'dEmisOrc' , 0 ) //| dEmisOrc -> Data de Emissao do Orcamento conforme Gravado em SUA->UA_EMISSAO
 	_SetOwnerPrvt( 'aTES'	, {} ) //| Salva as TES's Utilizadas no Orcamento para posterior tratamento em Mensagens
-	_SetOwnerPrvt( 'cLocalPath'	, "C:\MP11\" ) //| Local no cliente onde os arquivos PDF irï¿½o ser Salvos....
-	_SetOwnerPrvt( 'cPathInServer', "\pdf\" ) //| Local no Servidor Protheus onde os arquivos PDF irï¿½o ser Salvos....
+	_SetOwnerPrvt( 'cLocalPath'	, "C:\MP11\" ) //| Local no cliente onde os arquivos PDF irão ser Salvos....
+	_SetOwnerPrvt( 'cPathInServer', "\pdf\" ) //| Local no Servidor Protheus onde os arquivos PDF irão ser Salvos....
     _SetOwnerPrvt( 'cArqName', "" ) //| Nome que o arquivo pdf recebeu no momento em que foi criado ....
 
 	//| Verifica se ja foi faturado o Pedido
@@ -500,7 +500,7 @@ Static Function DTotOut(aTotais) //| Calcula Totais e outros dados finais...
 Static Function DMsgens(aMens)//| Monta as Mensagens de Observacoes e Rodape
 	*******************************************************************************
 
-	Local MsgRodape  := SuperGetMV("IM_MSROORC", .F., '[Emitido em '+ Dtoc(dEmisOrc) +' - Proposta Vï¿½lida por 2 Dias - Sera Acrescida Despesa Bancï¿½ria por Duplicata ] - Visite nosso site WWW.IMDEPA.COM.BR', Nil )
+	Local MsgRodape  := SuperGetMV("IM_MSROORC", .F., '[Emitido em '+ Dtoc(dEmisOrc) +' - Proposta Válida por 2 Dias - Sera Acrescida Despesa Bancária por Duplicata ] - Visite nosso site WWW.IMDEPA.COM.BR', Nil )
 	Private cEmisOrc := Dtoc(dEmisOrc)
 	//| TRATAMENTO para utilizar Parametro SX6 e Variavel... Chamado:9256
 	MsgRodape := "'" + StrTran(MsgRodape, 'cEmisOrc', "'+cEmisOrc+'" ) + "'"
@@ -510,14 +510,14 @@ Static Function DMsgens(aMens)//| Monta as Mensagens de Observacoes e Rodape
 	aMens := { "* ", "* ", "* ", "* ", "* ", " " }
 
 	//| Mensagem Linha 01
-	aMens[M_LINHA1] := '* Faturamento Mï¿½nimo de R$ ' + Alltrim(Transform( GetMv("IM_PEDMINF"),'@E 999,999.99')) +' Reais'
+	aMens[M_LINHA1] := '* Faturamento Mínimo de R$ ' + Alltrim(Transform( GetMv("IM_PEDMINF"),'@E 999,999.99')) +' Reais'
 
 	//| Mensagem Linha 02
-	aMens[M_LINHA2] := '* Para compras fora do estado ï¿½ fundamental levar em consideraï¿½ï¿½o as mesmas bases de ICMS e ST.'
+	aMens[M_LINHA2] := '* Para compras fora do estado é fundamental levar em consideração as mesmas bases de ICMS e ST.'
 
 	//| Mensagem Linha 03
 	If SA1->A1_EST == 'GO' .And. SA1->A1_GRPSEG $ "AG3/AU3/IN3" .And. cFilant == '04'
-		aMens[M_LINHA3] := '* Ao comparar nossos preï¿½os com outros fornecedores locais, favor verificar se a Subs. Trib. estï¿½ destacada (TARE).'
+		aMens[M_LINHA3] := '* Ao comparar nossos preços com outros fornecedores locais, favor verificar se a Subs. Trib. está destacada (TARE).'
 	EndIf
 
 	//| Mensagem Linha 04
@@ -526,7 +526,7 @@ Static Function DMsgens(aMens)//| Monta as Mensagens de Observacoes e Rodape
 			If !U_FCnaeAuto()// Verifica Cnae Do Cliente
 				If SB1->B1_INDUSTR == "S"
 					If (! cFilAnt $ Alltrim( GetMv("MV_MENFIL"))) .And. (! cFilAnt + SA1->A1_EST $ Alltrim( GetMv("MV_MENFIL1"))) .And. SA1->A1_CONAGRI <> "1" //Agostinho - 24/03/2009 - Chamado AAZOSN retirada da mensagem para as filias 02-CUI, 04-GOI e 05-CDP quando venda para o RS
-						aMens[M_LINHA4] := '* Mercadorias P/ Uso e Aplicacao Exclusivamente Industrial Nï¿½o Sujeita a ST Cfe Protocolo 49/08 '
+						aMens[M_LINHA4] := '* Mercadorias P/ Uso e Aplicacao Exclusivamente Industrial Não Sujeita a ST Cfe Protocolo 49/08 '
 					EndIf
 				EndIf
 			EndIf
@@ -566,7 +566,7 @@ Static Function DMarketing() //| Verifica e Monta as Mensagens de Marketing
 	If !lMsgMark
 		If ( ( SB1->B1_SGRB1 == "220000" .And. SB1->B1_GRMAR3 == "000510" .And. SB1->B1_MERCADO == "N" ) .Or. ( !SUA->UA_PROSPEC .And. SA1->A1_GRPSEG == "AG3" ) )
 			lMsgMark := .T.
-			cMsgMark := 'Correias Agricolas CONTINENTAL: ï¿½nicas com 100% de garantia do fabricante !!!'
+			cMsgMark := 'Correias Agricolas CONTINENTAL: Únicas com 100% de garantia do fabricante !!!'
 			//	'01234567890123456789012345678901234567890123456789012345678901234567890123456
 			//	'0 1 2 3 4 5 6 7
 
@@ -620,7 +620,7 @@ Static Function PrintOrc()
 	oProcess:IncRegua1("Gerando o PDF...")
 	//| Impressao...das Paginas...
 	For nPagina := 1 To nTotPag
-		oProcess:IncRegua2("Pï¿½gina..." + cValToChar(nPagina))
+		oProcess:IncRegua2("Página..." + cValToChar(nPagina))
 
 		//Variavel usada como Fator de Posicionamento na Impressao dos Itens
 		nI	:= 0
@@ -894,7 +894,7 @@ Static Function PMsgens(oPrn)//| Imprime Mensagens
 
 	//| Impressao da Numeracao da Pagina
 	oFont := TFont():New( 'Courier new' , , -14);	oFont:Bold := .T.
-	oPrn:Say( nVIL+2029 , 2000 , "Pï¿½gina: " + cValToChar(nPagina) + "-" + cValToChar(nTotPag) , oFont , , 0 , )
+	oPrn:Say( nVIL+2029 , 2000 , "Página: " + cValToChar(nPagina) + "-" + cValToChar(nTotPag) , oFont , , 0 , )
 
 	//| Mensagem Linha 01
 	oFont := TFont():New( 'Courier new' , , -14);	oFont:Bold := .T.
@@ -1047,7 +1047,7 @@ Static Function PLayout(oPrn) //|Imprime Layout Completo do Or amento
 
 	//| *************************** Textos Titulo *********************************
 	oFont := TFont():New( 'Courier new' , , -20);	oFont:Bold := .T.
-	oPrn:Say( 115 , 70 , Iif( lEhOrc , 'ORï¿½AMENTO', ' PEDIDO ' ) , oFont , , 255 , )
+	oPrn:Say( 115 , 70 , Iif( lEhOrc , 'ORÇAMENTO', ' PEDIDO ' ) , oFont , , 255 , )
 
 	//| *************************** Textos Vendedor *********************************
 	If eVal(bPriPag)
@@ -1058,7 +1058,7 @@ Static Function PLayout(oPrn) //|Imprime Layout Completo do Or amento
 		oPrn:Say( nVIL+495 , 50 , 'TELEFONE: ' , oFont , , 0 , )
 
 		oFont := TFont():New( 'Courier new' , , -10);	oFont:Bold := .T.
-		oPrn:Say( nVIL+570 , 50 , 'ENDEREï¿½O: ' , oFont , , 0 , )
+		oPrn:Say( nVIL+570 , 50 , 'ENDEREÇO: ' , oFont , , 0 , )
 
 		oFont := TFont():New( 'Courier new' , , -10);	oFont:Bold := .T.
 		oPrn:Say( nVIL+420 , 600 , 'E-MAIL: ' , oFont , , 0 , )
@@ -1081,19 +1081,19 @@ Static Function PLayout(oPrn) //|Imprime Layout Completo do Or amento
 		oPrn:Say( nVIL+495 , 1730+(nVIC/2) , 'CARGO: ' , oFont , , 0 , )
 
 		oFont := TFont():New( 'Courier new' , , -10);	oFont:Bold := .T.
-		oPrn:Say( nVIL+570 , 1180+(nVIC/2) , 'ENDEREï¿½O: ' , oFont , , 0 , )
+		oPrn:Say( nVIL+570 , 1180+(nVIC/2) , 'ENDEREÇO: ' , oFont , , 0 , )
 
 	EndIf
 
 	//| *************************** Textos Titulo Itens *********************************
 	oFont := TFont():New( 'Courier new' , , -12);	oFont:Bold := .T.
-	oPrn:Say( nFPG+nVIL+750 , -5+nVIC , 'Cï¿½digo' , oFont , , 0 , )
+	oPrn:Say( nFPG+nVIL+750 , -5+nVIC , 'Código' , oFont , , 0 , )
 
 	oFont := TFont():New( 'Courier new' , , -10);	oFont:Italic := .T.
 	oPrn:Say( nFPG+nVIL+770 , 10+nVIC , 'Item' , oFont , , 0 , )
 
 	oFont := TFont():New( 'Courier new' , , -12);	oFont:Bold := .T.
-	oPrn:Say( nFPG+nVIL+750 , 325+nVIC , 'Descriï¿½ï¿½o' , oFont , , 0 , )
+	oPrn:Say( nFPG+nVIL+750 , 325+nVIC , 'Descrição' , oFont , , 0 , )
 
 	oFont := TFont():New( 'Courier new' , , -10);	oFont:Italic := .T.
 	oPrn:Say( nFPG+nVIL+770 , 370+nVIC , 'NCM' , oFont , , 0 , )
@@ -1108,7 +1108,7 @@ Static Function PLayout(oPrn) //|Imprime Layout Completo do Or amento
 	oPrn:Say( nFPG+nVIL+730 , 985+nVIC , 'Valor' , oFont , , 0 , )
 
 	oFont := TFont():New( 'Courier new' , , -12);	oFont:Bold := .T.
-	oPrn:Say( nFPG+nVIL+770 , 970+nVIC , 'Unitï¿½rio' , oFont , , 0 , )
+	oPrn:Say( nFPG+nVIL+770 , 970+nVIC , 'Unitário' , oFont , , 0 , )
 
 	oFont := TFont():New( 'Courier new' , , -12);	oFont:Bold := .T.
 	oPrn:Say( nFPG+nVIL+730 , 1155+nVIC , 'ICMS' , oFont , , 0 , )
@@ -1126,13 +1126,13 @@ Static Function PLayout(oPrn) //|Imprime Layout Completo do Or amento
 	oPrn:Say( nFPG+nVIL+730 , 1515+nVIC , 'ST' , oFont , , 0 , )
 
 	oFont := TFont():New( 'Courier new' , , -12);	oFont:Bold := .T.
-	oPrn:Say( nFPG+nVIL+770 , 1470+nVIC , 'Unitï¿½rio' , oFont , , 0 , )
+	oPrn:Say( nFPG+nVIL+770 , 1470+nVIC , 'Unitário' , oFont , , 0 , )
 
 	oFont := TFont():New( 'Courier new' , , -12);	oFont:Bold := .T.
 	oPrn:Say( nFPG+nVIL+730 , 1642+nVIC , 'Vlr+IPI+ST' , oFont , , 0 , )
 
 	oFont := TFont():New( 'Courier new' , , -12);	oFont:Bold := .T.
-	oPrn:Say( nFPG+nVIL+770 , 1662+nVIC , 'Unitï¿½rio' , oFont , , 0 , )
+	oPrn:Say( nFPG+nVIL+770 , 1662+nVIC , 'Unitário' , oFont , , 0 , )
 
 	oFont := TFont():New( 'Courier new' , , -12);	oFont:Bold := .T.
 	oPrn:Say( nFPG+nVIL+730 , 1880+nVIC , 'Vlr+IPI+ST' , oFont , , 0 , )
@@ -1141,7 +1141,7 @@ Static Function PLayout(oPrn) //|Imprime Layout Completo do Or amento
 	oPrn:Say( nFPG+nVIL+770 , 1935+nVIC , 'Total' , oFont , , 0 , )
 
 	oFont := TFont():New( 'Courier new' , , -12);	oFont:Bold := .T.
-	oPrn:Say( nFPG+nVIL+730 , 2105+nVIC , 'Previsï¿½o' , oFont , , 0 , )
+	oPrn:Say( nFPG+nVIL+730 , 2105+nVIC , 'Previsão' , oFont , , 0 , )
 
 	oFont := TFont():New( 'Courier new' , , -12);	oFont:Bold := .T.
 	oPrn:Say( nFPG+nVIL+770 , 2110+nVIC , 'Entrega' , oFont , , 0 , )
@@ -1180,10 +1180,10 @@ Static Function PLayout(oPrn) //|Imprime Layout Completo do Or amento
 	//oPrn:Say( nVIL+2369 , 630 , 'Acresc. C.Pag: ' , oFont , , 0 , )
 
 	oFont := TFont():New( 'Courier new' , , -12);	oFont:Bold := .T.
-	oPrn:Say( nVIL+2369 , 630 , 'N de Peï¿½as:' , oFont , , 0 , )
+	oPrn:Say( nVIL+2369 , 630 , 'N de Peças:' , oFont , , 0 , )
 
 	oFont := TFont():New( 'Courier new' , , -12);	oFont:Bold := .T.
-	oPrn:Say( nVIL+2369 , 1190 , 'Peso Lï¿½quido:' , oFont , , 0 , )
+	oPrn:Say( nVIL+2369 , 1190 , 'Peso Líquido:' , oFont , , 0 , )
 
 	oFont := TFont():New( 'Courier new' , , -12);	oFont:Bold := .T.
 	oPrn:Say( nVIL+2369 , 1740 , 'Peso Bruto:' , oFont , , 0 , )
@@ -1191,7 +1191,7 @@ Static Function PLayout(oPrn) //|Imprime Layout Completo do Or amento
 	//| *************************** Textos Titulo Observacoes *********************************
 	//If eVal(bPriPag)
 	oFont := TFont():New( 'Courier new' , , -14);	oFont:Italic := .T.
-	oPrn:Say( nVIL+2442 , 50 , 'OBSERVAï¿½ï¿½ES:' , oFont , , 0 , )
+	oPrn:Say( nVIL+2442 , 50 , 'OBSERVAÇÕES:' , oFont , , 0 , )
 	//EndIf
 
 	Return()
@@ -1208,7 +1208,7 @@ Static Function TelaEmail()//| Apresenta Tela com Email
 	cDe	:= Alltrim( SA3->(PswRet()[1][14]) ) + Space(100)
 	cPara	:= Alltrim(aCliente[C_MAILCEM]) + Space(50)
 	cCopia := vCopia(cCopia)
-	cAssunto	:= Iif(lEhOrc , 'Orï¿½amento de Venda Imdepa' , 'Pedido de Venda Imdepa' )
+	cAssunto	:= Iif(lEhOrc , 'Orçamento de Venda Imdepa' , 'Pedido de Venda Imdepa' )
 	cAnexo := Alltrim( oPrn:cPathpdf ) + Substr(Alltrim(oPrn:cFileName),1,Len(Alltrim(oPrn:cFileName))-3)+"pdf"
 
 	cArqName := Substr(Alltrim(oPrn:cFileName),1,Len(Alltrim(oPrn:cFileName))-4)
@@ -1217,7 +1217,7 @@ Static Function TelaEmail()//| Apresenta Tela com Email
 	U_EnvMyMail( cDe , Lower(cPara) , lower(cCopia) , cAssunto , 'Segue anexo '+ cAssunto , cAnexo , .T.)
 
 
-	DeletaFile() // Apaga os arquivos anexos... para nï¿½o ficar ocupando espaco desnecessario no cliente e server
+	DeletaFile() // Apaga os arquivos anexos... para não ficar ocupando espaco desnecessario no cliente e server
 
 
 	Return(cAnexo)
@@ -1352,7 +1352,7 @@ Static Function FRefGates(cCodPro ) //| Verifica se a correia possui Referencia 
 
 	DbSelectArea( "SB1" )
 	DbSetOrder( 1 ) // FILIAL + PROD
-	//Verifica se o produto ï¿½ do grupo de Correias ou se Possui regra para quebra da Marca
+	//Verifica se o produto é do grupo de Correias ou se Possui regra para quebra da Marca
     If DbSeek(xFilial('SB1')+cCodPro, .F.)
 
         //Regra para Quebra da Marca
@@ -1381,7 +1381,7 @@ Static Function FRefGates(cCodPro ) //| Verifica se a correia possui Referencia 
 			        cRefGates:='GATES:'+Alltrim(SB1->B1_REFER)+'-'
 			        lTemRefGates:=.T.
 			        Else
-			         //Verifica se jï¿½ nï¿½o foi incluso esta Referencia,pois ela pode se repetir
+			         //Verifica se já não foi incluso esta Referencia,pois ela pode se repetir
 			         If !Alltrim(SB1->B1_REFER)$ cRefGates
 			          cRefGates+=Alltrim(SB1->B1_REFER)+'-'
 			         Endif
@@ -1404,8 +1404,8 @@ Return(cRefGates)
 *************************************************************************************
 Static Function DeletaFile()//| Apaga os arquivos pdf e rel criados, no cliente e servidor ...
 *************************************************************************************
-	Local aFilesDir := {} // O array receberï¿½ os nomes dos arquivos e do diretï¿½rio
-	Local aSizesDir := {} // O array receberï¿½ os tamanhos dos arquivos e do diretorio
+	Local aFilesDir := {} // O array receberá os nomes dos arquivos e do diretório
+	Local aSizesDir := {} // O array receberá os tamanhos dos arquivos e do diretorio
 
 	//| Carrega todos os arquivos que deve ser exluidos no cliente...
 	ADir(cLocalPath+cArqName+".*" , aFilesDir, aSizesDir )
@@ -1424,7 +1424,7 @@ Static Function DeletaFile()//| Apaga os arquivos pdf e rel criados, no cliente 
 	ADir(cPathInServer+cArqName+".*" , aFilesDir, aSizesDir)
 
 	For nF := 1 To Len(aFilesDir)
-		MsgStop("Server:"+cPathInServer+aFilesDir[nF]  )
+		//MsgStop("Server:"+cPathInServer+aFilesDir[nF]  )
 		// Exclui local...
 		If FErase(cPathInServer+aFilesDir[nF]) == -1
 			//MsgStop('Falha na delecao do Arquivo')
