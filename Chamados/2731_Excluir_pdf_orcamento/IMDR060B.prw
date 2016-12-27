@@ -45,8 +45,8 @@
 #Define I_VIPSTU	10	//| Valor + IPI + ST Unitario
 #Define I_VIPSTT	11	//| Valor + IPI + ST Total
 #Define I_PREVEN	12	//| Previsao de Entrega
-#Define I_ALICMS	13	//| Aliquota ICMS  
-#Define I_REFGATES	14	//| Correia com Referï¿½ncia Gates  
+#Define I_ALICMS	13	//| Aliquota ICMS
+#Define I_REFGATES	14	//| Correia com Referencia Gates
 
 
 //| Posicoes Array aCliente
@@ -164,7 +164,7 @@ User Function IMDR060B(_lPerg)
 
 		//| Apresenta Tela com Email
 		TelaEmail()
- 
+
 	EndIf
 
 	Return()
@@ -189,7 +189,7 @@ Static Function ConfigVar(_lPerg) //| Configura as Variaves necessarias
 	_SetOwnerPrvt( 'nFPG' , 0 ) //| nFPG -> Fator utilizado para posicionar Linhas apartir da pagina 2
 	_SetOwnerPrvt( 'dEmisOrc' , 0 ) //| dEmisOrc -> Data de Emissao do Orcamento conforme Gravado em SUA->UA_EMISSAO
 	_SetOwnerPrvt( 'aTES'	, {} ) //| Salva as TES's Utilizadas no Orcamento para posterior tratamento em Mensagens
-	_SetOwnerPrvt( 'cLocalPath'	, "C:\MP11\" ) //| Local no cliente onde os arquivos PDF irão ser Salvos.... 
+	_SetOwnerPrvt( 'cLocalPath'	, "C:\MP11\" ) //| Local no cliente onde os arquivos PDF irão ser Salvos....
 	_SetOwnerPrvt( 'cPathInServer', "\pdf\" ) //| Local no Servidor Protheus onde os arquivos PDF irão ser Salvos....
     _SetOwnerPrvt( 'cArqName', "" ) //| Nome que o arquivo pdf recebeu no momento em que foi criado ....
 
@@ -414,12 +414,12 @@ Static Function DItens(aItens)//| Obtem dados dos Itens
 			If __aCCols[nItem][A_IT_AUTO]=='1' //Tratamento para Descri o Especifica do Produto
 				aItens[nIok][I_DESCRI]:= SB1->(FNewDescri(__aCCols[nItem][A_CODIGO], PadR( Substr(__aCCols[nItem][A_DESCRI],1,30),50, " " )))
 			Else
-				aItens[nIok][I_DESCRI] := PadR( Substr(__aCCols[nItem][A_DESCRI],1,30),50, " " )			
+				aItens[nIok][I_DESCRI] := PadR( Substr(__aCCols[nItem][A_DESCRI],1,30),50, " " )
 			EndIf
-			
-					 
+
+
 			aItens[nIok][I_REFGATES]   :=  FRefGates(PadR( Alltrim( Alltrim(__aCCols[nItem][A_CODIGO]) ), 15, " " ))
-			
+
 
 			aItens[nIok][I_CODNCM] := Posicione("SB1",1,xFilial("SB1")+ __aCCols[nItem][A_CODIGO], "B1_POSIPI" ) //PadR( Alltrim( SB1->B1_POSIPI	), 08, " " )
 			aItens[nIok][I_UNIDME] := PadR( Alltrim( __aCCols[nItem][A_UNIDME] ), 02, " " )
@@ -436,7 +436,7 @@ Static Function DItens(aItens)//| Obtem dados dos Itens
 
 			// aItens[nIok][I_ALICMS] := Transform( eVal( bCAICMS ), _MASC_AL_U_ ) //Transform( MaFisRet( nItem , "IT_ALIQICM" ), _MASC_AL_U_ )
 			aItens[nIok][I_ALICMS] := Transform( MaFisRet( nItem , "IT_ALIQICM" ), _MASC_AL_U_ )
-	
+
 			//| Soma Total de Mercadoria aqui para Usar em Calculos de Fatores....
 			nTotMer += ( __aCCols[nItem][A_VALUNI] * __aCCols[nItem][A_QUANTI] )
 
@@ -730,10 +730,10 @@ Static Function PItens(oPrn, aItem)
 	*******************************************************************************
 	Local nPIMM := -1 //| Variavel de Controle para Pulo quando ocorre Mensagem de Marketing
 	Local bPos := {|| nFPG+nVIL+850 + ((nI+nPIMM) * 50 )} //| Monta a Posicao da Linha
-	Local bPon := {|| nFPG+nVIL+870 + ((nI+nPIMM) * 50 )}	//| Monta a Posicao da Linha para NCM   
-	Local bPox := {|| nFPG+nVIL+887 + ((nI+nPIMM) * 50 )}	//| Monta a Posicao da Linha Gates   
-	
-	
+	Local bPon := {|| nFPG+nVIL+870 + ((nI+nPIMM) * 50 )}	//| Monta a Posicao da Linha para NCM
+	Local bPox := {|| nFPG+nVIL+887 + ((nI+nPIMM) * 50 )}	//| Monta a Posicao da Linha Gates
+
+
 	Local bItem := {|| StrZero((nIp+nI)-1,3) } //| Monta o Numero do Item
 
 	//|Controla a Impressao dos Itens..
@@ -765,23 +765,23 @@ Static Function PItens(oPrn, aItem)
 	//| Descricao
 	oFont := TFont():New( 'Courier new' , , -10); oFont:Bold := .T.
 	oPrn:Say( eVal(bPos) , 162+nVIC , aItem[I_DESCRI] , oFont , , 0 , )
-	
+
 
 	//| NCM
-	oFont := TFont():New( 'Courier new' , , -9);	oFont:Italic := .T.                                        
-	oPrn:Say( eVal(bPon) , 350-193+nVIC ,Alltrim(aItem[I_CODNCM]), oFont , , 0 , )    
-	//oPrn:Say( eVal(bPon) , 350-193+nVIC ,Alltrim(aItem[I_CODNCM]) +" "+aItem[I_REFGATES], oFont , , 0 , )    
-	
+	oFont := TFont():New( 'Courier new' , , -9);	oFont:Italic := .T.
+	oPrn:Say( eVal(bPon) , 350-193+nVIC ,Alltrim(aItem[I_CODNCM]), oFont , , 0 , )
+	//oPrn:Say( eVal(bPon) , 350-193+nVIC ,Alltrim(aItem[I_CODNCM]) +" "+aItem[I_REFGATES], oFont , , 0 , )
+
 	//| NCM
 	oFont := TFont():New( 'Courier new' , , -10);	oFont:Bold := .T.
-	oPrn:Say( eVal(bPon) , 350-193+99+nVIC ," "+aItem[I_REFGATES], oFont , , 0 , )    
-	
-	
-	
-	//If aItem[I_REFGATES] 
+	oPrn:Say( eVal(bPon) , 350-193+99+nVIC ," "+aItem[I_REFGATES], oFont , , 0 , )
+
+
+
+	//If aItem[I_REFGATES]
 	 //Msginfo('Tem Correias')
 	//Endif
-	
+
 
 	//| Unidade Medida
 	oFont := TFont():New( 'Courier new' , , -10)
@@ -822,7 +822,7 @@ Static Function PItens(oPrn, aItem)
 	//| Previsao de Entrega
 	oFont := TFont():New( 'Courier new' , , -10)
 	oPrn:Say( eVal(bPos) , 2110+nVIC , aItem[I_PREVEN] , oFont , , 0 , )
-	
+
 
 	Return()
 	*******************************************************************************
@@ -1047,7 +1047,7 @@ Static Function PLayout(oPrn) //|Imprime Layout Completo do Or amento
 
 	//| *************************** Textos Titulo *********************************
 	oFont := TFont():New( 'Courier new' , , -20);	oFont:Bold := .T.
-	oPrn:Say( 115 , 70 , Iif( lEhOrc , 'ORï¿½AMENTO', ' PEDIDO ' ) , oFont , , 255 , )
+	oPrn:Say( 115 , 70 , Iif( lEhOrc , 'ORÇAMENTO', ' PEDIDO ' ) , oFont , , 255 , )
 
 	//| *************************** Textos Vendedor *********************************
 	If eVal(bPriPag)
@@ -1145,9 +1145,9 @@ Static Function PLayout(oPrn) //|Imprime Layout Completo do Or amento
 
 	oFont := TFont():New( 'Courier new' , , -12);	oFont:Bold := .T.
 	oPrn:Say( nFPG+nVIL+770 , 2110+nVIC , 'Entrega' , oFont , , 0 , )
-	
 
-	
+
+
 
 	//| *************************** Textos Titulo Totais *********************************
 	oFont := TFont():New( 'Courier new' , , -18);	oFont:Bold := .T.
@@ -1208,18 +1208,18 @@ Static Function TelaEmail()//| Apresenta Tela com Email
 	cDe	:= Alltrim( SA3->(PswRet()[1][14]) ) + Space(100)
 	cPara	:= Alltrim(aCliente[C_MAILCEM]) + Space(50)
 	cCopia := vCopia(cCopia)
-	cAssunto	:= Iif(lEhOrc , 'Orï¿½amento de Venda Imdepa' , 'Pedido de Venda Imdepa' )
+	cAssunto	:= Iif(lEhOrc , 'Orçamento de Venda Imdepa' , 'Pedido de Venda Imdepa' )
 	cAnexo := Alltrim( oPrn:cPathpdf ) + Substr(Alltrim(oPrn:cFileName),1,Len(Alltrim(oPrn:cFileName))-3)+"pdf"
-	
+
 	cArqName := Substr(Alltrim(oPrn:cFileName),1,Len(Alltrim(oPrn:cFileName))-4)
-	
+
 	//| _cFrom,_cTo ,_cBcc ,_cSubject,_cBody,_cAttach,lTela
 	U_EnvMyMail( cDe , Lower(cPara) , lower(cCopia) , cAssunto , 'Segue anexo '+ cAssunto , cAnexo , .T.)
-	
-	
-	DeletaFile() // Apaga os arquivos anexos... para não ocupar muito espaço.
-		
-		
+
+
+	DeletaFile() // Apaga os arquivos anexos... para não ficar ocupando espaco desnecessario no cliente e server
+
+
 	Return(cAnexo)
 	*******************************************************************************
 Static Function vCopia(cCopia) //| Verifica Quem recebe Copia do email contendo Orcamento....
@@ -1344,44 +1344,44 @@ Static Function FRefGates(cCodPro ) //| Verifica se a correia possui Referencia 
 	Local cRefAux2 :='GATES:'
 	Local lTemRefGates:=.F.
 
-		
+
 
 	DbSelectArea( "SZH" )
-	DbSetOrder( 1 ) // FILIAL + PROD. SIMILAR	
-	 
-			
+	DbSetOrder( 1 ) // FILIAL + PROD. SIMILAR
+
+
 	DbSelectArea( "SB1" )
 	DbSetOrder( 1 ) // FILIAL + PROD
 	//Verifica se o produto ï¿½ do grupo de Correias ou se Possui regra para quebra da Marca
     If DbSeek(xFilial('SB1')+cCodPro, .F.)
-    
+
         //Regra para Quebra da Marca
-         If SB1->B1_SGRB1 $ '220300/220400' 
+         If SB1->B1_SGRB1 $ '220300/220400'
            Return(SB1->B1_MARCA)
          Endif
-     
-     
-      
+
+
+
         If SB1->B1_GRUPO<>'0022'
           Return(' ')
         EndIf
-	
-	
+
+
 		 DbSelectArea( "SZH" )
 		If DbSeek(xFilial('SZH')+cCodPro, .F.)
-		    //cRefAux  :='GATES:'   
+		    //cRefAux  :='GATES:'
 			Do While !Eof() .And. SZH->ZH_PROD == cCodPro
-			  
+
 			  DbSelectArea( "SB1" )
-			  
-			  If DbSeek(xFilial('SB1')+SZH->ZH_EQUI, .F.) 
+
+			  If DbSeek(xFilial('SB1')+SZH->ZH_EQUI, .F.)
 			     If Alltrim(SB1->B1_MARCA)=='GATES'
-			        
+
 			        If !lTemRefGates
 			        cRefGates:='GATES:'+Alltrim(SB1->B1_REFER)+'-'
 			        lTemRefGates:=.T.
 			        Else
-			         //Verifica se jï¿½ nï¿½o foi incluso esta Referï¿½ncia,pois ela pode se repetir
+			         //Verifica se jï¿½ nï¿½o foi incluso esta Referencia,pois ela pode se repetir
 			         If !Alltrim(SB1->B1_REFER)$ cRefGates
 			          cRefGates+=Alltrim(SB1->B1_REFER)+'-'
 			         Endif
@@ -1389,9 +1389,9 @@ Static Function FRefGates(cCodPro ) //| Verifica se a correia possui Referencia 
 			     Endif
 			  EndIf
 
-           	
+
            	 	SZH->(DbSkip())
-          
+
            	 EndDo
 		EndIf
     Endif
@@ -1402,21 +1402,36 @@ Static Function FRefGates(cCodPro ) //| Verifica se a correia possui Referencia 
 Return(cRefGates)
 
 *************************************************************************************
-Static Function DeletaFile()
+Static Function DeletaFile()//| Apaga os arquivos pdf e rel criados, no cliente e servidor ...
 *************************************************************************************
+	Local aFilesDir := {} // O array receberá os nomes dos arquivos e do diretório
+	Local aSizesDir := {} // O array receberá os tamanhos dos arquivos e do diretorio
 
-  // Exclui local...
-  If FErase(cLocalPath+cArqName".*") == -1
-    IW_MsgStop('Falha na delecao do Arquivo')
-  Else
-    IW_MsgStop('Arquivo deletado com sucesso.')
-  Endif
+	//| Carrega todos os arquivos que deve ser exluidos no cliente...
+	ADir(cLocalPath+cArqName+".*" , aFilesDir, aSizesDir )
 
-  // Exclui servidor...
-  If FErase(cPathInServer+cArqName".*") == -1
-    IW_MsgStop('Falha na delecao do Arquivo')
-  Else
-    IW_MsgStop('Arquivo deletado com sucesso.')
-  Endif
-  
+	For nF := 1 To Len(aFilesDir)
+		//MsgStop("Local:" + cLocalPath+aFilesDir[nF]  )
+		// Exclui local...
+		If FErase(cLocalPath+aFilesDir[nF]) == -1
+			//MsgStop('Falha na delecao do Arquivo')
+		Else
+			//MsgStop('Arquivo deletado com sucesso.')
+		Endif
+	Next
+
+	//| Carrega todos os arquivos que deve ser exluidos no servidor...
+	ADir(cPathInServer+cArqName+".*" , aFilesDir, aSizesDir)
+
+	For nF := 1 To Len(aFilesDir)
+		MsgStop("Server:"+cPathInServer+aFilesDir[nF]  )
+		// Exclui local...
+		If FErase(cPathInServer+aFilesDir[nF]) == -1
+			//MsgStop('Falha na delecao do Arquivo')
+		Else
+			//MsgStop('Arquivo deletado com sucesso.')
+		Endif
+	Next
+
+
 Return()
