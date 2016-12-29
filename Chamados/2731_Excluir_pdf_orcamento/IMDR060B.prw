@@ -1424,7 +1424,7 @@ Static Function DeletaFile()//| Apaga os arquivos pdf e rel criados, no cliente 
 	ADir(cPathInServer+cArqName+".*" , aFilesDir, aSizesDir)
 
 	For nF := 1 To Len(aFilesDir)
-		MsgStop("Server:"+cPathInServer+aFilesDir[nF]  )
+		//MsgStop("Server:"+cPathInServer+aFilesDir[nF]  )
 		// Exclui local...
 		If FErase(cPathInServer+aFilesDir[nF]) == -1
 			//MsgStop('Falha na delecao do Arquivo')
