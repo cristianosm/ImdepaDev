@@ -32,9 +32,9 @@
 #Define F_FILIAL   	 3
 #Define F_CLIENTE	 6
 #Define F_LOJACLI	 7
-#Define F_PRODUTO	 11
-#Define F_QUANT	 	 12
-#Define F_VALOR	 	 13
+#Define F_PRODUTO	 8  //11
+#Define F_QUANT	 	 11 //12
+#Define F_VALOR	 	 12 //13
 
 #Define CANO       '2017'
 
