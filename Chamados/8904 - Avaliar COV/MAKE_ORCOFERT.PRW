@@ -1,49 +1,49 @@
 #Include "Totvs.ch"
 
 /*
-HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
-HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
-HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
-HH?Fun?ao    : Write_OrcOfert  ? Autor ? Edivaldo/ M?rcio? Data ? 06/08/2006HH
-HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH?JHH
-HH?DescriHHo : Registro de quantidade ofertada e venda perdida              HH
-HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH?JHH
-HH?Data Atu. : Descricao                                                    HH
-HH?          :                                                              HH
-HH?11/12/06  : Adicionado parametro nLinha pois durante a AtualizaHHo da    HH
-HH?          : data e hora considerava a linha n e n?o a linha que estava   HH
-HH?          : sendo alterada                                               HH
-HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH?JHH
-HH? Uso      :ESPECIFICO PARA O CLIENTE IMDEPA                              HH
-HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
-HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
-HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄ¿±±
+±±³Fun‡ao    ³ Write_OrcOfert  ³ Autor ³ Edivaldo/ Márcio³ Data ³ 06/08/2006³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Descri‡…o ³ Registro de quantidade ofertada e venda perdida              ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³Data Atu. ³ Descricao                                                    ³±±
+±±³          ³                                                              ³±±
+±±³11/12/06  ³ Adicionado parametro nLinha pois durante a Atualização da    ³±±
+±±³          ³ data e hora considerava a linha n e não a linha que estava   ³±±
+±±³          ³ sendo alterada                                               ³±±
+±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
+±±³ Uso      ³ESPECIFICO PARA O CLIENTE IMDEPA                              ³±±
+±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
+±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
+ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
 */
 
 **********************************************************************
 User Function Write_OrcOfert(cParX, nLinha)
 **********************************************************************
 
-	
+
 	SetPrvt("ljaExiste,cUB_FILIAL,cUB_NUM,cUB_PRODUTO,cUB_ITEM,nUB_QUANT,cUB_DTNECLI,cUB_HRNECLI,nUB_VRCACRE,cFiltroQry,cUA_CLIENTE,cUA_LOJA,nZA0_QUANTD,nZA0_PRECO,nRECNO_ZA0,lDelet,cChavePub,dDataOld, nHoraOld,lNec_AtuDeH")
 
 	Default cParX 		:= ""
 	Default cChavePub 	:= "Acols[n][GdFieldPos('UB_PRODUTO')]+Acols[n][GdFieldPos('UB_ITEM')]+NC(Acols[n][GdFieldPos('UB_QUANT')])"
 			cChavePub 	+= "+Acols[n][GdFieldPos('UB_TES')]+ NC(Acols[n][GdFieldPos('UB_VRCACRE')])"
 
-	
-	//HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
-	//?   AJUSTE DESCONTO\ACRESCIMO GERAL 	?
-	//HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH?
+
+	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+	//³   AJUSTE DESCONTO\ACRESCIMO GERAL 	³
+	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
   	nBckLine := n
-    If Type('nLinha') <> 'U' 
+    If Type('nLinha') <> 'U'
     	If nLinha != Nil
     		If nLinha <> n
     			n := nLinha
     		EndIf
         EndIf
 	EndIf
-     
+
 
 	//| Aplica as Alteracoes de Cliente/Loja/Data Nec Cli/Hora... no ZA0... Nestes Casos nao precisa executar o Consultado/Ofertado
 	If ( (cParX) $ "C/L/D/H" )
@@ -75,20 +75,29 @@ If GdFieldGet('UB_VRCACRE', n) == 0
 Else
 
 	//| Testa ah Recursividade.. para evitar execucoes repetidas e desnecessarias...
-	If GdDeleted(n) .Or. Type('_cChaveRec') <> 'U'
+
+	//JULIO JACOVENKO, em 18
+	//If GdDeleted(n) .Or. Type('_cChaveRec') <> 'U'
+	///estava dando erro: _cChaveRec nao definida
+	///na linha 82, porque usuario coloca quantidade ZERO
+	///ai como GdDeleted(n)=.T. mas _cChaveRec estava indefinida....
+	///
+	If GdDeleted(n)
+	  IF Type('_cChaveRec') <> 'U'
 		If _cChaveRec ==  &cChavePub.
 			lRetorno := .F.
 		Else
 			_cChaveRec := &cChavePub.
 			lRetorno   := .T.
 		EndIf
+	  ENDIF
 	Else
-		If Type('_cChaveRec') == 'U' 
+		If Type('_cChaveRec') == 'U'
 			Public _cChaveRec := &cChavePub.
 			/*
 			If GdFieldGet('UB_VRCACRE', n) > 0
 				Public _cChaveRec := &cChavePub.
-				lRetorno := .T.	
+				lRetorno := .T.
 			Else
 				lRetorno := .F.
 			EndIf
@@ -126,8 +135,8 @@ Static Function Grava_Atualiza_Consultado()// Inicia a Gravacao/Atualizacao do C
 	//| inicializa as variaveis...
 	Carrega_Privates()
 
-	If  VerReg() 		//| Verifica se j? existe o Registro no ZA0...
-		ZA0_Atualiza() 	//| Atualiza quando o registro j? existe e a quantidade digitada for superior....
+	If  VerReg() 		//| Verifica se já existe o Registro no ZA0...
+		ZA0_Atualiza() 	//| Atualiza quando o registro já existe e a quantidade digitada for superior....
 
 	ElseIf lDelet
 		ZA0_Novo()  	//| Inclue novo registro....
@@ -166,8 +175,8 @@ Static Function Carrega_Privates()
 	cUB_ITEM		:= 	aCols[n][GdFieldPos('UB_ITEM')]
 	cUB_DTNECLI		:= 	aCols[n][GdFieldPos('UB_DTNECLI')]
 	cUB_HRNECLI		:= 	aCols[n][GdFieldPos('UB_HRNECLI')]
-    nUB_VRCACRE		:= 	aCols[n][GdFieldPos('UB_VRCACRE')]		
-		
+    nUB_VRCACRE		:= 	aCols[n][GdFieldPos('UB_VRCACRE')]
+
 	lDelet			:= 	!GDDeleted(N)
 
 	cUA_CLIENTE		:= 	M->UA_CLIENTE
@@ -188,7 +197,7 @@ Static Function Carrega_Privates()
 
 Return()
 **********************************************************************
-Static Function VerReg() //Verifica se j? existe o Registro...
+Static Function VerReg() //Verifica se já existe o Registro...
 **********************************************************************
 	Local nReg 		:= 	0
 	Local ljaExiste :=	.F.
@@ -209,7 +218,7 @@ Static Function VerReg() //Verifica se j? existe o Registro...
 		ljaExiste 	:= 	.T.
 	EndIF
 
-	//| Verifica se eh Necess?rio Altualizar a Data e Hora de Todos os itens do Orcamento... Isso normalmente ocorre quando Orcamento eh Importado...
+	//| Verifica se eh Necessário Altualizar a Data e Hora de Todos os itens do Orcamento... Isso normalmente ocorre quando Orcamento eh Importado...
 	If nRECNO_ZA0 > 0
 
 		If ZA0->ZA0_FILIAL <> cUB_FILIAL .OR. ZA0->ZA0_NUMORC <> cUB_NUM
@@ -219,9 +228,9 @@ Static Function VerReg() //Verifica se j? existe o Registro...
 		If ( ZA0->ZA0_DTNECL <> cUB_DTNECLI .OR. ZA0->ZA0_HRNECL <> cUB_HRNECLI ) .And. ZA0->ZA0_FILIAL == cUB_FILIAL .AND. ZA0->ZA0_NUMORC == cUB_NUM
 			lNec_AtuDeH := .T.
 		EndIf
-			
+
 		nZA0_PRECO	:=	ZA0->ZA0_PRECO
-			
+
 	EndIf
 
 Return(ljaExiste)
@@ -229,12 +238,12 @@ Return(ljaExiste)
 Static Function ZA0_Atualiza()
 **********************************************************************
 	Local cSql 		:= 	""
-    Local lQtdMaior :=	nUB_QUANT 	> nZA0_QUANTD 
+    Local lQtdMaior :=	nUB_QUANT 	> nZA0_QUANTD
     Local lPrcDif	:=	nUB_VRCACRE !=	nZA0_PRECO
 
 	//If ( nUB_QUANT > nZA0_QUANTD )  // Se Quantidade Digitada for Superior ao Consultado deve Atualizar
 	If lQtdMaior .Or. lPrcDif
-	
+
 		cSql  	+=	"Update ZA0010 "							;
 				+	"Set "										;
 				+	"ZA0_FILIAL = '"+cUB_FILIAL			+"', "	;
@@ -246,7 +255,7 @@ Static Function ZA0_Atualiza()
 				+	"ZA0_HRNECL = '"+cUB_HRNECLI		+"', "	;
 				+	"ZA0_PRECO  =  "+nc(nUB_VRCACRE)	+" , "	;
 				+	"ZA0_FLAGOF = ' ' "
-	
+
 		cSql 	+= 	cFiltroQry
 
 		U_ExecMySql(cSql, "", "E", .F.)
@@ -316,8 +325,8 @@ Static Function CLI_Atualiza()
 /*	Local cSql 			:= ""
 	Local cUA_CLIENTE	:= M->UA_CLIENTE
 	Local cUA_LOJA		:= M->UA_LOJA
-	Local cUA_NUM		:= M->UA_NUM
-	Local cUA_FILIAL	:= xFilial("SUA")
+	Local cUA_NUM			:= M->UA_NUM
+	Local cUA_FILIAL		:= xFilial("SUA")
 
 
 	cSql  	+=	"Update ZA0010 "							;
@@ -351,8 +360,8 @@ Static Function DNC_Atualiza(xCall,cCampo,xVal,nPosCamp)
 	//| Fim Controle Recursividade
 
 	If xCall
-		Private 	cUB_NomeCamp 	:= Substr(Readvar(),4)
-		Private 	cUB_VlrCamp		:= 	&cUB_NomeCamp.
+		Private 	cUB_NomeCamp 	:= Alltrim(Substr(Readvar(),4))
+		Private 	cUB_VlrCamp	:= 	&cUB_NomeCamp.
 		Private 	cUB_nPosCamp	:= GdFieldPos(cUB_NomeCamp)
 	Else
 		Private 	cUB_NomeCamp 	:= cCampo
@@ -360,6 +369,12 @@ Static Function DNC_Atualiza(xCall,cCampo,xVal,nPosCamp)
 		Private 	cUB_nPosCamp	:= nPosCamp
 	EndIf
 
+	// Chamado: 8904 - Cristiano Machado
+	If cUB_NomeCamp == "UB_DTNECLI" .And.  cUB_VlrCamp  > dDataBase + 7
+		If !Iw_MsgBox('Nova Data supera uma Semana. Confirma esta Data ?','Data Superior',"YESNO" )
+			cUB_VlrCamp := dDataBase
+		EndIf
+	EndIf
 
 	DNC_Update()// Atualiza ZA0 via Update
 
