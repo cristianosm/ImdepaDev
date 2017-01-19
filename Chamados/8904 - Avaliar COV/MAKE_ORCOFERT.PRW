@@ -371,7 +371,7 @@ Static Function DNC_Atualiza(xCall,cCampo,xVal,nPosCamp)
 
 	// Chamado: 8904 - Cristiano Machado
 	If cUB_NomeCamp == "UB_DTNECLI" .And.  cUB_VlrCamp  > dDataBase + 7
-		If !Iw_MsgBox('Nova Data supera uma Semana. Confirma esta Data ?','Data Superior',"YESNO" )
+		If !Iw_MsgBox('Data informada como Necessidade do Cliente é superior a uma semana. Confirma esta nova data ?','Data Superior a uma semana',"YESNO" )
 			cUB_VlrCamp := dDataBase
 		EndIf
 	EndIf

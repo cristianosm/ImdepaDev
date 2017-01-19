@@ -286,7 +286,7 @@ Static Function LoadOrc()
 		//// Chamado: 8904 - Cristiano Machado // Nao deve ser atualizado ... atrapalha o controle do COV
 		// FABIANO PEREIRA - SOLUTIO
 	    //	aCols[nI,nP_DATA]   := dDataBase  // Data da Necessidade do Cliente
-	    //	aCols[nI,nP_HORA]   := StrZero(Val(SubStr(Time(),1,2))+1,2)+SubStr(Time(),4,2)//Hora da Necessidade do Cliente
+	    aCols[nI,nP_HORA]   := StrZero(Val(SubStr(Time(),1,2))+2,2)+SubStr(Time(),4,2)//Hora da Necessidade do Cliente
 
 		//旼컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴�
 		//�  VERIFICA RESERVA X PROD.CORREIAS	|
