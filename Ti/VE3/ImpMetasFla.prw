@@ -30,13 +30,17 @@
 #Define F_DATA		 1
 #Define F_VEND	 	 2
 #Define F_FILIAL   	 3
+#Define F_GRPSEG     4
 #Define F_CLIENTE	 6
 #Define F_LOJACLI	 7
 #Define F_PRODUTO	 8  //11
 #Define F_QUANT	 	 11 //12
 #Define F_VALOR	 	 12 //13
 
-#Define CANO       '2017'
+// Parametros de Data
+#Define CPERINI      '20171001'
+#Define CPERFIM      '20171231'
+#Define CANO         '2017'
 
 //| CAMPOS TABELA SCT010 INSERT
 #Define TCT_FILIAL   1
@@ -93,7 +97,7 @@ Return()
 Static Function Executa(aFiles) // Executa a importacao dos arquivos
 *********************************************************************
 
-    conout(" METAS - Limpando Periodo: " + CANO )
+    conout(" METAS - Limpando Periodo: " + CPERINI + " - "+ CPERFIM +"  " )
 
 	CleanPeriodo()
 
@@ -192,7 +196,7 @@ Static Function InsereReg(aLin) // Insere o Registro na SCT
 	Local cValor 	:= StrTran(aLin[F_VALOR],',','.') //
 
 	Local InsertSql := "Insert into SCT010 (CT_FILIAL,CT_DOC,CT_SEQUEN,CT_DESCRI,CT_REGIAO,CT_CCUSTO,CT_ITEMCC,CT_VEND,CT_CIDADE,CT_MARCA,CT_SEGMEN,CT_DATA,CT_TIPO,CT_GRUPO,CT_PRODUTO,CT_QUANT,CT_VALOR,CT_MOEDA,CT_CLVL,CT_MARGEM,D_E_L_E_T_,R_E_C_N_O_,CT_CLIENTE,CT_LOJACLI,CT_GRPSEGT,CT_MARCA3,CT_CATEGO,R_E_C_D_E_L_,CT_ORIGER,CT_RELAUTO,CT_MARGVLR) "
-	Local cValues   := "values ('"+aLin[F_FILIAL]+"','"+cDoc+"','"+cSequen+"','"+Mdescri(aLin[F_FILIAL])+"','   ','         ','         ','"+aLin[F_VEND]+"','      ','                    ','      ','"+dtos(ctod(aLin[F_DATA]))+"','  ','    ','"+aLin[F_PRODUTO]+"',"+cQuant+","+cValor+",'1','         ','0',' ',"+toc(nNewRec)+",'"+aLin[F_CLIENTE]+"','"+aLin[F_LOJACLI]+"','   ','          ','      ','0','          ','9',0)"
+	Local cValues   := "values ('"+aLin[F_FILIAL]+"','"+cDoc+"','"+cSequen+"','"+Mdescri(aLin[F_FILIAL])+"','   ','         ','         ','"+aLin[F_VEND]+"','      ','                    ','      ','"+dtos(ctod(aLin[F_DATA]))+"','  ','    ','"+aLin[F_PRODUTO]+"',"+cQuant+","+cValor+",'1','         ','0',' ',"+toc(nNewRec)+",'"+aLin[F_CLIENTE]+"','"+aLin[F_LOJACLI]+"','"+aLin[F_GRPSEG]+"','          ','      ','0','          ','9',0)"
 
 
 	Local cExecCmd := InsertSql + cValues
@@ -211,7 +215,7 @@ Return()
 Static Function CleanPeriodo() // Obtem o atual RECNO na Tabela SCT - METAS
 *********************************************************************
 
-	Local cSql 		:= " DELETE SCT010 WHERE CT_FILIAL > ' ' AND CT_RELAUTO = '9' AND CT_DATA BETWEEN '"+CANO+"0101' AND '"+CANO+"1231'  "
+	Local cSql 		:= " DELETE SCT010 WHERE CT_FILIAL > ' ' AND CT_RELAUTO = '9' AND CT_DATA BETWEEN '"+CPERINI+"' AND '"+CPERFIM+"'  "
 
 	U_ExecMySql(cSql, "", "E", .F., .F.)
 
