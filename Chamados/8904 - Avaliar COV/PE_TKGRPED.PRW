@@ -2,7 +2,7 @@
 #INCLUDE "TOPCONN.CH"
 #INCLUDE 'RWMAKE.CH'
 #DEFINE  ENTER CHR(13)+CHR(10)
-///
+
 /*/
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -21,6 +21,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 /*/ 
+
 *********************************************************************
 User Function TKGRPED(	_nLiquido, _aParcelas, M_UA_OPER, M_UA_NUM,	M_UA_CODLIG, _cCodPagto, _cOpFat, _cCodTransp)
 	*********************************************************************
@@ -118,12 +119,10 @@ User Function TKGRPED(	_nLiquido, _aParcelas, M_UA_OPER, M_UA_NUM,	M_UA_CODLIG, 
 		If M->UA_OPER == '2' // Orcamento
 			For nStart := 1 To Len(aCols)
 
-				
-				
-
 				If !aCols[nStart,Len(aHeader)+1] 
 				
-					VerDtNCli(nStart) //Verifica se precisa ajustar a Data de Necessidade do Cliente...
+				//	VerDtNCli(nStart) 
+					U_Write_OrcOfert("TKGRPED" , nStart) //Verifica se precisa ajustar a Data de Necessidade do Cliente...
 					
 					If GDFieldGet('UB_CONFITA',nStart)=='1' 
 					
@@ -152,7 +151,7 @@ User Function TKGRPED(	_nLiquido, _aParcelas, M_UA_OPER, M_UA_NUM,	M_UA_CODLIG, 
 
 				If !aCols[nStart,Len(aHeader)+1] 
 				
-					VerDtNCli(nStart) //Verifica se precisa ajustar a Data de Necessidade do Cliente...
+					U_Write_OrcOfert("TKGRPED" , nStart) //Verifica se precisa ajustar a Data de Necessidade do Cliente...
 					
 					If GDFieldGet('UB_CONFITA',nStart) == '1' 
 
@@ -1347,40 +1346,3 @@ Static Function ChkTk010ValOk(_aParcelas)
 	EndIf
 
 Return()
-*******************************************************************************
-Static Function VerDtNCli(nStart) //Verifica se precisa ajustar a Data de Necessidade do Cliente...
-*******************************************************************************
-// So deve ser chamado dentro do Acols....
-Local cDataUB := DTOS(gdFieldGet("UB_DTNECLI",nStart))
-Local cHoraUB := gdFieldGet("UB_HRNECLI",nStart)
-
-Local cDataAt := DTOS(dDataBase)
-Local cHoraAt := Strtran(Left(Time(),5),":","")
-
-Local dDataNw := dDataBase
-Local cHoraNw := StrZero( Val( SubStr( Time(),1,2)) + 2 ,2 ) + SubStr( Time(),4,2 )
-
-
-
-Local cSql    := ''
-
-	If	cDataUB + cHoraUB < cDataAt + cHoraAt 
-
-		//MsgInfo("Problema com as Datas da Necessidade do Cliente")
-		GDFieldPut('UB_DTNECLI' , dDataNw , nStart)
-		GDFieldPut('UB_HRNECLI' , cHoraNw , nStart)
-
-		cSql  	+=	"Update ZA0010 "
-		cSql  	+=	"Set "
-		cSql  	+=	"ZA0_DTNECL = '"+DTOS(dDataNw)	+"', "
-		cSql  	+=	"ZA0_HRNECL = '"+cHoraNw		+"', "
-		cSql  	+=	"ZA0_FLAGOF = ' ' "
-		cSql  	+=	"Where ZA0_FILIAL = '"+xFilial('SUA')+"' "
-		cSql  	+=	"AND   ZA0_NUMORC = '"+M->UA_NUM	+"' "
-		cSql  	+=	"AND   ZA0_PRODUT = '"+gdFieldGet("UB_PRODUTO",nStart) +"' "
-		
-		U_ExecMySql(cSql, "", "E", .F.)
-
-	EndIf
-	
-Return Nil

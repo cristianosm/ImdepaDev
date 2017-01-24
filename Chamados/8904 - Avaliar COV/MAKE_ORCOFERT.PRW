@@ -1,24 +1,22 @@
 #Include "Totvs.ch"
 
-/*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÚÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄ¿±±
-±±³Fun‡ao    ³ Write_OrcOfert  ³ Autor ³ Edivaldo/ Márcio³ Data ³ 06/08/2006³±±
-±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄ´±±
-±±³Descri‡…o ³ Registro de quantidade ofertada e venda perdida              ³±±
-±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
-±±³Data Atu. ³ Descricao                                                    ³±±
-±±³          ³                                                              ³±±
-±±³11/12/06  ³ Adicionado parametro nLinha pois durante a Atualização da    ³±±
-±±³          ³ data e hora considerava a linha n e não a linha que estava   ³±±
-±±³          ³ sendo alterada                                               ³±±
-±±ÃÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´±±
-±±³ Uso      ³ESPECIFICO PARA O CLIENTE IMDEPA                              ³±±
-±±ÀÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
-*/
+/*/
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXFuncao   | Write_OrcOfert  |Autor  |Edivaldo         |Data  |06/08/2006XXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXDescricao |Adicionado parametro nLinha pois durante a atualizacao  da   XXX
+XX|          |ddata e hora considerava a linha n e nï¿½o a linha que       XXX
+XX|          |estava sendo alterada                                        XXX
+XX|          |                                                             XXX
+XX|          |                                                             XXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXUso       |CALL CENTER						                       	   XXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+/*/ 
 
 **********************************************************************
 User Function Write_OrcOfert(cParX, nLinha)
@@ -32,9 +30,9 @@ User Function Write_OrcOfert(cParX, nLinha)
 			cChavePub 	+= "+Acols[n][GdFieldPos('UB_TES')]+ NC(Acols[n][GdFieldPos('UB_VRCACRE')])"
 
 
-	//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-	//³   AJUSTE DESCONTO\ACRESCIMO GERAL 	³
-	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+	//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	//   AJUSTE DESCONTO\ACRESCIMO GERAL 	
+	//XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   	nBckLine := n
     If Type('nLinha') <> 'U'
     	If nLinha != Nil
@@ -44,9 +42,12 @@ User Function Write_OrcOfert(cParX, nLinha)
         EndIf
 	EndIf
 
-
+	IF ( cParX == "TKGRPED" ) // Chamado pelo Ponto TKGRPED
+		
+		VerDtNCli(nLinha) //Verifica se precisa ajustar a Data de Necessidade do Cliente...
+		
 	//| Aplica as Alteracoes de Cliente/Loja/Data Nec Cli/Hora... no ZA0... Nestes Casos nao precisa executar o Consultado/Ofertado
-	If ( (cParX) $ "C/L/D/H" )
+	ElseIf ( (cParX) $ "C/L/D/H" )
 
 		AplicarAlteracao(cParX)
 		Return(.T.)
@@ -135,8 +136,8 @@ Static Function Grava_Atualiza_Consultado()// Inicia a Gravacao/Atualizacao do C
 	//| inicializa as variaveis...
 	Carrega_Privates()
 
-	If  VerReg() 		//| Verifica se já existe o Registro no ZA0...
-		ZA0_Atualiza() 	//| Atualiza quando o registro já existe e a quantidade digitada for superior....
+	If  VerReg() 		//| Verifica se ja existe o Registro no ZA0...
+		ZA0_Atualiza() 	//| Atualiza quando o registro ja existe e a quantidade digitada for superior....
 
 	ElseIf lDelet
 		ZA0_Novo()  	//| Inclue novo registro....
@@ -197,7 +198,7 @@ Static Function Carrega_Privates()
 
 Return()
 **********************************************************************
-Static Function VerReg() //Verifica se já existe o Registro...
+Static Function VerReg() //Verifica se ja existe o Registro...
 **********************************************************************
 	Local nReg 		:= 	0
 	Local ljaExiste :=	.F.
@@ -218,7 +219,7 @@ Static Function VerReg() //Verifica se já existe o Registro...
 		ljaExiste 	:= 	.T.
 	EndIF
 
-	//| Verifica se eh Necessário Altualizar a Data e Hora de Todos os itens do Orcamento... Isso normalmente ocorre quando Orcamento eh Importado...
+	//| Verifica se eh Necessario Altualizar a Data e Hora de Todos os itens do Orcamento... Isso normalmente ocorre quando Orcamento eh Importado...
 	If nRECNO_ZA0 > 0
 
 		If ZA0->ZA0_FILIAL <> cUB_FILIAL .OR. ZA0->ZA0_NUMORC <> cUB_NUM
@@ -371,7 +372,7 @@ Static Function DNC_Atualiza(xCall,cCampo,xVal,nPosCamp)
 
 	// Chamado: 8904 - Cristiano Machado
 	If cUB_NomeCamp == "UB_DTNECLI" .And.  cUB_VlrCamp  > dDataBase + 7
-		If !Iw_MsgBox('Data informada como Necessidade do Cliente é superior a uma semana. Confirma esta nova data ?','Data Superior a uma semana',"YESNO" )
+		If !Iw_MsgBox('Data informada como Necessidade do Cliente eh superior a uma semana. Confirma esta nova data ?','Data Superior a uma semana',"YESNO" )
 			cUB_VlrCamp := dDataBase
 		EndIf
 	EndIf
@@ -434,3 +435,40 @@ Static Function AtualizaAcols()
 	n	:= nIni
 
 Return()
+*******************************************************************************
+Static Function VerDtNCli(nStart) //Verifica se precisa ajustar a Data de Necessidade do Cliente...
+*******************************************************************************
+// So deve ser chamado dentro do Acols....
+Local cDataUB := DTOS(gdFieldGet("UB_DTNECLI",nStart))
+Local cHoraUB := gdFieldGet("UB_HRNECLI",nStart)
+
+Local cDataAt := DTOS(dDataBase)
+Local cHoraAt := Strtran(Left(Time(),5),":","")
+
+Local dDataNw := dDataBase
+Local cHoraNw := StrZero( Val( SubStr( Time(),1,2)) + 2 ,2 ) + SubStr( Time(),4,2 )
+
+
+
+Local cSql    := ''
+
+	If	cDataUB + cHoraUB < cDataAt + cHoraAt 
+
+		//MsgInfo("Problema com as Datas da Necessidade do Cliente")
+		GDFieldPut('UB_DTNECLI' , dDataNw , nStart)
+		GDFieldPut('UB_HRNECLI' , cHoraNw , nStart)
+
+		cSql  	+=	"Update ZA0010 "
+		cSql  	+=	"Set "
+		cSql  	+=	"ZA0_DTNECL = '"+DTOS(dDataNw)	+"', "
+		cSql  	+=	"ZA0_HRNECL = '"+cHoraNw		+"', "
+		cSql  	+=	"ZA0_FLAGOF = ' ' "
+		cSql  	+=	"Where ZA0_FILIAL = '"+xFilial('SUA')+"' "
+		cSql  	+=	"AND   ZA0_NUMORC = '"+M->UA_NUM	+"' "
+		cSql  	+=	"AND   ZA0_PRODUT = '"+gdFieldGet("UB_PRODUTO",nStart) +"' "
+		
+		U_ExecMySql(cSql, "", "E", .F.)
+
+	EndIf
+	
+Return Nil
