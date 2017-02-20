@@ -1,5 +1,10 @@
 #include "Protheus.ch"
 
+#Define _LC		1
+#Define _SALDUP 2
+#Define _RISCO  3
+#Define _ULTCOM 4
+
 //ajustado 04/09/2014
 //testes com mauricio
 
@@ -168,7 +173,7 @@ Static Function FDadosCli(cOpcao)
 ********************************************************************
 Local aArea	 :=	GetArea()
 Local aMyObj := {'oGrpCli','oObjSeg','oObjVinc','oObjDtUCom','oObjLC','oObjSalDup','oObjRisco'}
-
+Local aDadosCli := {}
 
 If cOpcao == 'DESTROI'
 
@@ -210,11 +215,14 @@ Else
 
 	oGrpCli      	:= TGroup():New( 001,480,050,620,"Dados Financeiros",oFoldRodape:aDialogs[1],CLR_BLACK,CLR_WHITE,.T.,.F. )
 
-	aDadosCli =: VerDadosCli()
-	oObjLC  		:= TSay():New( 010, 485,{|| "Limite Crédito R$  "+AllTrim(Transform( SA1->A1_LC, '@E 999,999,999.99'))   },oGrpCli,,,.F.,.F.,.F.,.T.,CLR_BLACK,CLR_WHITE, 080,008 )
-	oObjSalDup  	:= TSay():New( 020, 485,{|| "Saldo Histórico R$ "+	AllTrim(Transform( SA1->A1_SALDUP, '@E 999,999,999.99')) },oGrpCli,,,.F.,.F.,.F.,.T.,CLR_BLACK,CLR_WHITE, 080,008 )
-	oObjRisco  		:= TSay():New( 030, 485,{|| "Risco: "+SA1->A1_RISCO },oGrpCli,,,.F.,.F.,.F.,.T.,CLR_BLACK,CLR_WHITE, 080,008 )
-	oObjDtUCom		:= TSay():New( 040, 485,{|| "Ult.Compra: "+DtoC(SA1->A1_ULTCOM)  },oGrpCli,,,.F.,.F.,.F.,.T.,CLR_BLACK,CLR_WHITE, 080,008 )
+	aDadosCli 		:= VerDadosCli() //| Analista: Cristiano Machado Chamado: 10895 
+	      
+	oObjLC  		:= TSay():New( 010, 485,{|| "Limite Crédito R$  "	+	Transform(  aDadosCli[_LC]   , '@E 999,999,999.99') },oGrpCli,,,.F.,.F.,.F.,.T.,CLR_BLACK,CLR_WHITE, 080,008 )
+	oObjSalDup  	:= TSay():New( 020, 485,{|| "Sld Duplicatas R$ "	+	Transform( aDadosCli[_SALDUP], '@E 999,999,999.99') },oGrpCli,,,.F.,.F.,.F.,.T.,CLR_BLACK,CLR_WHITE, 080,008 )
+	oObjRisco  		:= TSay():New( 030, 485,{|| "Risco: "				+	aDadosCli[_RISCO]   },oGrpCli,,,.F.,.F.,.F.,.T.,CLR_BLACK,CLR_WHITE, 080,008 )
+	oObjDtUCom		:= TSay():New( 040, 485,{|| "Ult.Compra: "			+	aDadosCli[_ULTCOM]  },oGrpCli,,,.F.,.F.,.F.,.T.,CLR_BLACK,CLR_WHITE, 080,008 )
+
+
 
 	oGrpCli:cVariable		:=	'oGrpCli'
 	oObjLC:cVariable		:=	'oObjLC'
@@ -251,18 +259,33 @@ Return()
 *******************************************************************************
 Static Function VerDadosCli() // Obtem os Dados Financeiros do Cliente
 *******************************************************************************
+
 Local lLjOCd := "C" // Se os dados sao agregados por Codigo ou Loja... ? [L->Loja, C->Codigo ]
+
+Local aDadosCli := { 0, 0, "", "" }
 
 Local cSql := " SELECT A1_COD, Sum(A1_LC) A1_LC, Sum(A1_SALDUP) A1_SALDUP, Max(A1_RISCO) A1_RISCO, Max(A1_ULTCOM) A1_ULTCOM "
       cSql += " FROM SA1010 WHERE D_E_L_E_T_ = ' ' AND  A1_COD = '"+SA1->A1_COD+" ' GROUP BY A1_COD "
 
+      If lLjOCd == "C" //|  Informacoes por Codigo 
+      	U_ExecMySql(cSql, "CLI", "Q", .F., .F. )
+      	
+      	DbSelectArea("CLI");DbGotop()
+      	
+      	aDadosCli[_LC] 	 := CLI->A1_LC
+      	aDadosCli[_SALDUP] := CLI->A1_SALDUP
+      	aDadosCli[_RISCO]  := CLI->A1_RISCO
+      	aDadosCli[_ULTCOM] := DToC( SToD(CLI->A1_ULTCOM) )
 
-
-      U_ExecMySql(cSql, "CLI", )
-
-	oObjLC  		:= TSay():New( 010, 485,{|| "Limite Crédito R$  "+AllTrim(Transform( SA1->A1_LC, '@E 999,999,999.99'))   },oGrpCli,,,.F.,.F.,.F.,.T.,CLR_BLACK,CLR_WHITE, 080,008 )
-	oObjSalDup  	:= TSay():New( 020, 485,{|| "Saldo Histórico R$ "+	AllTrim(Transform( SA1->A1_SALDUP, '@E 999,999,999.99')) },oGrpCli,,,.F.,.F.,.F.,.T.,CLR_BLACK,CLR_WHITE, 080,008 )
-	oObjRisco  		:= TSay():New( 030, 485,{|| "Risco: "+SA1->A1_RISCO },oGrpCli,,,.F.,.F.,.F.,.T.,CLR_BLACK,CLR_WHITE, 080,008 )
-	oObjDtUCom		:= TSay():New( 040, 485,{|| "Ult.Compra: "+DtoC(SA1->A1_ULTCOM)  },oGrpCli,,,.F.,.F.,.F.,.T.,CLR_BLACK,CLR_WHITE, 080,008 )
-
+      	DbCloseArea()
+      	
+      ElseIf lLjOCd == "L" //|  Informacoes por loja 
+      
+      	aDadosCli[_LC] 	   := SA1->A1_LC
+      	aDadosCli[_SALDUP] := SA1->A1_SALDUP
+      	aDadosCli[_RISCO]  := SA1->A1_RISCO
+      	aDadosCli[_ULTCOM] := DToC( SA1->A1_ULTCOM )
+      
+      EndIf
+      
 Return( aDadosCli )
