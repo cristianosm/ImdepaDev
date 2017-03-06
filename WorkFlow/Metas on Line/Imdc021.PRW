@@ -46,7 +46,6 @@
 ±±ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ±±
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß*/
-
 *********************************************************************
 User Function IMDC021()
 	*********************************************************************
@@ -61,6 +60,7 @@ User Function IMDC021()
 	Local aColsTot :=  {}
 	Local aCodGere :=  {}
 	Local aColsGer :=  {}
+	Local aHrMORet :=  {}
 
 	Private aheader
 	Private aCols
@@ -72,6 +72,7 @@ User Function IMDC021()
 	Private aDiasRest
 	Private aMetaFil
 	Private aMetaGer
+	Private aMetaTri
 	Private _cglobger
 	Private dDataConsiderada
 	Private dataIni
@@ -84,7 +85,7 @@ User Function IMDC021()
 	Private aHtmlObsEmail 	:= {}
 	Private cHtml 				:= " "
 	Private cFilGerente := "" // Filtrar os Gerentes que estao nessa variavel, para nao apresentar no relatorio
-	Private lCaptura := .T.
+	Private lCaptura := .F.
 
 	Private cDtTriIni
 	Private cDtTriFim
@@ -103,6 +104,11 @@ User Function IMDC021()
 
 		Conout( cNomProg + " -  VIA WORKFLOW - Preparando Environment")
 		PREPARE ENVIRONMENT EMPRESA cEmp FILIAL cFil FUNNAME 'FCLIENTE'  TABLES 'SM0','SF4','SD2', 'SB2'
+
+		IF DATAVALIDA(dDatabase,.T.) <> dDatabase  // 29/12/2015 - Agostinho - Feriados e final de semana nao deve executar
+			RETURN()
+		ENDIF
+
 	ELSE
 		Conout( cNomProg + " -  VIA MENU    - Preparando Environment ")
 	EndIf
@@ -118,6 +124,8 @@ User Function IMDC021()
 	cPathCompleto  		:= Getmv("MV_DIRMOL")
 	cExecExcel 	   		:= Getmv("MV_EXCEL")
 	cFilGerente    		:= Getmv("MV_FILGMOL")
+	aHrMORet        := &(Getmv("MV_HRMORET"))
+
 	aheader 			:= {}
 	aCols   	 		:= {}
 	aNome_Ger    		:= {}    // Esta filial representa o total geral
@@ -131,12 +139,23 @@ User Function IMDC021()
 	aDiasRest 	   		:= {}
 	aMetaFil 	   		:= {}
 	aMetaGer 	   		:= {}
+	aMetaTri			:= {}
 	_cglobger 	   		:= ""
 
 	//| Parametro Para Rodar Retroativo
 	If !Empty(Alltrim(GetMv("MV_DTWORKF")))
 		dDatabase := Stod(GetMv("MV_DTWORKF"))
-	EndIf
+	Endif
+
+	If (Time() >= aHrMORet[1] .AND. Time() <= aHrMORet[2]) // Executa no horario especificado no parametro com data retroativa - Agostinho 26/11/2016
+
+		If DOW(DATE()) = 2
+			dDatabase := dDatabase - 3
+		Else
+			dDatabase := dDatabase - 1
+		Endif
+
+	Endif
 
 	dDataConsiderada 	:= ddatabase
 
@@ -146,7 +165,7 @@ User Function IMDC021()
 	cData1  				:= DTOS(FirstDay(dDataConsiderada))
 	cData2  				:= DTOS( LastDay(dDataConsiderada))
 
-	//| Analista: Cristiano Machado - Chamado: ??? - Data 03/03/2017
+	//| Analista: Cristiano Machado - Chamado: 14677 - Data 03/03/2017
 	MontaDtTri(dDataConsiderada,@cDtTriIni,@cDtTriFim ) //| Monta as Datas para serem usadas nas Selecoes de Trimestres Trimestres
 
 	ExisteSXB_A3M()//| Verifica a existência da consulta padrão A3M E PARAMETRO, se não existir, cria
@@ -284,7 +303,7 @@ User Function IMDC021()
 				EnviaEmail("T","")
 			EndIf
 
-			GeraEmail(aColsGer)//Monta HTML para envio
+			GeraEmail(aColsTot)//Monta HTML para envio
 
 			EnviaEmail("G",aCodGere[nXcont])// Envia o Email
 
@@ -435,6 +454,7 @@ Static Function Executar()//| Função Principal do Relatório...
 	Private yfilial
 	Private aDevDia := {}
 	Private aDevMes := {}
+	Private aDevTri := {}
 	Private nPos    := 0
 	Private nPosDev := 0
 	Private LENnome := 16 //| Tamanho do Nome do Gerente
@@ -448,15 +468,17 @@ Static Function Executar()//| Função Principal do Relatório...
 	*******************************************************************************
 	Conout( cNomProg + " - Carga de Gerentes")
 
-	cQuery := "SELECT SA3.A3_COD COD_GER, SA3.A3_NOME NOME_GER, SA3.A3_CODFIL FILIAL_GER, SA3.A3_EMAIL EMAIL"
+	cQuery := "SELECT SA3.A3_COD COD_GER, SA3.A3_DESCMOL NOME_GER, SA3.A3_CODFIL FILIAL_GER, SA3.A3_EMAIL EMAIL"
 	cQuery += "    FROM "+RetSqlName("SA3")+" SA3 " //+"," +RetSqlName("SUA")+" SUA"
 	cQuery += "   WHERE "
 	cQuery += " '" + GETMV('MV_GERENTE') + "' LIKE  '%'||SA3.A3_COD||'%' "
 	cQuery += "     AND SA3.A3_COD >= '" + MV_PAR01 + "'"
 	cQuery += "     AND SA3.A3_COD <= '" + MV_PAR02 + "'"
 	cQuery += "     AND SA3.D_E_L_E_T_ <> '*'"
-	cQuery += "GROUP BY SA3.A3_COD, SA3.A3_NOME, SA3.A3_CODFIL,SA3.A3_EMAIL "
-	cQuery += "ORDER BY SA3.A3_COD "
+	cQuery += "GROUP BY SA3.A3_COD, SA3.A3_DESCMOL, SA3.A3_CODFIL,SA3.A3_EMAIL "
+	cQuery += "ORDER BY SA3.A3_DESCMOL "
+
+	//cQuery += "ORDER BY SA3.A3_COD "
 
 	U_ExecMySql(cQuery, "_G1", "Q", lCaptura)
 
@@ -475,8 +497,8 @@ Static Function Executar()//| Função Principal do Relatório...
 	aAdd( aCodGer	,REPLICATE("X",TamSx3("A3_COD" )[1]) )
 
 	// Adiciona à carga de gerentes, o "Gerente não Definido"  para o inicio do acols
-	aAdd( aNome_Ger	,"Gerente não Definido")
-	aAdd( aCodGer	,REPLICATE(" ",TamSx3("A3_COD" )[1]) )
+	//edi	aAdd( aNome_Ger	,"Gerente não Definido")
+	//edi	aAdd( aCodGer	,REPLICATE(" ",TamSx3("A3_COD" )[1]) )
 
 	// Atualizações de dias úteis por gerente  e codigo+gerente
 	dbSelectArea('_G1');DbGoTop()
@@ -763,7 +785,7 @@ Static Function Executar()//| Função Principal do Relatório...
 	cQuery +=  "       AND   SC9.C9_BLCRED   = ' ' "
 	cQuery +=  "       AND   SC9.C9_BLEST    > ' '  "
 	cQuery +=  "       AND   SC9.C9_NFISCAL  = ' ' "
-	cQuery +=  "       AND   SC9.D_E_L_E_T_  = ' ' ) SC9, "
+	cQuery +=  "       AND   SC9.D_E_L_E_T_  = ' ' AND SC9.C9_SEQUEN = '01' ) SC9, "
 	cQuery +=  "       SC6010 SC6, SC5010 SC5, SF4010 SF4 "
 
 	cQuery +=  "WHERE SC6.C6_FILIAL   = SC9.C9_FILIAL "
@@ -802,6 +824,8 @@ Static Function Executar()//| Função Principal do Relatório...
 	cQuery +=  "	AND C9_FILIAL = SC6.C6_FILIAL "
 	cQuery +=  "	AND C9_PEDIDO = SC6.C6_NUM    "
 	cQuery +=  "	AND C9_ITEM = SC6.C6_ITEM     "
+	cQuery +=  "	AND C9_SEQUEN = '01'    "
+
 	cQuery +=  "	AND C5_FILIAL = SC6.C6_FILIAL "
 	cQuery +=  "	AND C5_NUM = SC6.C6_NUM "
 	cQuery +=  "	AND F4_FILIAL = C6_FILIAL "
@@ -867,7 +891,7 @@ Static Function Executar()//| Função Principal do Relatório...
 	cQuery +=  "       AND   SC9.C9_BLCRED   = ' ' "
 	cQuery +=  "       AND   SC9.C9_BLEST    = ' '  "
 	cQuery +=  "       AND   SC9.C9_NFISCAL  = ' ' "
-	cQuery +=  "       AND   SC9.D_E_L_E_T_  = ' ' ) SC9, "
+	cQuery +=  "       AND   SC9.D_E_L_E_T_  = ' ' AND SC9.C9_SEQUEN = '01') SC9, "
 	cQuery +=  "       SC6010 SC6, SC5010 SC5, SF4010 SF4 "
 
 	cQuery +=  "WHERE SC6.C6_FILIAL   = SC9.C9_FILIAL "
@@ -899,158 +923,50 @@ Static Function Executar()//| Função Principal do Relatório...
 		*******************************************************************************
 		IncProc("Processando Metas On-Line "+" - Devoluções") // DEVOLUCOES DIA
 		*******************************************************************************
-		Conout( cNomProg + " - Devoluções")
+		Conout( cNomProg + " - Devoluções Dia")
 
-		// pego query de devolução do relatorio matr580
-		cQuery := "SELECT F2_CLIENTE CLIENTE,F2_LOJA LOJA, SUM(D1_TOTAL) VALOR
-		cQuery += " FROM "+RetSqlName("SD1")+" SD1, "+RetSqlName("SF1")+" SF1 ," +RetSqlName("SF2")+" SF2, "+RetSqlName("SF4")+ " SF4 "
-		cQuery += " WHERE D1_FILIAL = F1_FILIAL "
-		cQuery += "	  AND D1_FILIAL = F2_FILIAL "
-		cQuery += "	  AND D1_FILIAL = F4_FILIAL "
-		cQuery += "   AND D1_DTDIGIT = '" + DTOS(dDataConsiderada) + "' "
-		cQuery += "   AND D1_TIPO = 'D'"
-		cQuery += "   AND F4_CODIGO  = D1_TES"
-
-		// Jorge Oliveira - 21/12/2010 - Nao mostra movimentacoes de Clientes para esse Gerente
-		// Exemplo da variavel cFilGerente := '000207', '000467'
-		// Exemplo da variavel cFilGerente := ''
-		cQuery += "   AND F2_VEND5 NOT IN (" + cFilGerente + ") "
-
-		cQuery += "   AND F4_ESTOQUE = 'S'   "
-		cQuery += "   AND F4_DUPLIC = 'S'   "
-
-		cQuery += "   AND F2_DOC     = D1_NFORI   "
-		cQuery += "   AND F2_SERIE   = D1_SERIORI "
-		cQuery += "   AND F2_CLIENTE = D1_FORNECE "
-		cQuery += "   AND F2_LOJA    = D1_LOJA "
-		cQuery += "   AND F1_DOC     = D1_DOC     "
-		cQuery += "   AND F1_SERIE   = D1_SERIE"
-		cQuery += "   AND F1_FORNECE = D1_FORNECE"
-		cQuery += "   AND F1_LOJA    = D1_LOJA"
-		cQuery += "   AND SD1.D_E_L_E_T_ = ' '"
-		cQuery += "   AND SF4.D_E_L_E_T_ = ' '"
-		cQuery += "   AND SF2.D_E_L_E_T_ = ' '"
-		cQuery += "   AND SF1.D_E_L_E_T_ = ' '"
-		cQuery += " GROUP BY F2_CLIENTE,F2_LOJA "
-
-		U_ExecMySql(cQuery, '_CNA', "Q", lCaptura)
-
-		TCSetField( '_CNA', 'VALOR'  , 'N',17 , 2 )
-		dbSelectArea('_CNA')
-
-		dbGotop()
-		aDevDia := {}
-		do while !Eof()
-			nPosDevDia 		:= aScan(aDevDia, {|x| x[1]==u_BUSCAGERENTE(_CNA->CLIENTE,_CNA->LOJA)})
-			If nPosDevDia > 0
-				aDevDia[nPosDevDia,2] := aDevDia[nPosDevDia,2] + _CNA->VALOR
-			Else
-				aAdd(aDevDia,{u_BUSCAGERENTE(_CNA->CLIENTE,_CNA->LOJA), _CNA->VALOR}) //	aAdd(aDevDia,{_CNA->CLIENTE,_CNA->LOJA, _CNA->VALOR})
-			EndIf
-			dbSkip()
-
-		EndDo
+		QueryDev("D", '_CNA', @aDevDia)//| Exe
 
 		*******************************************************************************
 		IncProc("Processando Metas On-Line "+" - Devoluções Mês")  // DEVOLUCOES MES
 		*******************************************************************************
 		Conout( cNomProg + " - Devoluções Mês")
 
-		// pego query de devolução do relatorio matr580
-		cQuery := "SELECT F2_CLIENTE CLIENTE,F2_LOJA LOJA ,SUM(D1_TOTAL) VALOR
-		cQuery += "  FROM "+RetSqlName("SD1")+" SD1, "+RetSqlName("SF1")+" SF1 ," +RetSqlName("SF2")+" SF2, "+RetSqlName("SF4")+ " SF4 "
-		cQuery += " WHERE D1_FILIAL = F1_FILIAL "
-		cQuery += "	  AND D1_FILIAL = F2_FILIAL "
-		cQuery += "	  AND D1_FILIAL = F4_FILIAL "
-		cQuery += "   AND D1_DTDIGIT >= '"+dataIni+"' "
-		cQuery += "   AND D1_DTDIGIT <= '"+dataFim+"' "
-		cQuery += "   AND D1_TIPO = 'D'"
-		cQuery += "   AND F4_CODIGO  = D1_TES"
+		QueryDev("M", '_CNB', @aDevMes)//| Exe
 
-		// Jorge Oliveira - 21/12/2010 - Nao mostra movimentacoes de Clientes para esse Gerente
-		// Exemplo da variavel cFilGerente := '000207', '000467'
-		// Exemplo da variavel cFilGerente := ''
-		cQuery += "   AND F2_VEND5 NOT IN (" + cFilGerente + ") "
+		*******************************************************************************
+		IncProc("Processando Metas On-Line "+" - Devoluções Mês")  // DEVOLUCOES MES
+		*******************************************************************************
+		Conout( cNomProg + " - Devoluções Trimestre")
 
-		cQuery += "   AND F4_ESTOQUE = 'S'   "
-		cQuery += "   AND F4_DUPLIC = 'S'   "
+		QueryDev("T", '_CT2', @aDevTri)//| Exe
 
-		cQuery += "   AND F2_DOC     = D1_NFORI   "
-		cQuery += "   AND F2_SERIE   = D1_SERIORI "
-		cQuery += "   AND F2_CLIENTE = D1_FORNECE "
-		cQuery += "   AND F2_LOJA    = D1_LOJA "
-		cQuery += "   AND F1_DOC     = D1_DOC     "
-		cQuery += "   AND F1_SERIE   = D1_SERIE"
-		cQuery += "   AND F1_FORNECE = D1_FORNECE"
-		cQuery += "   AND F1_LOJA    = D1_LOJA"
-		cQuery += "   AND SD1.D_E_L_E_T_ = ' '"
-		cQuery += "   AND SF4.D_E_L_E_T_ = ' '"
-		cQuery += "   AND SF2.D_E_L_E_T_ = ' '"
-		cQuery += "   AND SF1.D_E_L_E_T_ = ' '"
-		cQuery += " GROUP BY F2_CLIENTE,F2_LOJA "
-
-		U_ExecMySql(cQuery, '_CNB', "Q", lCaptura)
-
-		TCSetField( '_CNB', 'VALOR'  , 'N',17 , 2 )
-		dbSelectArea('_CNB')
-		dbGotop()
-		aDevMes := {}
-		do while !Eof()
-			//procura se já existe registro de devolução do cliente do gerente, se sim soma a ele, se não, cria o registro
-			nPosDevMes 		:= aScan(aDevMes, {|x| x[1]==u_BUSCAGERENTE(_CNB->CLIENTE,_CNB->LOJA)})
-			If nPosDevMes > 0
-				aDevMes[nPosDevMes,2] := aDevMes[nPosDevMes,2] + _CNB->VALOR
-			Else
-				aAdd(aDevMes,{u_BUSCAGERENTE(_CNB->CLIENTE,_CNB->LOJA),_CNB->VALOR}) //	aAdd(aDevMes,{_CNB->CLIENTE,_CNB->LOJA,_CNB->VALOR})
-			EndIf
-			dbSkip()
-		enddo
 	EndIf
 
 	*******************************************************************************
 	IncProc("Processando Metas On-Line "+" - Metas")// METAS DAS GERENCIAS...
 	*******************************************************************************
 	Conout( cNomProg + " - Metas")
-	IncProc()
 
-	cQuery := "SELECT CT_VEND META_GERENTE, CT_VALOR META_MFAT "
-	cQuery += "  FROM "+retSqlname('SCT')
-	cQuery += " WHERE D_E_L_E_T_  = ' ' "
-	cQuery += "   AND CT_DATA >= '"+ cData1 + "' "
-	cQuery += "   AND CT_DATA <= '"+ cData1 + "' "
-	cQuery += "   AND CT_MARCA   = '"+space(len(SCT->CT_MARCA))+"'"
-	cQuery += "   AND CT_REGIAO  = '"+space(len(SCT->CT_REGIAO))+"'"
-	cQuery += "   AND CT_CCUSTO  = '"+space(len(SCT->CT_CCUSTO))+"'"
-	cQuery += "   AND CT_VEND   <> '"+space(len(SCT->CT_VEND))+"'"
-	cQuery += "   AND CT_CIDADE  = '"+space(len(SCT->CT_CIDADE))+"'"
-	cQuery += "   AND CT_SEGMEN  = '"+space(len(SCT->CT_SEGMEN))+"'"
-	cQuery += "   AND CT_TIPO    = '"+space(len(SCT->CT_TIPO))+"'"
-	cQuery += "   AND CT_GRUPO   = '"+space(len(SCT->CT_GRUPO))+"'"
-	cQuery += "   AND CT_PRODUTO = '"+space(len(SCT->CT_PRODUTO))+"'"
-	cQuery += "   AND CT_CLVL    = '"+space(len(SCT->CT_CLVL))+"'"
-	cQuery += "   AND CT_GRPSEGT = '"+space(len(SCT->CT_GRPSEGT))+"'"
-	cQuery += "   AND CT_CLIENTE = '"+space(len(SCT->CT_CLIENTE))+"'"
-	cQuery += "   AND CT_MARCA3  = '"+space(len(SCT->CT_MARCA3))+"'"
-
-	U_ExecMySql(cQuery, '_META', "Q", lCaptura)
-
-	TCSetField( '_META', 'META_MFAT'  , 'N',17 , 2 )
-	dbSelectArea("_META")
-	dbGoTop()
-
-	do while !Eof()
-		aAdd(aMetaGER,{META_GERENTE,META_MFAT})
-		dbSkip()
-	enddo
+	QueryMet("M", '_META', @aMetaGER)//| Executa a Query Metas,  com Parametro M-Mes ou T-Trimestre
 
 	*******************************************************************************
-	Conout( cNomProg +" - Montagem dos Dados") // INICIO DO PROCESSO DE PREENCHIMENTO DOS VALORES
+	IncProc("Processando Metas On-Line "+" - Metas Trimestre")// METAS DAS GERENCIAS...
+	*******************************************************************************
+	Conout( cNomProg + " - Metas Trimestre")
+
+	QueryMet("T", '_CT3', @aMetaTri)//| Executa a Query Metas,  com Parametro M-Mes ou T-Trimestre
+
 	*******************************************************************************
 	IncProc("Processando Metas On-Line "+" - Montagem dos Dados")
+	*******************************************************************************
+
+	Conout( cNomProg +" - Montagem dos Dados") // INICIO DO PROCESSO DE PREENCHIMENTO DOS VALORES
 
 	/* Preenche o aCols com informacoes iniciais - Inicializacao */
 	aCols := {}
-	qtdGerentes := 2// INICIA COM 2 referente ao Total Geral e Gerente não definido
+	//qtdGerentes := 2// INICIA COM 2 referente ao Total Geral e Gerente não definido
+	qtdGerentes := 1// INICIA COM 1 referente ao Total Geral
 	DBSELECTAREA("_G1")
 	DBGOTOP()
 	DO WHILE !EOF()
@@ -1215,6 +1131,18 @@ Static Function Executar()//| Função Principal do Relatório...
 		0                        , ;   // Percentual
 		Space(2)                 , ;   // Borda
 		.F.                      } )   // Delete
+
+		//| Analista: Cristiano Machado - Chamado: 14677 - Data 03/03/2017
+		AADD( aCols, { nomeGerente( aCodGer[ ind ] ) ,;
+		aCodGer[ind]        , ;
+		'16'              , ;   // Grupo para ordenacao
+		'Faturamento  s/IPI'     , ;   // Grupo
+		'Diferenca Meta Trimestre' , ;   // Descricao
+		0                        , ;   // Total
+		0                        , ;   // Percentual
+		Space(2)                 , ;   // Borda
+		.F.                      } )   // Delete
+
 	Next ind
 
 	IncProc()
@@ -1319,6 +1247,15 @@ Static Function Executar()//| Função Principal do Relatório...
 		dbSkip()
 	Enddo
 
+	//| Analista: Cristiano Machado - Chamado: 14677 - Data 03/03/2017
+	// _CT1 -> Faturamento Trimestre (Baseado em _CN8)
+	dbSelectArea('_CT1')
+	dbGotop()
+	Do While !Eof()
+		lancaValor( _CT1->GERENTE ,, '16' , (_CT1->VALOR * -1), "GERENTE"  )  	//( _CN8->FILIAL , '11', _CN8->VALOR  )
+		dbSkip()
+	Enddo
+
 	*******************************************************************************
 	// OUTROS CÁLCULOS
 	*******************************************************************************
@@ -1336,12 +1273,19 @@ Static Function Executar()//| Função Principal do Relatório...
 	next ind
 	MEMOWRIT("C:\SQLSIGA\IMDC021_ADEVMES.TXT", cdevmes)
 
+	cdevtri := "adevtri" + CHR(13)+CHR(10)
+	for ind := 1 to len(aDevTri)
+		cdevtri += aDevTri[ind,1] + " " + STR(aDevTri[ind,2]) + CHR(13)+CHR(10)
+	next ind
+	MEMOWRIT("C:\SQLSIGA\IMDC021_ADEVTRI.TXT", cdevtri)
+
 	For ind := 1 To Len( aCols )
 
 		// Identifica o CÓDIGO DO GERENTE
 		cgerenteAtual 	:= aCols[ ind, X_COD_GER ] //Right( Rtrim(aCols[ ind, X_NOME_COD_GER ]),TamSx3("A3_COD" )[1])	//yfilial   := Right(Rtrim(aCols[ind, X_NOME_COD_GER ]),TamSx3("A3_COD" )[1])
 		nPosDevDia 		:= aScan(aDevDia, {|x| x[1]==cgerenteAtual})  //retorna em qual linha do array de devolução dia
 		nPosDevMes 		:= aScan(aDevMes, {|x| x[1]==cgerenteAtual})
+		nPosDevTri 		:= aScan(aDevTri, {|x| x[1]==cgerenteAtual})
 		//***************************************************************************
 		// Subtrai as devolucoes do Total Dia, do Total Mes , da Diferenca, e do Calculo da Media Dia
 		//***************************************************************************
@@ -1362,8 +1306,15 @@ Static Function Executar()//| Função Principal do Relatório...
 					//subtrai as devoluções mês
 					aCols[ ind, X_VALOR ] := aCols[ ind, X_VALOR ] - aDevMes[nPosDevMes,2]
 				EndIf
+			Elseif aCols[ ind, X_TIPO  ] == '16'
+				If 	nPosDevTri > 0
+					//subtrai as devoluções trimestre
+					aCols[ ind, X_VALOR ] := aCols[ ind, X_VALOR ] + aDevTri[nPosDevTri,2]
+				EndIf
+
 			EndIf
 		EndIf
+
 		//**********************************************************
 		// Calcula a Media Dia
 		//**********************************************************
@@ -1389,6 +1340,10 @@ Static Function Executar()//| Função Principal do Relatório...
 			EndIf
 		EndIf
 
+		If	aCols[ ind, X_TIPO  ] == '16'   //Meta Trimestre
+			aCols[ ind, X_VALOR ] :=  aCols[ ind, X_VALOR ] + MetaMes( aCols[ind, X_COD_GER ], aMetaTri )
+		EndIF
+
 	Next ind
 
 	*******************************************************************************
@@ -1413,6 +1368,7 @@ Static Function Executar()//| Função Principal do Relatório...
 	tot_13  := 0
 	tot_14  := 0
 	tot_15  := 0
+	tot_16  := 0
 
 	For ind := 1 To Len( aCols )
 
@@ -1446,6 +1402,8 @@ Static Function Executar()//| Função Principal do Relatório...
 			tot_14 += aCols[ ind, X_VALOR ]
 		Elseif aCols[ ind, X_TIPO ] == '15'
 			tot_15 += aCols[ ind, X_VALOR ]
+		Elseif aCols[ ind, X_TIPO ] == '16'
+			tot_16 += aCols[ ind, X_VALOR ]
 		EndIf
 
 	Next ind
@@ -1457,7 +1415,7 @@ Static Function Executar()//| Função Principal do Relatório...
 		//**********************************
 
 		IF aCols[ ind, X_COD_GER ] == REPLICATE("X",TamSx3("A3_COD" )[1])
-			For itipo := 1 To 15
+			For itipo := 1 To 16
 				If aCols[ ind, X_TIPO ] == padl(alltrim(STR(itipo)),2,"0") // transforma um numero como 3 para 03
 					cvalor := "tot_"+padl(alltrim(STR(itipo)),2,"0")
 					aCols[ ind, X_VALOR ] := &cvalor
@@ -1474,7 +1432,9 @@ Static Function Executar()//| Função Principal do Relatório...
 	// PERCENT valor vendido  (tipo03)  =  valor vendido  (tipo03) / valor consultado(tipo01) * 100
 
 	For ind := 0 To ( Len( aCodGer )-1 )
-		mult := ind * 15  // Cada filial ( ou o total geral ) possui 15 linhas
+
+		//If aCols[ ind, X_TIPO ] <> '16'
+		mult := ind * 16  // Cada filial ( ou o total geral ) possui 15 linhas
 		aCols[ mult+02, X_PERCENT] :=  aCols[mult+02, X_VALOR ] / aCols[ mult+01, X_VALOR] * 100
 		aCols[ mult+03, X_PERCENT] :=  aCols[mult+03, X_VALOR ] / aCols[ mult+01, X_VALOR] * 100
 		//*****************************************************
@@ -1495,6 +1455,7 @@ Static Function Executar()//| Função Principal do Relatório...
 		Else
 			aCols[mult+12, X_PERCENT] := 0
 		EndIf
+		//EndIf
 
 	Next ind
 	Incproc()
@@ -1668,7 +1629,7 @@ User Function FiltroA3M(codigo)
 	cArea := GetArea()
 	nrecno:= Recno()
 
-	cQuery := "SELECT  A1_GERVEN FROM SA1020 WHERE D_E_L_E_T_ = ' ' AND A1_GERVEN = '" + codigo + "' GROUP BY A1_GERVEN"
+	cQuery := "SELECT  A1_GERVEN FROM SA1010 WHERE D_E_L_E_T_ = ' ' AND A1_GERVEN = '" + codigo + "' GROUP BY A1_GERVEN"
 	cQuery := ChangeQuery(cQuery)
 
 	IF SELECT("A3M" ) <> 0
@@ -1881,16 +1842,19 @@ User Function diasUteis( dataLimite , yfilial, dDataInicial ) //| Retorna o no. 
 	EndDo
 	RestArea( area )
 
-	ALERT('nDUtil:' + CVALTOCHAR(nDUtil))
-
 	Return nDUtil
 	*******************************************************************************
-Static Function MetaMes( ccodgerente )
+Static Function MetaMes( ccodgerente, aDados )
 	*******************************************************************************
 
-	Local nMeta := 0, nPosMet := aScan(aMetaGer, {|x| x[1]==ccodgerente})     //dando erro aqui
+	Local nMeta := 0, nPosMet := 0
+
+	Default aDados := aMetaGer
+
+	nPosMet := aScan(aDados, {|x| x[1]==ccodgerente})
+
 	If nPosMet > 0
-		nMeta := aMetaGer[nPosMet,2]
+		nMeta := aDados[nPosMet,2]
 	EndIf
 
 	Return nMeta
@@ -2266,7 +2230,6 @@ Static Function EnviaEmail(cTipo,cCodG)//Envia o Html Gerado
 
 	IF cTipo = "G"
 
-
 		cEmailGer := ALLTRIM(POSICIONE("SA3",1,XFILIAL("SA3")+cCodG,"A3_EMAIL"))
 		cFilGer   := ALLTRIM(POSICIONE("SA3",1,XFILIAL("SA3")+cCodG,"A3_CODFIL"))
 		cEmailAss := ALLTRIM(SUPERGETMV("MV_EASSV",.F.,, cFilGer))
@@ -2325,10 +2288,15 @@ Static Function EnviaEmail(cTipo,cCodG)//Envia o Html Gerado
 	If lResult
 		Conout(cNomProg + " - Enviando Email para " + cEmailTo + cEmailBcc )
 
+		/* VOLTAR CRISTIANO
 		SEND MAIL FROM cAccount ;
-		TO "cristiano.machado@imdepa.com.br" ;//IIF(lTeste,ALLTRIM(GETMV("MV_ECONTTI")),cEmailTo ) ;  //		TO			cEmailTo ; //		BCC     	cEmailBcc ;
-		CC "" ;//IIF(lTeste,ALLTRIM(GETMV("MV_ANALITI")),ALLTRIM(GETMV("MV_ECONTTI"))+cEmailBcc) ;
-		SUBJECT 	"IMDC021" ;//cAssunto ;
+		TO IIF(lTeste,ALLTRIM(GETMV("MV_ECONTTI")),cEmailTo ) ;  //		TO			cEmailTo ; //		BCC     	cEmailBcc ;
+		CC IIF(lTeste,ALLTRIM(GETMV("MV_ANALITI")),ALLTRIM(GETMV("MV_ECONTTI"))+cEmailBcc) ;
+		*/
+		SEND MAIL FROM cAccount ;
+		TO "cristiano.machado@imdepa.com.br" ;
+		CC "" ;
+		SUBJECT 	cAssunto ;
 		BODY    	cHtml ;
 		ATTACHMENT  cAnexo ;
 		RESULT lResult
@@ -2345,38 +2313,43 @@ Static Function EnviaEmail(cTipo,cCodG)//Envia o Html Gerado
 
 	Return()
 
+	//| Analista: Cristiano Machado - Chamado: 14677 - Data 03/03/2017
 	*******************************************************************************
-	Static Function MontaDtTri(dDataConsiderada, @cDtTriIni, @cDtTriFim ) //| Monta as Datas para serem usadas nas Selecoes de Trimestres Trimestres
+Static Function MontaDtTri(dDataConsiderada, cDtTriIni, cDtTriFim ) //| Monta as Datas para serem usadas nas Selecoes de Trimestres Trimestres
 	*******************************************************************************
 
-	Static Tri1I   := "1" 	//| Mes inicial do Trimestre 1
-	Static Tri1F   := "3" 	//| Mes final do Trimestre 1
-	Static Tri2I   := "4" 	//| Mes inicial do Trimestre 1
-	Static Tri2F   := "6"	//| Mes final do Trimestre 1
-	Static Tri3I   := "7" 	//| Mes inicial do Trimestre 1
-	Static Tri3F   := "9" 	//| Mes finaldo Trimestre 1
+	Static Tri1I   := "01" 	//| Mes inicial do Trimestre 1
+	Static Tri1F   := "03" 	//| Mes final do Trimestre 1
+	Static Tri2I   := "04" 	//| Mes inicial do Trimestre 1
+	Static Tri2F   := "06"	//| Mes final do Trimestre 1
+	Static Tri3I   := "07" 	//| Mes inicial do Trimestre 1
+	Static Tri3F   := "09" 	//| Mes finaldo Trimestre 1
 	Static Tri4I   := "10" 	//| Mes inicial do Trimestre 1
 	Static Tri4F   := "12" 	//| Mes finaldo Trimestre 1
 
-	If 		Val(Month(dDataConsiderada)) >= Tri1I .And. Val(Month(dDataConsiderada)) <= Tri1F // Trimestre 1 (Jan-Fev-Mar)
+	If 		StrZero(Month(dDataConsiderada),2) >= Tri1I .And. StrZero(Month(dDataConsiderada),2) <= Tri1F // Trimestre 1 (Jan-Fev-Mar)
 		cDtTriIni	:= cValToChar( Year( dDataConsiderada ) ) + Tri1I + "01"
 		cDtTriFim	:= cValToChar( Year( dDataConsiderada ) ) + Tri1F + "31"
 
-		Else If Val(Month(dDataConsiderada)) >= Tri2I .And. Val(Month(dDataConsiderada)) <= Tri2F // Trimestre 2 (Abr-Mai-Jun)
+	ElseIf StrZero(Month(dDataConsiderada),2) >= Tri2I .And. StrZero(Month(dDataConsiderada),2) <= Tri2F // Trimestre 2 (Abr-Mai-Jun)
 		cDtTriIni	:= cValToChar( Year( dDataConsiderada ) ) + Tri2I + "01"
 		cDtTriFim	:= cValToChar( Year( dDataConsiderada ) ) + Tri2F + "30"
 
-		Else If Val(Month(dDataConsiderada)) >= Tri3I .And. Val(Month(dDataConsiderada)) <= Tri3F // Trimestre 3 (Jul-Ago-Set)
+	ElseIf StrZero(Month(dDataConsiderada),2) >= Tri3I .And. StrZero(Month(dDataConsiderada),2) <= Tri3F // Trimestre 3 (Jul-Ago-Set)
 		cDtTriIni	:= cValToChar( Year( dDataConsiderada ) ) + Tri3I + "01"
 		cDtTriFim	:= cValToChar( Year( dDataConsiderada ) ) + Tri3F + "30"
 
-		Else If Val(Month(dDataConsiderada)) >= Tri4I .And. Val(Month(dDataConsiderada)) <= Tri4F // Trimestre 4 (Out-Nov-Dez)
+	ElseIf StrZero(Month(dDataConsiderada),2) >= Tri4I .And. StrZero(Month(dDataConsiderada),2) <= Tri4F // Trimestre 4 (Out-Nov-Dez)
 		cDtTriIni	:= cValToChar( Year( dDataConsiderada ) ) + Tri4I + "01"
 		cDtTriFim	:= cValToChar( Year( dDataConsiderada ) ) + Tri4F + "31"
 
 	EndIf
 
+	conout("Data Trimestre : " +cDtTriIni+ " - " +cDtTriFim)
+
 	Return
+
+	//| Analista: Cristiano Machado - Chamado: 14677 - Data 03/03/2017
 	*******************************************************************************
 Static Function QueryNfs(cPeriodo, cTAlias)//| Executa a Query Nf's Emitidas,  com Parametro D-Dia, M-Mes ou T-Trimestre
 	*******************************************************************************
@@ -2423,8 +2396,134 @@ Static Function QueryNfs(cPeriodo, cTAlias)//| Executa a Query Nf's Emitidas,  c
 	cQuery += " GROUP BY SC5.C5_VEND5  "
 	cQuery += " ORDER BY SC5.C5_VEND5  "
 
+	MEMOWRIT("C:\SQLSIGA\QueryNfs_"+cTAlias+".TXT", cQuery)
+
 	U_ExecMySql(cQuery, cTAlias, "Q", lCaptura)//| Dia -> _CN7,  Mes -> _CN8,  Tri -> _CT1
 
 	TCSetField( cTAlias, 'VALOR'  , 'N',17 , 2 )
 
-Return 
+	Return
+
+	//| Analista: Cristiano Machado - Chamado: 14677 - Data 03/03/2017
+	*******************************************************************************
+Static Function QueryDev(cPeriodo, cTAlias, aDados)//| Executa a Query Nf's Emitidas,  com Parametro D-Dia, M-Mes ou T-Trimestre
+	*******************************************************************************
+
+	// pego query de devolução do relatorio matr580
+	cQuery := "SELECT F2_CLIENTE CLIENTE,F2_LOJA LOJA, SUM(D1_TOTAL) VALOR
+	cQuery += " FROM "+RetSqlName("SD1")+" SD1, "+RetSqlName("SF1")+" SF1 ," +RetSqlName("SF2")+" SF2, "+RetSqlName("SF4")+ " SF4 "
+	cQuery += " WHERE D1_FILIAL = F1_FILIAL "
+	cQuery += "	  AND D1_FILIAL = F2_FILIAL "
+	cQuery += "	  AND D1_FILIAL = F4_FILIAL "
+
+	If  cPeriodo == "D" // Dia
+		cQuery += "   AND D1_DTDIGIT = '" + DTOS(dDataConsiderada) + "' "
+
+	ElseIf 	cPeriodo == "M" // Mes
+		cQuery += "   AND D1_DTDIGIT >= '"+dataIni+"' "
+		cQuery += "   AND D1_DTDIGIT <= '"+dataFim+"' "
+
+	ElseIf 	cPeriodo == "T" // Trimestre
+
+		cQuery += "   AND D1_DTDIGIT >= '"+cDtTriIni+"' "
+		cQuery += "   AND D1_DTDIGIT <= '"+cDtTriFim+"' "
+
+	EndIf
+
+	cQuery += "   AND D1_TIPO = 'D'"
+	cQuery += "   AND F4_CODIGO  = D1_TES"
+
+	// Jorge Oliveira - 21/12/2010 - Nao mostra movimentacoes de Clientes para esse Gerente
+	// Exemplo da variavel cFilGerente := '000207', '000467'
+	// Exemplo da variavel cFilGerente := ''
+	cQuery += "   AND F2_VEND5 NOT IN (" + cFilGerente + ") "
+
+	cQuery += "   AND F4_ESTOQUE = 'S'   "
+	cQuery += "   AND F4_DUPLIC = 'S'   "
+
+	cQuery += "   AND F2_DOC     = D1_NFORI   "
+	cQuery += "   AND F2_SERIE   = D1_SERIORI "
+	cQuery += "   AND F2_CLIENTE = D1_FORNECE "
+	cQuery += "   AND F2_LOJA    = D1_LOJA "
+	cQuery += "   AND F1_DOC     = D1_DOC     "
+	cQuery += "   AND F1_SERIE   = D1_SERIE"
+	cQuery += "   AND F1_FORNECE = D1_FORNECE"
+	cQuery += "   AND F1_LOJA    = D1_LOJA"
+	cQuery += "   AND SD1.D_E_L_E_T_ = ' '"
+	cQuery += "   AND SF4.D_E_L_E_T_ = ' '"
+	cQuery += "   AND SF2.D_E_L_E_T_ = ' '"
+	cQuery += "   AND SF1.D_E_L_E_T_ = ' '"
+	cQuery += " GROUP BY F2_CLIENTE,F2_LOJA "
+
+	MEMOWRIT("C:\SQLSIGA\QueryDev_"+cTAlias+".TXT", cQuery)
+	U_ExecMySql(cQuery, cTAlias, "Q", lCaptura)
+
+	TCSetField( cTAlias, 'VALOR'  , 'N',17 , 2 )
+	dbSelectArea(cTAlias)
+
+	dbGotop()
+	aDados := {}
+	do while !Eof()
+		//nPosDevDia 		:= aScan(aDados, {|x| x[1]==u_BUSCAGERENTE((&cTAlias)->CLIENTE,(&cTAlias)->LOJA)})
+		nPosDevDia 		:= aScan(aDados, {|x| x[1]==u_BUSCAGERENTE(CLIENTE,LOJA)})
+		If nPosDevDia > 0
+			//aDados[nPosDevDia,2] := aDados[nPosDevDia,2] + (&cTAlias)->VALOR
+			aDados[nPosDevDia,2] := aDados[nPosDevDia,2] + VALOR
+		Else
+			//aAdd(aDados,{ U_BUSCAGERENTE((&cTAlias)->CLIENTE,(&cTAlias)->LOJA) , (&cTAlias)->VALOR } ) //	aAdd(aDados,{_CNA->CLIENTE,_CNA->LOJA, _CNA->VALOR})
+			aAdd(aDados,{ U_BUSCAGERENTE(CLIENTE,LOJA) , VALOR } ) //	aAdd(aDados,{_CNA->CLIENTE,_CNA->LOJA, _CNA->VALOR})
+		EndIf
+		dbSkip()
+
+	EndDo
+
+	Return
+
+	//| Analista: Cristiano Machado - Chamado: 14677 - Data 03/03/2017
+	*******************************************************************************
+Static Function QueryMet(cPeriodo, cTAlias, aDados)//| Executa a Query Metas,  com Parametro M-Mes ou T-Trimestre
+	*******************************************************************************
+
+	cQuery := "SELECT CT_VEND META_GERENTE, SUM(CT_VALOR) META_MFAT "
+	cQuery += "  FROM "+retSqlname('SCT')
+	cQuery += " WHERE D_E_L_E_T_  = ' ' "
+
+	If 	cPeriodo == "M" // Mes
+		cQuery += "   AND CT_DATA >= '"+ cData1 + "' "
+		cQuery += "   AND CT_DATA <= '"+ cData1 + "' "
+
+	ElseIf 	cPeriodo == "T" // Trimestre
+
+		cQuery += "   AND CT_DATA >= '"+ cDtTriIni + "' "
+		cQuery += "   AND CT_DATA <= '"+ cDtTriFim + "' "
+
+	EndIf
+
+	cQuery += "   AND CT_MARCA   = '"+space(len(SCT->CT_MARCA))+"'"
+	cQuery += "   AND CT_REGIAO  = '"+space(len(SCT->CT_REGIAO))+"'"
+	cQuery += "   AND CT_CCUSTO  = '"+space(len(SCT->CT_CCUSTO))+"'"
+	cQuery += "   AND CT_VEND   <> '"+space(len(SCT->CT_VEND))+"'"
+	cQuery += "   AND CT_CIDADE  = '"+space(len(SCT->CT_CIDADE))+"'"
+	cQuery += "   AND CT_SEGMEN  = '"+space(len(SCT->CT_SEGMEN))+"'"
+	cQuery += "   AND CT_TIPO    = '"+space(len(SCT->CT_TIPO))+"'"
+	cQuery += "   AND CT_GRUPO   = '"+space(len(SCT->CT_GRUPO))+"'"
+	cQuery += "   AND CT_PRODUTO = '"+space(len(SCT->CT_PRODUTO))+"'"
+	cQuery += "   AND CT_CLVL    = '"+space(len(SCT->CT_CLVL))+"'"
+	cQuery += "   AND CT_GRPSEGT = '"+space(len(SCT->CT_GRPSEGT))+"'"
+	cQuery += "   AND CT_CLIENTE = '"+space(len(SCT->CT_CLIENTE))+"'"
+	cQuery += "   AND CT_MARCA3  = '"+space(len(SCT->CT_MARCA3))+"'"
+	cQuery += "   GROUP BY CT_VEND "
+
+	MEMOWRIT("C:\SQLSIGA\QueryMet_"+cTAlias+".TXT", cQuery)
+
+	U_ExecMySql(cQuery, cTAlias, "Q", lCaptura)
+
+	TCSetField( cTAlias, 'META_MFAT'  , 'N',17 , 2 )
+	dbSelectArea(cTAlias);dbGoTop()
+
+	While !Eof()
+		aAdd(aDados,{META_GERENTE,META_MFAT})
+		dbSkip()
+	Enddo
+
+Return
