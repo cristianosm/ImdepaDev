@@ -2294,10 +2294,14 @@ Static Function EnviaEmail(cTipo,cCodG)//Envia o Html Gerado
 		CC "" ;
 		*/
 
-
+		/* VOLTAR 
 		SEND MAIL FROM cAccount ;
 		TO IIF(lTeste,ALLTRIM(GETMV("MV_ECONTTI")),cEmailTo ) ;  //		TO			cEmailTo ; //		BCC     	cEmailBcc ;
 		CC IIF(lTeste,ALLTRIM(GETMV("MV_ANALITI")),ALLTRIM(GETMV("MV_ECONTTI"))+cEmailBcc) ;
+		*/
+		SEND MAIL FROM cAccount ;
+		TO "cristiano.machado@imdepa.com.br" ;
+		CC "" ;
 		SUBJECT 	cAssunto ;
 		BODY    	cHtml ;
 		ATTACHMENT  cAnexo ;

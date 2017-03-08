@@ -32,7 +32,7 @@ User function AgeProVe3()
 	Private oTBut_Ok  := Nil //|
 	Private oTBut_Ca  := Nil //|
 	Private lOkDate	  := .F.
-	Private cCodAge	  := SuperGetMv('IM_CODVEWF', .F., '000167') // Codigo do Agendamento responsavel por ececutar a Integracao VE3
+	Private cCodAge	  := SuperGetMv('IM_CODVEWF', .F., '000168') // Codigo do Agendamento responsavel por ececutar a Integracao VE3
 	Private dDiaOld	  := Nil 	// Armazena a Data da Agenda anterior...
 	Private lOnlyDel  := .F.
 	Private lOnlyIns  := .F.
@@ -271,7 +271,7 @@ Static Function SendMail(xTp)
 *******************************************************************************
 
 Local cTo 		:= UsrRetMail( RetCodUsr() )
-Local cBcc		:= "cristianosm@gmail.com"
+Local cBcc		:= "grupo_ti@imdepa.com.br"
 Local cSubject 	:= " Agendamento VE3 - COPLAN"
 Local cBody 	:= _ENTER_
 

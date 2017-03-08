@@ -7,70 +7,72 @@
 //| Projeto:
 //| Modulo :
 //| Fonte : WsExecVe3
-//| 
+//|
 //|************|******************|*********************************************
 //|    Data    |     Autor        |                   Descricao
 //|************|******************|*********************************************
 //| 25/01/2017 | Cristiano Machado| Funcao responsavel por disparar a execucao do exporte dos arquivos VE3
 //|            |                  | Ele chama a execucao da Procedure principal .
-//|            |                  |  
-//|            |                  |  
-//|            |                  |  
+//|            |                  | Procedure "IVE3_0_PRINCIAL".
+//|            |                  | Agendar para Executar apenas 1 vez ao Ano no dia 1 de Janeiro.
+//|            |                  |
 //|************|***************|***********************************************
 *******************************************************************************
 User Function WsExecVe3()
-*******************************************************************************
-	
+	*******************************************************************************
+
 	//Variaveis Environment
 	Local cEmp := '01'			//| Codigo da empresa
 	Local cFil := '05'			//| Codigo da Filial
-	Local cFun := 'WsExecVe3'	//| Nome da funcao 
-	
+	Local cFun := 'WsExecVe3'	//| Nome da funcao
+
 	//Variaveis Procedure
-	Local cNameProc := 'IVE3_0_PRINCIAL' 
+	Local cNameProc := 'IVE3_0_PRINCIAL'
 	Local aRetProc  := {}				//| Armazena o retorno da Execucao da Procedure
-	Local cRetProc  := ''				
- 	
- 	//PREPARE ENVIRONMENT EMPRESA '01' FILIAL '05' FUNNAME "QUERYTST" TABLES 'SX6'
- 	 	
- 	Prepare Environment Empresa cEmp Filial cFil FunName cFun Tables 'SX6'  
+	Local cRetProc  := ''
 
- 		Conout( cNameProc + 'Inicio do Processo ' + cValToChar(dDatabase) + '  ' + Time() )
-	  
+	//PREPARE ENVIRONMENT EMPRESA '01' FILIAL '05' FUNNAME "QUERYTST" TABLES 'SX6'
 
- 		// Dispara a execucao da Procedure Principal da VE3....
- 		//aRetProc := TCSPEXEC(cNameProc)
+	Prepare Environment Empresa cEmp Filial cFil FunName cFun Tables 'SX6'
 
- 		IF Len(aRetProc) < 0 
- 			cRetProc := cNameProc + ' Erro na execucao da Procedure : ' + TcSqlError() 
- 		   	Conout(cRetProc)
- 		Else
- 			cRetProc := cNameProc + ' Procedure Executada '
- 			Conout(cRetProc)
- 		Endif
- 		
- 		//cCorpo += cRetProc
+	If Substr(DtOs(dDatabase),5,4) <> "0101" // Nunca executar se for dia Primeiro de Janeiro..
 
- 		// Obtem o log e envia email com informacoes do log...
- 		MLogMail()
- 		
- 		Conout( cNameProc + 'Fim do Processo ' + cValToChar(dDatabase) + '  ' + Time() )
- 	 
-	Reset Environment 
+		Conout( cNameProc + 'Inicio do Processo ' + cValToChar(dDatabase) + '  ' + Time() )
 
-Return Nil
-*******************************************************************************
+		// Dispara a execucao da Procedure Principal da VE3....
+		//aRetProc := TCSPEXEC(cNameProc)
+
+		IF Len(aRetProc) < 0
+			cRetProc := cNameProc + ' Erro na execucao da Procedure : ' + TcSqlError()
+			Conout(cRetProc)
+		Else
+			cRetProc := cNameProc + ' Procedure Executada '
+			Conout(cRetProc)
+		Endif
+
+		//cCorpo += cRetProc
+
+		// Obtem o log e envia email com informacoes do log...
+		MLogMail()
+
+		Conout( cNameProc + 'Fim do Processo ' + cValToChar(dDatabase) + '  ' + Time() )
+
+	EndIf
+
+	Reset Environment
+
+	Return Nil
+	*******************************************************************************
 Static Function MLogMail()// Obtem o log e envia email com informacoes do log...
-*******************************************************************************
-	//Variaveis Email 
+	*******************************************************************************
+	//Variaveis Email
 	Local cPara     := 'cristiano.machado@imdepa.com.br'
 	Local cAssunto  := 'Integracao VE3'
 	Local cIMAgVe3  := AllTrim(GetMv('IM_EAGEVE3'))
-	
 
- 	Local cCorpo	:= ' '
+	Local cCorpo	:= ' '
 	Local cItem 	:= ' '
-	
+
 	U_ExecMySql('SELECT DTEHR, PASSO, SUBPAS, TEXTO FROM LOG_VE3 ORDER BY DTEHR, PASSO, SUBPAS','TLOG','Q',.F.,.F.)
 
 	TratHtml('Cab', @cCorpo)
@@ -96,24 +98,22 @@ Static Function MLogMail()// Obtem o log e envia email com informacoes do log...
 
 	TratHtml('Rod', @cCorpo)
 
-	
 	U_EnvMyMail( Nil, 'cristiano.machado@imdepa.com.br', Nil, 'teste', cCorpo, Nil, .F.)
 
-Return Nil
-*******************************************************************************
+	Return Nil
+	*******************************************************************************
 Static Function TratHtml(cPar, cCorpo)
-*******************************************************************************
+	*******************************************************************************
 	Local cHtml := ''
 
 	If cPar == 'Cab'
 
-		
 		cHtml += '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
 		cHtml += '<html>'
 		cHtml += '<head>'
 
 		cHtml += '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"</meta>'
-		
+
 		// Estilos
 		cHtml += '<style> '
 		cHtml += 'table {width:100%;} '
@@ -131,10 +131,9 @@ Static Function TratHtml(cPar, cCorpo)
 
 		// Corpo
 		cHtml += '<body style="width: 920px;"> '
-		
 
 		// Tabela e Cabecalho
-		cHtml += '<table>' 
+		cHtml += '<table>'
 		cHtml += '<tr>'
 		cHtml += '<th width: 150px;>DATA-HORA</th>'
 		cHtml += '<th width: 50px; >PASSO</th>'
@@ -149,7 +148,7 @@ Static Function TratHtml(cPar, cCorpo)
 		cHtml += '</html>'
 
 	EndIf
-	
+
 	cCorpo += cValToChar(cHtml)
-	
+
 Return cHtml 
