@@ -40,9 +40,9 @@ User Function WsExecVe3()
 		Conout( cNameProc + 'Inicio do Processo ' + cValToChar(dDatabase) + '  ' + Time() )
 
 		// Dispara a execucao da Procedure Principal da VE3....
-		//aRetProc := TCSPEXEC(cNameProc)
-
-		IF Len(aRetProc) < 0
+		aRetProc := TCSPEXEC(cNameProc)
+		
+		IF  empty(aRetProc)
 			cRetProc := cNameProc + ' Erro na execucao da Procedure : ' + TcSqlError()
 			Conout(cRetProc)
 		Else
@@ -66,9 +66,9 @@ User Function WsExecVe3()
 Static Function MLogMail()// Obtem o log e envia email com informacoes do log...
 	*******************************************************************************
 	//Variaveis Email
-	Local cPara     := 'cristiano.machado@imdepa.com.br'
+	Local cPara     :=  AllTrim(GetMv('IM_EAGEVE3')) // Contem o email que vai receber o resultado do export...
 	Local cAssunto  := 'Integracao VE3'
-	Local cIMAgVe3  := AllTrim(GetMv('IM_EAGEVE3'))
+	Local cBcc		:= "grupo_ti@imdepa.com.br"
 
 	Local cCorpo	:= ' '
 	Local cItem 	:= ' '
@@ -98,7 +98,7 @@ Static Function MLogMail()// Obtem o log e envia email com informacoes do log...
 
 	TratHtml('Rod', @cCorpo)
 
-	U_EnvMyMail( Nil, 'cristiano.machado@imdepa.com.br', Nil, 'teste', cCorpo, Nil, .F.)
+	U_EnvMyMail( Nil, cPara, cBcc, 'Log VE3', cCorpo, Nil, .F.)
 
 	Return Nil
 	*******************************************************************************
