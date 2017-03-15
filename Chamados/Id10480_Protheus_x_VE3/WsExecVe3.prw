@@ -41,8 +41,8 @@ User Function WsExecVe3()
 
 		// Dispara a execucao da Procedure Principal da VE3....
 		aRetProc := TCSPEXEC(cNameProc)
-		
-		IF  empty(aRetProc)
+
+		IF Len(aRetProc) < 0
 			cRetProc := cNameProc + ' Erro na execucao da Procedure : ' + TcSqlError()
 			Conout(cRetProc)
 		Else

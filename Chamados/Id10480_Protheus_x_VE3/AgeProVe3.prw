@@ -234,7 +234,7 @@ Static Function InsWfAge(dDiaAtu)//| Efetiva a Inclusao do Agendamento....
 	//| Insere o novo Agendamento....
 	cSqlI += "INSERT INTO "
 	cSqlI += "	SIGA.SCHDTSK(TSK_CODIGO,TSK_ITEM,TSK_ENV,TSK_EMP,TSK_FILIAL,TSK_USERID,TSK_HORA,TSK_ROTINA,TSK_MODULO,TSK_STATUS,TSK_EXEC,TSK_TENTAT,TSK_PARM,D_E_L_E_T_,R_E_C_N_O_,R_E_C_D_E_L_,TSK_DIA) "
-	cSqlI += "	VALUES('"+cCodAge+"',(SELECT NVL(TRIM(TO_CHAR(MAX(TSK_ITEM)+1,'000000')),'000001') ITEM FROM SCHDTSK WHERE TSK_CODIGO = '"+cCodAge+"'),'TU_CRISTIANO','01','05','000615','22:00','U_WsExecVe3()',	2,'0','               ',0,NULL,' ',(SELECT	MAX( R_E_C_N_O_ )+ 1 FROM SCHDTSK),	0,'"+DToS(dDiaAtu)+"') "
+	cSqlI += "	VALUES('"+cCodAge+"',(SELECT NVL(TRIM(TO_CHAR(MAX(TSK_ITEM)+1,'000000')),'000001') ITEM FROM SCHDTSK WHERE TSK_CODIGO = '"+cCodAge+"'),'WORKFLOW','01','05','000615','22:00','U_WsExecVe3()',	2,'0','               ',0,NULL,' ',(SELECT	MAX( R_E_C_N_O_ )+ 1 FROM SCHDTSK),	0,'"+DToS(dDiaAtu)+"') "
 
 	cRet := U_ExecMySql( cSqlI , "" , "E", .F. , .F. )
 
@@ -305,5 +305,7 @@ cBody +=  _ENTER_ +  _ENTER_ + " Envio Automático - TI Imdepa Rolamentos"
 
 
 U_EnvMyMail(Nil, cTo, cBcc, cSubject, cBody, Nil, .F.)
+
+PutMV('IM_EAGEVE3',Alltrim(cTo)) 
 
 Return()
