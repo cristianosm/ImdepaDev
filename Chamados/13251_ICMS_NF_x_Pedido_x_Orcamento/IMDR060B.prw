@@ -3,7 +3,7 @@
 #Include "Protheus.ch"
 #Include "Colors.ch"
 #Include 'Totvs.ch' 
-//
+
 #include "rwmake.ch"
 #include "ap5mail.ch" 
 #include 'tbiconn.ch'
@@ -72,7 +72,7 @@
 #Define V_MAILRE 4
 #Define V_MAILCH 5
 #Define V_MAILCO 6
-#Define V_MAILFI	7
+#Define V_MAILFI 7
 #Define V_VEFONE 8
 #Define V_FILIAL 9
 #Define V_CNPJFI 10
@@ -80,16 +80,16 @@
 #Define V_ENDER2 12
 
 //| Posicoes Variavel aCols Tela da Verdade (TMK273)
-#Define A_CODIGO RetPosArr(aHeader, "UB_PRODUTO" , 1) // RetPosArr("UB_PRODUTO"	) // Codigo do Produto...
-#Define A_DESCRI RetPosArr(aHeader, "UB_DESCRI"	, 1) // Referencia e Marca do Produto...
-#Define A_UNIDME RetPosArr(aHeader, "UB_UM"	, 1) // Unidade Medida...
-#Define A_QUANTI RetPosArr(aHeader, "UB_QUANT"	, 1) // Quantidade...
-#Define A_VALUNI RetPosArr(aHeader, "UB_VRCACRE"	, 1) // Valor com Acrescimo ...
-#Define A_ALIPIU RetPosArr(aHeader, "UB_ALIQIPI"	, 1) // Valor Unitario...
-#Define A_VALSTU	RetPosArr(aHeader, "UB_ST"	, 1) // Valor Unitario ST
-#Define A_VAIPIU	RetPosArr(aHeader, "UB_VALIPI"	, 1) // Valor Unitario IPI
-#Define A_PREVEN RetPosArr(aHeader, "UB_DTENTRE"	, 1) // Data de Entrega...
-#Define A_TES RetPosArr(aHeader, "UB_TES"	, 1) // TES do Produto...
+#Define A_CODIGO  RetPosArr(aHeader, "UB_PRODUTO" , 1) // RetPosArr("UB_PRODUTO"	) // Codigo do Produto...
+#Define A_DESCRI  RetPosArr(aHeader, "UB_DESCRI"	, 1) // Referencia e Marca do Produto...
+#Define A_UNIDME  RetPosArr(aHeader, "UB_UM"	, 1) // Unidade Medida...
+#Define A_QUANTI  RetPosArr(aHeader, "UB_QUANT"	, 1) // Quantidade...
+#Define A_VALUNI  RetPosArr(aHeader, "UB_VRCACRE"	, 1) // Valor com Acrescimo ...
+#Define A_ALIPIU  RetPosArr(aHeader, "UB_ALIQIPI"	, 1) // Valor Unitario...
+#Define A_VALSTU  RetPosArr(aHeader, "UB_ST"	, 1) // Valor Unitario ST
+#Define A_VAIPIU  RetPosArr(aHeader, "UB_VALIPI"	, 1) // Valor Unitario IPI
+#Define A_PREVEN  RetPosArr(aHeader, "UB_DTENTRE"	, 1) // Data de Entrega...
+#Define A_TES 	  RetPosArr(aHeader, "UB_TES"	, 1) // TES do Produto...
 #Define A_IT_AUTO RetPosArr(aHeader, "UB_CONFITA"	, 1) // Confirma Item Automatico...
 
 #Define A_DELETE	Len(aHeader) + 1
@@ -414,7 +414,7 @@ Static Function DItens(aItens)//| Obtem dados dos Itens
 	Local bVIPSTU	 := {|| __aCCols[nItem][A_VALUNI] + __aCCols[nItem][A_VAIPIU] + __aCCols[nItem][A_VALSTU] }
 	Local bVIPSTT	 := {|| eVal(bVIPSTU) * __aCCols[nItem][A_QUANTI] }
 	Local bCAICMS	 := {|| Round( MafisRet(nItem, "IT_ICMS" )[MF_VLICMIT] / MafisRet(nItem, "IT_ICMS" )[MF_BSICMIT] * 100, 0 ) }
-	Local bCredICMS  := {|| iif(Posicione("SF4",1,xFilial("SF4")+__aCCols[nItem][A_TES],"F4_CREDICM")=="N",.F.,.T.} 
+	Local bCredICMS  := {|| iif(Posicione("SF4",1,xFilial("SF4")+__aCCols[nItem][A_TES],"F4_CREDICM")=="N",.F.,.T.) } 
 	
 	For nItem := 1 To Len(__aCCols)
 
@@ -465,7 +465,7 @@ Static Function DItens(aItens)//| Obtem dados dos Itens
 			
 			// Chamado - ICMS da NF e pedido (Ajustar Orçamento) - ID 13251
 			lCredICM :=  eVal( bCredICMS )
-			Alert('lCredICM: ' + cValToChar(lCredICM) )
+			//Alert('lCredICM: ' + cValToChar(lCredICM) )
 			If lCredICM // Verifica se Credita ou não o ICMS
 				aItens[nIok][I_ALICMS] := Transform( MaFisRet( nItem , "IT_ALIQICM" ), _MASC_AL_U_ )
 			Else
