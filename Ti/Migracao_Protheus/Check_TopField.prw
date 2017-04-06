@@ -1,5 +1,6 @@
 #Include "TopConn.ch"
 #Include 'Protheus.ch'
+#Include "Tbiconn.ch"
 
 #Define ORA_ER942 "ORA-00942"
 //#Define ORA_ER001 "ORA-00942" //ERRO: unique constraint violated
@@ -24,6 +25,8 @@ User Function Check_TopField()
 	Private lShowSql := .F.
 	Private lContinua := .T.
 
+	PREPARE ENVIRONMENT EMPRESA "01" FILIAL "05" FUNNAME 'Check_TopField'  TABLES 'SM0'
+
 	SysErrorBlock( {|e| CaixaTexto("Mensagem de Erro: "+ chr(10) + e:Description, "cristiano.machado@imdepa.com.br") } )
 
 	While lContinua //If Iw_MsgBox( "Deseja Recriar a Tabela TOP_FIELD ?? ", "TOP_FIELD", "YESNO" )
@@ -39,6 +42,8 @@ User Function Check_TopField()
 
 	EndDo
 
+	RESET ENVIRONMENT
+			
 	Return()
 	*******************************************************************************
 Static Function Verifica(oProcess, lEnd)
@@ -224,7 +229,15 @@ Static Function Perguntas()
 	PutSx1("CHETOPF","04" ,"Abrir Tabela (CheckFile) ?" ,"" ,"" ,"MV_CH3" ,"C" ,1 ,0 ,0 ,"C" ,"","","","","MV_PAR04","Todas"	,"Todas"	,"Todas"	,"" ,"Existentes"	,"Existentes" ,"Existentes"	,"Nenhuma" ,"Nenhuma" ,"Nenhuma" ,"" ,"" ,"" ,"" ,"" ,"" ,{""} ,{""} ,{""} )
 	PutSx1("CHETOPF","05" ,"Deseja Sair ? " ,"" ,"" ,"MV_CH4" ,"C" ,1 ,0 ,0 ,"C" ,"","","","","MV_PAR05","Sim"	,"Sim"	,"Sim"	,"" ,"Nao"	,"Nao" ,"Nao" ,"" ,"" ,"" ,"" ,"" ,"" ,"" ,"" ,"" ,{""} ,{""} ,{""} )
 
-	Return(Pergunte("CHETOPF",.T.))
+	Pergunte("CHETOPF",.F.)
+	
+	MV_PAR01 := "S" 
+	MV_PAR02 := "AAA"
+	MV_PAR03 := "ZZZ"
+	MV_PAR04 := "N"
+	MV_PAR05 := "N"
+
+	Return()
 	*********************************************************************
 Static Function CaixaTexto( cTexto , cMail)
 	*********************************************************************

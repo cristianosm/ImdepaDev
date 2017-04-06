@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data-sources>
+	<data-source id="oracle_thin-15b1147621e-6d37accaf0b7d2a9" provider="oracle" driver="oracle_thin" name="Oracle -PRODUCAO" save-password="true" show-system-objects="true" read-only="false">
+		<connection host="192.168.1.24" port="1521" server="" database="PRODUCAO" url="jdbc:oracle:thin:@192.168.1.24:1521:PRODUCAO" user="siga" password="HhcPJ0BXSwITAWbf" type="prod">
+			<property name="useFetchSizeWithLongColumn" value="true"/>
+			<property name="loginTimeout" value="20"/>
+			<provider-property name="@dbeaver-sid-service@" value="SID"/>
+			<provider-property name="@dbeaver-use-rule-hint@" value="false"/>
+			<provider-property name="@dbeaver-connection-type@" value="BASIC"/>
+			<provider-property name="@dbeaver-session-language@" value="PORTUGUESE"/>
+			<provider-property name="@dbeaver-session-territory@" value="BRAZIL"/>
+			<provider-property name="@dbeaver-check-schema-content@" value="true"/>
+			<provider-property name="@dbeaver-always-show-dba@" value="false"/>
+			<network-handler type="PROXY" id="socks_proxy" enabled="false" save-password="false">
+				<property name="socks-port" value="1080"/>
+			</network-handler>
+			<network-handler type="TUNNEL" id="ssh_tunnel" enabled="false" save-password="false">
+				<property name="sshConnectTimeout" value="10000"/>
+				<property name="port" value="22"/>
+				<property name="authType" value="PASSWORD"/>
+			</network-handler>
+			<bootstrap autocommit="false"/>
+		</connection>
+	</data-source>
+	<data-source id="oracle_thin-15b117500f8-7cc5adfd15479bab" provider="oracle" driver="oracle_thin" name="Oracle - T.Usuario" save-password="true" show-system-objects="true" read-only="false">
+		<connection host="192.168.1.29" port="1521" server="" database="TESTUSER" url="jdbc:oracle:thin:@192.168.1.29:1521:TESTUSER" user="siga" password="PjcvB2B3ayIzIWbf" type="test">
+			<property name="useFetchSizeWithLongColumn" value="true"/>
+			<property name="loginTimeout" value="20"/>
+			<provider-property name="@dbeaver-sid-service@" value="SID"/>
+			<provider-property name="@dbeaver-use-rule-hint@" value="false"/>
+			<provider-property name="@dbeaver-connection-type@" value="BASIC"/>
+			<provider-property name="@dbeaver-check-schema-content@" value="true"/>
+			<provider-property name="@dbeaver-always-show-dba@" value="false"/>
+			<network-handler type="TUNNEL" id="ssh_tunnel" enabled="false" save-password="false">
+				<property name="sshConnectTimeout" value="10000"/>
+				<property name="port" value="22"/>
+				<property name="authType" value="PASSWORD"/>
+			</network-handler>
+			<network-handler type="PROXY" id="socks_proxy" enabled="false" save-password="false">
+				<property name="socks-port" value="1080"/>
+			</network-handler>
+			<bootstrap autocommit="false"/>
+		</connection>
+	</data-source>
+	<data-source id="oracle_thin-15b11766f48-b6320dc752d9dcf" provider="oracle" driver="oracle_thin" name="Oracle - P12" save-password="true" show-system-objects="true" read-only="false">
+		<connection host="192.168.1.84" port="1521" server="" database="P12" url="jdbc:oracle:thin:@192.168.1.84:1521:P12" user="siga" password="HhcPJ0BXSwITAWbf" type="j0sklf7oz0vfuh">
+			<property name="useFetchSizeWithLongColumn" value="true"/>
+			<property name="loginTimeout" value="20"/>
+			<provider-property name="@dbeaver-sid-service@" value="SID"/>
+			<provider-property name="@dbeaver-use-rule-hint@" value="false"/>
+			<provider-property name="@dbeaver-connection-type@" value="BASIC"/>
+			<provider-property name="@dbeaver-check-schema-content@" value="true"/>
+			<provider-property name="@dbeaver-always-show-dba@" value="false"/>
+			<network-handler type="TUNNEL" id="ssh_tunnel" enabled="false" save-password="false">
+				<property name="sshConnectTimeout" value="10000"/>
+				<property name="authType" value="PASSWORD"/>
+				<property name="port" value="22"/>
+			</network-handler>
+			<network-handler type="PROXY" id="socks_proxy" enabled="false" save-password="false">
+				<property name="socks-port" value="1080"/>
+			</network-handler>
+		</connection>
+	</data-source>
+</data-sources>

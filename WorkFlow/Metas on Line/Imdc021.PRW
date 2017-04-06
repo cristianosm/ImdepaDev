@@ -72,7 +72,8 @@ User Function IMDC021()
 	Private aDiasRest
 	Private aMetaFil
 	Private aMetaGer
-	Private aMetaTri
+	//Private aMetaTri
+	Private aMetaAno
 	Private _cglobger
 	Private dDataConsiderada
 	Private dataIni
@@ -90,6 +91,9 @@ User Function IMDC021()
 	Private cDtTriIni
 	Private cDtTriFim
 
+	Private cDtAnoIni
+	Private cDtAnoFim
+	
 	Conout( cNomProg + " -  TESTE - Preparando Environment")
 
 	IF Type("dDatabase") == "U" // Se rodado via workflow a variável dDatabase estara disponivel somente apos o Prepare Environment
@@ -124,7 +128,7 @@ User Function IMDC021()
 	cPathCompleto  		:= Getmv("MV_DIRMOL")
 	cExecExcel 	   		:= Getmv("MV_EXCEL")
 	cFilGerente    		:= Getmv("MV_FILGMOL")
-	aHrMORet        := &(Getmv("MV_HRMORET"))
+	aHrMORet        	:= &(Getmv("MV_HRMORET"))
 
 	aheader 			:= {}
 	aCols   	 		:= {}
@@ -139,7 +143,8 @@ User Function IMDC021()
 	aDiasRest 	   		:= {}
 	aMetaFil 	   		:= {}
 	aMetaGer 	   		:= {}
-	aMetaTri			:= {}
+	//aMetaTri			:= {}
+	aMetaAno			:= {}
 	_cglobger 	   		:= ""
 
 	//| Parametro Para Rodar Retroativo
@@ -167,6 +172,9 @@ User Function IMDC021()
 
 	//| Analista: Cristiano Machado - Chamado: 14677 - Data 03/03/2017
 	MontaDtTri(dDataConsiderada,@cDtTriIni,@cDtTriFim ) //| Monta as Datas para serem usadas nas Selecoes de Trimestres Trimestres
+
+	//| Analista: Cristiano Machado - Chamado: 15614 - Data 04/04/2017
+	MontaDtAno(dDataConsiderada,@cDtAnoIni,@cDtAnoFim ) //| Monta as Datas para serem usadas nas Selecoes de Trimestres Trimestres
 
 	ExisteSXB_A3M()//| Verifica a existência da consulta padrão A3M E PARAMETRO, se não existir, cria
 
@@ -246,7 +254,7 @@ User Function IMDC021()
 				{"TIPO"      , "C" , 5  , 0 },;
 				{"GRUPO"     , "C" , 20 , 0 },;
 				{"DESCRICAO" , "C" , 30 , 0 },;
-				{"VALOR"     , "N" , 14 , 2 },;
+				{"VALOR"     , "N" , 16 , 2 },;
 				{"Perc"      , "N" , 6  , 2 } }
 
 				carqtrab := CRIATRAB(aStruct,.T.)
@@ -454,7 +462,8 @@ Static Function Executar()//| Função Principal do Relatório...
 	Private yfilial
 	Private aDevDia := {}
 	Private aDevMes := {}
-	Private aDevTri := {}
+//	Private aDevTri := {}
+	Private aDevAno := {}
 	Private nPos    := 0
 	Private nPosDev := 0
 	Private LENnome := 16 //| Tamanho do Nome do Gerente
@@ -488,7 +497,7 @@ Static Function Executar()//| Função Principal do Relatório...
 	aAdd(aHeader,{ "Tipo     "   	, "A1_FILIAL"  	,                 ""	,    02					,  0,  ".F.", " ",  "C",  "SA1"    } )
 	aAdd(aHeader,{ "Grupo    "  	, "A1_NOME"    	,                 ""	,    17					,  0,  ".F.", " ",  "C",  "SA1"    } )
 	aAdd(aHeader,{ "Descricao"  	, "A1_NOME"    	,                 ""	,    22					,  0,  ".F.", " ",  "C",  "SA1"    } )
-	aAdd(aHeader,{ "Valor"      	, "C6_TOTAL"   	,"@E 99,999,999,999.99"	,    12					,  2,  ".F.", " ",  "C",  "SC6"    } )
+	aAdd(aHeader,{ "Valor"      	, "C6_TOTAL"   	,"@E 9,999,999,999.99"	,    16					,  2,  ".F.", " ",  "C",  "SC6"    } )
 	aAdd(aHeader,{ "(%)"        	, "A3_COMIS"  	,       "@EZ 999.99"	,     5					,  2,  ".F.", " ",  "N",  "SA3"    } )
 	aAdd(aHeader,{ " "          	, "A1_FILIAL"  	,                 ""	,    02					,  0,  ".F.", " ",  "C",  "SA1"    } )
 
@@ -870,12 +879,20 @@ Static Function Executar()//| Função Principal do Relatório...
 
 	QueryNfs("M", '_CN8') //| Executa a Query Nf's Emitidas,  com Parametro D-Dia, M-Mes ou T-Trimestre
 
+/*	
 	*******************************************************************************
 	IncProc("Processando Metas On-Line "+" - Fat. Tri")//CONSULTA  - valores NFs emitidas no Trimestre corrente ate a database
 	*******************************************************************************
 	Conout( cNomProg + " - Fat. Tri")
 
 	QueryNfs("T", '_CT1') //| Executa a Query Nf's Emitidas,  com Parametro D-Dia, M-Mes ou T-Trimestre
+*/
+	*******************************************************************************
+	IncProc("Processando Metas On-Line "+" - Fat. Ano")//CONSULTA  - valores NFs emitidas no Ano corrente ate a database
+	*******************************************************************************
+	Conout( cNomProg + " - Fat. Ano")
+
+	QueryNfs("A", '_CT1') //| Executa a Query Nf's Emitidas,  com Parametro D-Dia, M-Mes, T-Trimestre ou A-Ano
 
 	*******************************************************************************
 	IncProc("Processando Metas On-Line "+" - Lib. Pendente WMS")//CONSULTA 05,5 - LIBERACAO PENDENTE DE WMS
@@ -934,12 +951,20 @@ Static Function Executar()//| Função Principal do Relatório...
 
 		QueryDev("M", '_CNB', @aDevMes)//| Exe
 
+		/*
 		*******************************************************************************
-		IncProc("Processando Metas On-Line "+" - Devoluções Mês")  // DEVOLUCOES MES
+		IncProc("Processando Metas On-Line "+" - Devoluções Mês")  // DEVOLUCOES TRI
 		*******************************************************************************
 		Conout( cNomProg + " - Devoluções Trimestre")
 
 		QueryDev("T", '_CT2', @aDevTri)//| Exe
+		*/
+		*******************************************************************************
+		IncProc("Processando Metas On-Line "+" - Devoluções Ano")  // DEVOLUCOES ANO
+		*******************************************************************************
+		Conout( cNomProg + " - Devoluções Ano")
+
+		QueryDev("A", '_CT2', @aDevAno)//| Exe
 
 	EndIf
 
@@ -950,12 +975,20 @@ Static Function Executar()//| Função Principal do Relatório...
 
 	QueryMet("M", '_META', @aMetaGER)//| Executa a Query Metas,  com Parametro M-Mes ou T-Trimestre
 
+	/*
 	*******************************************************************************
 	IncProc("Processando Metas On-Line "+" - Metas Trimestre")// METAS DAS GERENCIAS...
 	*******************************************************************************
 	Conout( cNomProg + " - Metas Trimestre")
 
 	QueryMet("T", '_CT3', @aMetaTri)//| Executa a Query Metas,  com Parametro M-Mes ou T-Trimestre
+	*/
+	*******************************************************************************
+	IncProc("Processando Metas On-Line "+" - Metas Ano")// METAS DAS GERENCIAS...
+	*******************************************************************************
+	Conout( cNomProg + " - Metas Ano")
+
+	QueryMet("A", '_CT3', @aMetaAno)//| Executa a Query Metas,  com Parametro M-Mes,T-Trimestre ou A-Ano
 
 	*******************************************************************************
 	IncProc("Processando Metas On-Line "+" - Montagem dos Dados")
@@ -1133,11 +1166,12 @@ Static Function Executar()//| Função Principal do Relatório...
 		.F.                      } )   // Delete
 
 		//| Analista: Cristiano Machado - Chamado: 14677 - Data 03/03/2017
+		//| Analista: Cristiano Machado - Chamado: 15614 - Data 04/04/2017
 		AADD( aCols, { nomeGerente( aCodGer[ ind ] ) ,;
 		aCodGer[ind]        , ;
 		'16'              , ;   // Grupo para ordenacao
 		'Faturamento  s/IPI'     , ;   // Grupo
-		'Diferenca Meta Trimestre' , ;   // Descricao
+		'Diferença Meta Ano Acum' , ;   // Descricao
 		0                        , ;   // Total
 		0                        , ;   // Percentual
 		Space(2)                 , ;   // Borda
@@ -1248,7 +1282,8 @@ Static Function Executar()//| Função Principal do Relatório...
 	Enddo
 
 	//| Analista: Cristiano Machado - Chamado: 14677 - Data 03/03/2017
-	// _CT1 -> Faturamento Trimestre (Baseado em _CN8)
+	//| Analista: Cristiano Machado - Chamado: 15614 - Data 04/04/2017
+	// _CT1 -> Faturamento Ano (Baseado em _CN8)
 	dbSelectArea('_CT1')
 	dbGotop()
 	Do While !Eof()
@@ -1273,11 +1308,18 @@ Static Function Executar()//| Função Principal do Relatório...
 	next ind
 	MEMOWRIT("C:\SQLSIGA\IMDC021_ADEVMES.TXT", cdevmes)
 
+	/*
 	cdevtri := "adevtri" + CHR(13)+CHR(10)
 	for ind := 1 to len(aDevTri)
 		cdevtri += aDevTri[ind,1] + " " + STR(aDevTri[ind,2]) + CHR(13)+CHR(10)
 	next ind
 	MEMOWRIT("C:\SQLSIGA\IMDC021_ADEVTRI.TXT", cdevtri)
+	*/
+	cdevano := "adevAno" + CHR(13)+CHR(10)
+	for ind := 1 to len(aDevAno)
+		cdevano += adevAno[ind,1] + " " + STR(adevAno[ind,2]) + CHR(13)+CHR(10)
+	next ind
+	MEMOWRIT("C:\SQLSIGA\IMDC021_ADEVANO.TXT", cdevano)
 
 	For ind := 1 To Len( aCols )
 
@@ -1285,7 +1327,8 @@ Static Function Executar()//| Função Principal do Relatório...
 		cgerenteAtual 	:= aCols[ ind, X_COD_GER ] //Right( Rtrim(aCols[ ind, X_NOME_COD_GER ]),TamSx3("A3_COD" )[1])	//yfilial   := Right(Rtrim(aCols[ind, X_NOME_COD_GER ]),TamSx3("A3_COD" )[1])
 		nPosDevDia 		:= aScan(aDevDia, {|x| x[1]==cgerenteAtual})  //retorna em qual linha do array de devolução dia
 		nPosDevMes 		:= aScan(aDevMes, {|x| x[1]==cgerenteAtual})
-		nPosDevTri 		:= aScan(aDevTri, {|x| x[1]==cgerenteAtual})
+		//nPosDevTri 		:= aScan(aDevTri, {|x| x[1]==cgerenteAtual})
+		nPosDevAno 		:= aScan(aDevAno, {|x| x[1]==cgerenteAtual})
 		//***************************************************************************
 		// Subtrai as devolucoes do Total Dia, do Total Mes , da Diferenca, e do Calculo da Media Dia
 		//***************************************************************************
@@ -1307,9 +1350,15 @@ Static Function Executar()//| Função Principal do Relatório...
 					aCols[ ind, X_VALOR ] := aCols[ ind, X_VALOR ] - aDevMes[nPosDevMes,2]
 				EndIf
 			Elseif aCols[ ind, X_TIPO  ] == '16'
+				/*
 				If 	nPosDevTri > 0
 					//subtrai as devoluções trimestre
 					aCols[ ind, X_VALOR ] := aCols[ ind, X_VALOR ] + aDevTri[nPosDevTri,2]
+				EndIf
+				*/
+				If 	nPosDevAno > 0
+					//subtrai as devoluções trimestre
+					aCols[ ind, X_VALOR ] := aCols[ ind, X_VALOR ] + aDevAno[nPosDevAno,2]
 				EndIf
 
 			EndIf
@@ -1339,9 +1388,15 @@ Static Function Executar()//| Função Principal do Relatório...
 				EndIf
 			EndIf
 		EndIf
-
+		
+		/*
 		If	aCols[ ind, X_TIPO  ] == '16'   //Meta Trimestre
 			aCols[ ind, X_VALOR ] :=  aCols[ ind, X_VALOR ] + MetaMes( aCols[ind, X_COD_GER ], aMetaTri )
+		EndIF
+		*/
+		
+		If	aCols[ ind, X_TIPO  ] == '16'   //Meta Ano
+			aCols[ ind, X_VALOR ] :=  aCols[ ind, X_VALOR ] + MetaMes( aCols[ind, X_COD_GER ], aMetaAno )
 		EndIF
 
 	Next ind
@@ -2079,7 +2134,7 @@ User Function Item(cpar1)
 Static Function GeraEmail(_aCols)//Monta HTML para envio
 	*******************************************************************************
 	Local _aCols
-
+	Local cCorLin := "1"
 	aCols := _aCols
 
 	//Ajusta Array para trabalhar com HTML
@@ -2119,7 +2174,7 @@ Static Function GeraEmail(_aCols)//Monta HTML para envio
 
 	cHtml += '<BODY TEXT="#000000">'
 	cHtml += '<TABLE FRAME=VOID CELLSPACING=0 COLS=7 RULES=NONE BORDER=0>'
-	cHtml += '	<COLGROUP><COL WIDTH=197><COL WIDTH=115><COL WIDTH=36><COL WIDTH=128><COL WIDTH=151><COL WIDTH=94><COL WIDTH=86></COLGROUP>'
+	cHtml += '	<COLGROUP><COL WIDTH=197><COL WIDTH=115><COL WIDTH=36><COL WIDTH=128><COL WIDTH=171><COL WIDTH=104><COL WIDTH=86></COLGROUP>'
 	cHtml += '	<TBODY>'
 	cHtml += '		<TR>'
 	cHtml += '			<TD STYLE="border-top: 3px solid #000000; border-bottom: 3px solid #000000; border-left: 3px solid #000000; border-right: 3px solid #000000" COLSPAN=7 WIDTH=806 HEIGHT=17 ALIGN=CENTER BGCOLOR="#00FFFF"><B>Metas On-Line II &ndash; Scheduled</B></TD>' //cHtml += '			<TD STYLE="border-top: 3px solid #000000; border-bottom: 3px solid #000000; border-left: 3px solid #000000; border-right: 3px solid #000000" COLSPAN=7 WIDTH=806 HEIGHT=17 ALIGN=CENTER BGCOLOR="#00FFFF"><B>Metas On-Line II &ndash; Scheduled</B></TD>'
@@ -2143,16 +2198,27 @@ Static Function GeraEmail(_aCols)//Monta HTML para envio
 	cHtml += '			<TD STYLE="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" ALIGN=LEFT BGCOLOR="#99CCFF"><B>(%)</B></TD>'
 	cHtml += '		</TR>'
 
+	cCodGer := ""
 	FOR X:=1 TO LEN(aCols)
-
-		cHtml += '		<TR>'
-		cHtml += '			<TD STYLE="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" HEIGHT=17 ALIGN=LEFT SDNUM="1046;0;@">' + aCols[x][X_NOME_GER] + '</TD>'
-		cHtml += '			<TD STYLE="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" ALIGN=LEFT SDNUM="1046;0;@">' + aCols[x][X_COD_GER] + '</TD>'
-		cHtml += '			<TD STYLE="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" ALIGN=LEFT SDNUM="1046;0;@">' + aCols[x][X_TIPO] + '</TD>'
-		cHtml += '			<TD STYLE="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" ALIGN=LEFT SDNUM="1046;0;@">' + aCols[x][X_GRUPO] + '</TD>'
-		cHtml += '			<TD STYLE="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" ALIGN=LEFT SDNUM="1046;0;@">' + aCols[x][X_DESCRI] + '</TD>'
-		cHtml += '			<TD STYLE="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" ALIGN=RIGHT SDVAL="11041034,06" SDNUM="1046;0;#.##0,00">' + TRANSFORM(aCols[x][X_VALOR],'@E 99,999,999.99') + '</TD>'
-		cHtml += '			<TD STYLE="border-top: 1px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" ALIGN=RIGHT SDVAL="110,63" SDNUM="1046;">' + TRANSFORM(aCols[x][X_PERCENT],'@E 99,999,999.99') + '</TD>'
+			
+			cCorLin := IF(cCorLin = "1","2","1") // Cria Efeito Zebrado ...
+			
+			// Controla Espessura da linnha quando alterna o Gerente, facilitar a visualização
+			if cCodGer <> aCols[x][X_COD_GER] 
+				cPx := '3'
+				cCodGer := aCols[x][X_COD_GER]
+			else
+			    cPx := '1'
+			endIf
+			
+		cHtml += '		<TR nowrap bgcolor='+IF(cCorLin = "1","white","#DFDFDF")+'>'  
+		cHtml += '			<TD STYLE="border-top: '+cPx+'px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" HEIGHT=17 ALIGN=LEFT SDNUM="1046;0;@">' + aCols[x][X_NOME_GER] + '</TD>'
+		cHtml += '			<TD STYLE="border-top: '+cPx+'px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" ALIGN=LEFT SDNUM="1046;0;@">' + aCols[x][X_COD_GER] + '</TD>'
+		cHtml += '			<TD STYLE="border-top: '+cPx+'px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" ALIGN=LEFT SDNUM="1046;0;@">' + aCols[x][X_TIPO] + '</TD>'
+		cHtml += '			<TD STYLE="border-top: '+cPx+'px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" ALIGN=LEFT SDNUM="1046;0;@">' + aCols[x][X_GRUPO] + '</TD>'
+		cHtml += '			<TD STYLE="border-top: '+cPx+'px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" ALIGN=LEFT SDNUM="1046;0;@">' + aCols[x][X_DESCRI] + '</TD>'
+		cHtml += '			<TD STYLE="border-top: '+cPx+'px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" ALIGN=RIGHT SDVAL="11041034,06" SDNUM="1046;0;#.##0,00">' + TRANSFORM(aCols[x][X_VALOR],'@E 9,999,999,999.99') + '</TD>'
+		cHtml += '			<TD STYLE="border-top: '+cPx+'px solid #000000; border-bottom: 1px solid #000000; border-left: 1px solid #000000; border-right: 1px solid #000000" ALIGN=RIGHT SDVAL="110,63" SDNUM="1046;">' + TRANSFORM(aCols[x][X_PERCENT],'@E 99,999,999.99') + '</TD>'
 		cHtml += '		</TR>'
 
 	NEXT X
@@ -2294,19 +2360,20 @@ Static Function EnviaEmail(cTipo,cCodG)//Envia o Html Gerado
 		CC "" ;
 		*/
 
-		/* VOLTAR 
-		SEND MAIL FROM cAccount ;
-		TO IIF(lTeste,ALLTRIM(GETMV("MV_ECONTTI")),cEmailTo ) ;  //		TO			cEmailTo ; //		BCC     	cEmailBcc ;
-		CC IIF(lTeste,ALLTRIM(GETMV("MV_ANALITI")),ALLTRIM(GETMV("MV_ECONTTI"))+cEmailBcc) ;
-		*/
+		/* TESTE 
 		SEND MAIL FROM cAccount ;
 		TO "cristiano.machado@imdepa.com.br" ;
 		CC "" ;
+		*/
+
+		SEND MAIL FROM cAccount ;
+		TO IIF(lTeste,ALLTRIM(GETMV("MV_ECONTTI")),cEmailTo ) ;  //		TO			cEmailTo ; //		BCC     	cEmailBcc ;
+		CC IIF(lTeste,ALLTRIM(GETMV("MV_ANALITI")),ALLTRIM(GETMV("MV_ECONTTI"))+cEmailBcc) ;
 		SUBJECT 	cAssunto ;
 		BODY    	cHtml ;
 		ATTACHMENT  cAnexo ;
 		RESULT lResult
-
+		
 		If !lResult
 			//Erro no envio do email
 			GET MAIL ERROR cError
@@ -2320,6 +2387,7 @@ Static Function EnviaEmail(cTipo,cCodG)//Envia o Html Gerado
 	Return()
 
 	//| Analista: Cristiano Machado - Chamado: 14677 - Data 03/03/2017
+	//| Analista: Cristiano Machado - Chamado: 15614 - Data 04/04/2017
 	*******************************************************************************
 Static Function MontaDtTri(dDataConsiderada, cDtTriIni, cDtTriFim ) //| Monta as Datas para serem usadas nas Selecoes de Trimestres Trimestres
 	*******************************************************************************
@@ -2355,7 +2423,21 @@ Static Function MontaDtTri(dDataConsiderada, cDtTriIni, cDtTriFim ) //| Monta as
 
 	Return
 
+//| Analista: Cristiano Machado - Chamado: 15614 - Data 04/04/2017
+	*******************************************************************************
+Static Function MontaDtAno(dDataConsiderada, cDtAnoIni, cDtAnoFim ) //| Monta as Datas para serem usadas nas Selecoes de Trimestres Trimestres
+	*******************************************************************************
+	Local cUdiaM :=  Substr(dToS(LastDay(dDataConsiderada)),7,2) // Ultima dia do mes corrente...
+	cDtAnoIni := cValToChar( Year( dDataConsiderada ) ) + "01" + "01"
+	cDtAnoFim := cValToChar( Year( dDataConsiderada ) ) + StrZero(Month(dDataConsiderada),2) + cUdiaM
+	
+
+	conout("Data Ano Acumulado : " +cDtAnoIni+ " - " +cDtAnoFim)
+
+	Return
+
 	//| Analista: Cristiano Machado - Chamado: 14677 - Data 03/03/2017
+	//| Analista: Cristiano Machado - Chamado: 15614 - Data 04/04/2017
 	*******************************************************************************
 Static Function QueryNfs(cPeriodo, cTAlias)//| Executa a Query Nf's Emitidas,  com Parametro D-Dia, M-Mes ou T-Trimestre
 	*******************************************************************************
@@ -2375,6 +2457,10 @@ Static Function QueryNfs(cPeriodo, cTAlias)//| Executa a Query Nf's Emitidas,  c
 	ElseIf 	cPeriodo == "T" // Trimestre
 		cQuery += "   AND SD2.D2_EMISSAO >= '"+cDtTriIni+"'"
 		cQuery += "   AND SD2.D2_EMISSAO <= '"+cDtTriFim+"'"
+
+	ElseIf 	cPeriodo == "A" // Ano
+		cQuery += "   AND SD2.D2_EMISSAO >= '"+cDtAnoIni+"'"
+		cQuery += "   AND SD2.D2_EMISSAO <= '"+cDtAnoFim+"'"
 
 	EndIf
 
@@ -2411,6 +2497,7 @@ Static Function QueryNfs(cPeriodo, cTAlias)//| Executa a Query Nf's Emitidas,  c
 	Return
 
 	//| Analista: Cristiano Machado - Chamado: 14677 - Data 03/03/2017
+	//| Analista: Cristiano Machado - Chamado: 15614 - Data 04/04/2017
 	*******************************************************************************
 Static Function QueryDev(cPeriodo, cTAlias, aDados)//| Executa a Query Nf's Emitidas,  com Parametro D-Dia, M-Mes ou T-Trimestre
 	*******************************************************************************
@@ -2434,6 +2521,11 @@ Static Function QueryDev(cPeriodo, cTAlias, aDados)//| Executa a Query Nf's Emit
 		cQuery += "   AND D1_DTDIGIT >= '"+cDtTriIni+"' "
 		cQuery += "   AND D1_DTDIGIT <= '"+cDtTriFim+"' "
 
+	ElseIf 	cPeriodo == "A" // Ano
+	
+		cQuery += "   AND D1_DTDIGIT >= '"+cDtAnoIni+"' "
+		cQuery += "   AND D1_DTDIGIT <= '"+cDtAnoFim+"' "
+		
 	EndIf
 
 	cQuery += "   AND D1_TIPO = 'D'"
@@ -2486,6 +2578,7 @@ Static Function QueryDev(cPeriodo, cTAlias, aDados)//| Executa a Query Nf's Emit
 	Return
 
 	//| Analista: Cristiano Machado - Chamado: 14677 - Data 03/03/2017
+	//| Analista: Cristiano Machado - Chamado: 15614 - Data 04/04/2017
 	*******************************************************************************
 Static Function QueryMet(cPeriodo, cTAlias, aDados)//| Executa a Query Metas,  com Parametro M-Mes ou T-Trimestre
 	*******************************************************************************
@@ -2502,6 +2595,11 @@ Static Function QueryMet(cPeriodo, cTAlias, aDados)//| Executa a Query Metas,  c
 
 		cQuery += "   AND CT_DATA >= '"+ cDtTriIni + "' "
 		cQuery += "   AND CT_DATA <= '"+ cDtTriFim + "' "
+
+		ElseIf 	cPeriodo == "A" // Ano
+
+		cQuery += "   AND CT_DATA >= '"+ cDtAnoIni + "' "
+		cQuery += "   AND CT_DATA <= '"+ cDtAnoFim + "' "
 
 	EndIf
 
