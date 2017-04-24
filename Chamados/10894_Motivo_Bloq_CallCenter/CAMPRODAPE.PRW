@@ -320,16 +320,17 @@ Static BLQ99 	:= "99" //| Custom-> Bloqueio Vendor
 
 
 // Consulta Pedido para Identificar Bloqueio
-cSql += "SELECT MAX(C9_BLCRED) BLOQ FROM SC9010 "
+cSql += "SELECT C9_PEDIDO PEDIDO, MAX(C9_BLCRED) BLOQ FROM SC9010 "
 cSql += "WHERE C9_FILIAL = '"+xFilial("SC9")+"' "
 cSql += "AND   C9_PEDIDO = '"+cPedido+"' "
 cSql += "AND   C9_BLCRED NOT IN ('  ','10') "
 cSql += "AND   D_E_L_E_T_ = ' ' "
+cSql += "GROUP BY C9_PEDIDO "
 
 U_ExecMySql( cSql , 'BLQ' , "Q", .F., .F. )
 
-DbSelectArea("BLQ")
-If !EOF("BLQ")
+DbSelectArea("BLQ");DbGoTop()
+If !EOF("BLQ") .And. BLQ->PEDIDO == cPedido
 
 	If BLQ01 == BLQ->BLOQ
 		cReturn := "Pedido bloqueado por Limite ou Atraso "
@@ -344,7 +345,7 @@ If !EOF("BLQ")
 	ElseIf BLQ99 == BLQ->BLOQ
 		cReturn := "Pedido bloqueado por Cond.Pag. Vendor"
 	Else 
-		cReturn := "Pedido Bloqueio no Crédito!"
+		cReturn := "Pedido Bloqueado no Crédito!"
 	EndIF
 EndIf
 
