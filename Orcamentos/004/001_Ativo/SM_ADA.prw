@@ -26,7 +26,22 @@ N4_TIPOCNT == "3"  	//CONTA DE DESPESA
 N4_TIPOCNT == "4"  	//CONTA DE DEPREC ACUMULADA
 N4_TIPOCNT == "5"  	//CONTA DE CORRECAO DA DEP ACUMULADA
 */
-
+/*****************************************************************************\
+**---------------------------------------------------------------------------**
+** FUNÇÃO   : SM_ADA    | AUTOR : Cristiano Machado | DATA : 20/04/2017      **
+**---------------------------------------------------------------------------**
+** DESCRIÇÃO:  Corrige Saldos e Movimentos dos Ativos ( SN3 | SN4 )          **
+**---------------------------------------------------------------------------**
+** USO : Especifico para Imdepa Rolamentos                                   **
+**---------------------------------------------------------------------------**
+**---------------------------------------------------------------------------**
+** ATUALIZACOES SOFRIDAS DESDE A CONSTRUCAO INICIAL.                         **
+**---------------------------------------------------------------------------**
+** PROGRAMADOR | DATA | MOTIVO DA ALTERACAO                                  **
+**---------------------------------------------------------------------------**
+**   |  | **
+**   |  | **
+\*---------------------------------------------------------------------------*/
 *******************************************************************************
 User function SM_ADA() // Ajusta Depreciacao Ativo;
 *******************************************************************************
@@ -531,6 +546,9 @@ Static Function MontaBase(cCursor)// Monta Bens a Avaliar apartir dos Parametros
 
 	Pergunte(cPerg, .T.)
 
+	MV_PAR01 := GetMv("MV_ULTDEPR") // Obtem Data da Ultima Depreciacao
+
+	
 	cSql += "SELECT N3_CBASE CODBASE, N3_ITEM CITEM, N3_CCONTAB CCONTA "
 	cSql += "FROM SN3010 "
 	cSql += "WHERE D_E_L_E_T_ 	= ' ' "
