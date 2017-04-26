@@ -3,61 +3,75 @@
 #Include "Tbiconn.ch"
 
 #Define CRLF ( chr(13)+chr(10) )
-
+/*
+Esta Rotina Ajusta o Sequencial do License para a Tabela SCt Metas em Todas as Filiais que possuem registros...  
+*/
 *******************************************************************************
 User Function AjusSeqSCT()
 *******************************************************************************
 
-	Local cMaxID := ''
-	Local cAtuID := ''
+	Local cMaxID  := ''
+	Local cAtuID  := ''
+	Local aFilAtv := { }
+	Local lSet	  := .F.
+	
+	PREPARE ENVIRONMENT EMPRESA "01" FILIAL "01" FUNNAME 'AjusSeqSCT'  TABLES 'SM0','SCT'
 
-	PREPARE ENVIRONMENT EMPRESA "01" FILIAL "05" FUNNAME 'AjusSeqSCT'  TABLES 'SM0','SCT'
+	VerFilAtivas(@aFilAtv);ConOut('')
+	
+	For nF := 1 To Len(aFilAtv)
 
-		VerMaxID(@cMaxID);conout(' Maior ID encontrado: ' + cMaxID )
+		lSet := RpcSetEnv("01",aFilAtv[nF],Nil,Nil,"FAT","AjusSeqSCT", {"SX6","SCT"} )
 
-		VerAtuID(@cAtuID);conout(' DOC Autal encontrado: ' + cAtuID )
+		If lSet
+			cFilAnt := aFilAtv[nF]
 
-		If cAtuID <= cMaxID
+			VerMaxID(@cMaxID)//;ConOut(' Maior ID encontrado: ' + cMaxID )
 
-			conout(' Iniciando Ajuste...'  )
+			VerAtuID(@cAtuID)//;ConOut(' DOC Autal encontrado: ' + cAtuID )
 
-			AjustaXENum(cAtuID , cMaxID)
+			If cAtuID <= cMaxID
+				
+				ConOut(' Iniciando Ajuste Filial... ['+aFilAtv[nF]+']' )
 
-		Endif
+				AjustaXENum(cMaxID)
 
+				ConOut(' Filial Ajustada... ['+aFilAtv[nF]+']'  )
+
+			Endif
+		Else
+			ConOut(" Não conseguiu Setar a Filial "+ aFilAtv[nF] )
+		EndIf
+	Next
+
+	ConOut('');ConOut('Fim da Rotina...')
+	
 	RESET ENVIRONMENT
 
-Return()
+	Return()
 *******************************************************************************
-Static Function AjustaXENum(cAtuID,cMaxID)
+Static Function AjustaXENum(cMaxID)
 *******************************************************************************
-	Local cHoraInicio   	:= Time()
-	Local lJaOk := .F.
-	Local nPorx := 10000
-	Local nShow := nPorx + Val(cAtuID)
 
+	Local __SpecialKey 	:= Upper(GetSrvProfString("SpecialKey", ""))
+	Local cAliasSx8  	:=   PADR( xFilial("SCT")+Upper(x2path("SCT")), 50 )
+	Local cChaveSx 		:= __SpecialKey+cAliasSX8+"SCT"
+	Local cNum			:= ""
+	Local nRet			:= 0
 
-	For i := Val(cAtuID) To Val(cMaxID)
-        cNexID := GetLSNum("SCT","CT_DOC") //,cAliasSX8,nOrdem)
-		//cNexID := GetSxeNum("SCT","CT_DOC")
-		ConfirmSX8()
+	ConOut(" Maior DOC encontrado na Filial [" + xFilial("SCT") +"] => "+ cMaxID )
+	
+	cNum := LS_GetNum(cChaveSx) 				; ConOut( " DOC Atual : "+cValToChar( cNum ) )
+	nRet := LS_ConfirmNum(cChaveSx, cMaxID ) 	; ConOut( " Confirmando DOC : " + If(cValToChar(nRet)=="0","Ok","Erro"))
 
-		if I == nShow
-			conout('Processando item '+Str(i) +' de  '+cMaxID+'  ' + Time())
-			nShow += nPorx
-		EndIf
+	LS_ChangeFreeNum(cChaveSx, cMaxID )	;ConOut( " Alterando DOC para " + cMaxID )
 
-		//Verifica se já existe o documento
-		//lJaOk	:=	CheckDoc(cNexID)
-		If lJaOk
-			cHoraFim := Time()
-			conout('Processo Finalizado com Sucesso !'+Chr(10)+Chr(13)+'Tempo de Processamento :'+ ELAPTIME(cHoraInicio, cHoraFim))
-			Exit
-		Endif
-	Next i
-
-Return
-
+	cNum := LS_GetNum(cChaveSx)				; ConOut(" Proximo DOC : "+ cValToChar( cNum ) )
+	nRet := LS_ConfirmNum(cChaveSx, cNum ) 	; ConOut(" Confirmando DOC : " + If(cValToChar(nRet)=="0","Ok","Erro"))
+	
+	ConOut('')
+	
+	Return
 *******************************************************************************
 Static Function CheckDoc(cNexID)
 *******************************************************************************
@@ -80,7 +94,7 @@ Static Function CheckDoc(cNexID)
 		lOk:=.T.
 	Endif
 
-Return(lOk)
+	Return(lOk)
 *******************************************************************************
 Static Function	VerMaxID(cMaxID)
 *******************************************************************************
@@ -91,7 +105,6 @@ Static Function	VerMaxID(cMaxID)
 	cSql += " And   CT_DOC < '999999999' "
 	cSql += " And   D_E_L_E_T_ = ' ' "
 
-
 	//dbUseArea(.T.,"TOPCONN",TCGENQRY(,,cQuery),"TRB",.T.,.T.)
 	U_ExecMySql( cSql, 'TRB', 'Q', .F., .F.  )
 
@@ -99,7 +112,7 @@ Static Function	VerMaxID(cMaxID)
 	cMaxID := cValToChar(TRB->MaxID)
 	DbCloseArea()
 
-Return()
+	Return()
 *******************************************************************************
 Static Function	VerAtuID(cMaxID)
 *******************************************************************************
@@ -108,4 +121,23 @@ Static Function	VerAtuID(cMaxID)
 
 	RollBackSX8()//Devolvo o Controle sem Confirmar
 
+	Return()
+*******************************************************************************
+Static Function	VerFilAtivas(aFilAtv)
+*******************************************************************************
+	Local cSql := ""
+
+	cSql := "SELECT DISTINCT CT_FILIAL FILIAL FROM SCT010 GROUP BY CT_FILIAL ORDER BY CT_FILIAL"
+
+	U_ExecMySql( cSql, 'FIA', 'Q', .F., .F.  )
+
+	DbSelectArea("FIA");DbGotop()
+	While !Eof()
+
+		Aadd( aFilAtv ,  FIA->FILIAL )
+
+		DbSelectArea("FIA")
+		DbSkip()
+	EndDo
+	DbSelectArea("FIA");DbClose()
 Return()
