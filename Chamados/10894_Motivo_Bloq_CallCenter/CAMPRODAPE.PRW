@@ -335,7 +335,7 @@ If !EOF("BLQ") .And. BLQ->PEDIDO == cPedido
 	If BLQ01 == BLQ->BLOQ
 		cReturn := "Pedido bloqueado por Limite ou Atraso "
 	ElseIf BLQ04 == BLQ->BLOQ
-		cReturn := "Pedido bloqueado por Dt Lim. Vencido "+aDadosCli[_VENCLC]+""
+		cReturn := "Pedido bloq. por Dt Lim. Vencido "+aDadosCli[_VENCLC]+""
 	ElseIf BLQ09 == BLQ->BLOQ
 		cReturn := "Pedido bloqueado manualmente pelo Crédito"
 	ElseIf BLQ97 == BLQ->BLOQ
