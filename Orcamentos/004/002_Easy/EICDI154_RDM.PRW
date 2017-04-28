@@ -40,6 +40,7 @@ User Function EICDI154()
 		Return .F.
 	EndIf
 
+	//Alert("ParamIxb: " + ParamIxb)
 //+------------------------------------------------------------------------------------//
 //|VerIfica pelo parametro padrao do DESEMBARAÇO F12 se fara a contabilização
 //|Precionando F12 na tela do Desembaraço poderam selecionar os parametros
@@ -56,8 +57,6 @@ User Function EICDI154()
 	//+-----------------------------------------------------------------------------------//
 	Case ParamIxb == "ESTORNO"
 		
-		//| Estorno Lançamento CE Mercante 
-		U_IEasyLanc(SW6->W6_HAWB, "E")
 		
 		If nTipoNF <> CUSTO_REAL
 			If !Empty(SW6->W6_NFTRAN)
@@ -65,8 +64,14 @@ User Function EICDI154()
 				Return .F.
 			Endif
 		EndIf
-
-
+	
+	Case ParamIxb == "ANTES_ESTORNO_NOTA"
+		
+		//| Estorno Lançamento CE Mercante 
+		U_IEasyLanc(SW6->W6_HAWB, "E")
+		
+		
+		
 
 	//+-----------------------------------------------------------------------------------//
 	//|Parametro..: "GRAVA_SWN_EI2"

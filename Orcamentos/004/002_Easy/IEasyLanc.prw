@@ -1,8 +1,8 @@
 #Include 'Totvs.ch'
 
-#Define  INCDESP "I"
-#Define  ESTDESP "E"
-#Define  ZERO     0
+#Define INCDESP "I"
+#Define ESTDESP "E"
+#Define ZERO     0
 
 
 *******************************************************************************
@@ -29,23 +29,33 @@ Static Function ExecLP(cLanPad)
 *******************************************************************************
 
 	Local cLote		:= "008850"		// Lote a Ser Utilizado...
-	Local cProcess	:= "DESPESACE"	// Nome do Processo
+	Local cProcess	:= "DESPCEMER"	// Nome do Processo
 	Local cFile		:= ""			// Arquivo de Lancamento
 	Local nHdlPrv	:= 0			// Arquivo Binario
-	Local lDigita 	:= .T.			//
+	Local lDigita 	:= .F.			// Abri o Lancamento para Digitacao 
 	Local lAglut 	:= .F.			// Aglutina Lançamento
 	Local cUserLog  := SubStr(cUsuario,7,6)
 	Local nTotal    := 0
 	
-	
+	//Alert("Entrou Lanc!! ")
 	DbSelectArea("CT5")
 	If Abs(nTotDesp) > 0
-
-		nHdlPrv := HeadProva(cLote,cProcess,cUserLog,@cFile)
-		nTotal  += DetProva(nHdlPrv,cLanPad,cProcess,cLote)
-		RodaProva( @nHdlPrv ,@nTotal)
-		cA100Incl( @cFile ,@nHdlPrv,3,@cLote,@lDigita,@lAglut)
-
+		
+		lPadrao := VerPadrao(cLanPad) //| Verifica se o codigo da LANPADRAO Padronizado existe. MATXFUN.PRX
+		If lPadrao
+			//Alert("cLanPad: " + cValToChar(cLanPad))
+			//Alert("nTotDesp: " + cValToChar(nTotDesp))
+		
+			nHdlPrv := HeadProva(cLote,cProcess,cUserLog,@cFile)
+			nTotal  += DetProva(nHdlPrv,cLanPad,cProcess,cLote)
+			
+			//Alert("nTotal: " + cValToChar(nTotal))
+			
+			RodaProva( @nHdlPrv ,@nTotal)
+			cA100Incl( @cFile ,@nHdlPrv,3,@cLote,@lDigita,@lAglut, /*cOnLine := "C"*/ )
+		
+		EndIf
+		
 	EndIf
 
 Return()
