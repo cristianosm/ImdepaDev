@@ -114,20 +114,23 @@ Static Function Principal(CBase, Item, Conta, DtUlD ) //Funcao Principal
 	Private TMA    := "MAT" // Tabela Movimento Ativo
 
 	// Obtem Dados do ATIVO
-	DadosAtivo(@TCA)
+	If DadosAtivo(@TCA)
 
-	// Obtem Movimento Ativo Atual
-	MovAtivo(@TMA)
+		// Obtem Movimento Ativo Atual
+		MovAtivo(@TMA)
 
-	// Verifica se eh necessário Ajuste na Depreciacao ?
-	If VerSeAjusta() == AJUSTA
+		// Verifica se eh necessário Ajuste na Depreciacao ?
+		If VerSeAjusta() == AJUSTA
 
-		// Ajusta Depreciacao caso Necessario
-		AjuDepre()
+			// Ajusta Depreciacao caso Necessario
+			AjuDepre()
 
+		EndIf
+
+		DbSelectArea(TMA);DbCloseArea()
+	
 	EndIf
-
-	DbSelectArea(TCA);DbCloseArea()
+	
 	DbSelectArea(TCA);DbCloseArea()
 
 	Return Nil
@@ -155,15 +158,18 @@ Static function DadosAtivo(cCursor)// Obtem Dados do ATIVO
 	cSql += "AND   N3_CCONTAB = '"+CConta+"' "
 	cSql += "AND   N3_CBASE   = '"+cCBase+"' "
 	cSql += "AND   N3_ITEM    = '"+cItem+"' "
-	cSql += "AND   N3_DTBAIXA = ' ' " // Só bens Ativos
-	cSql += "AND   N3_CDEPREC > ' ' " // Deve ter conta debito  de depreciacao
-	cSql += "AND   N3_CCDEPR  > ' ' " // Deve ter conta credito de depreciacao
+	cSql += "AND   N3_DINDEPR <= '"+DtOs(dDtUlD)+"' " // Só bens que devem ser depreciados dentro da data daultima depreciacao
+	cSql += "AND   N3_DTBAIXA =  ' ' " // Só bens Ativos
+	cSql += "AND   N3_CDEPREC >  ' ' " // Deve ter conta debito  de depreciacao
+	cSql += "AND   N3_CCDEPR  >  ' ' " // Deve ter conta credito de depreciacao
 
 	cSql += "ORDER BY N3_CBASE, N3_ITEM "
 
 	U_ExecMySql( cSql , cCursor , "Q", lShowSql, .F. )
+	
+	DbSelectArea(cCursor);DbGoTop()
 
-	Return Nil
+	Return (!EOF())
 *******************************************************************************
 Static function MovAtivo(cCursor)// Obtem Movimento Ativo Atual
 *******************************************************************************
