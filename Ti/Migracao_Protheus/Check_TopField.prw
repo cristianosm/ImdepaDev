@@ -9,9 +9,9 @@
 #Define _SIM_	1
 #Define _NAO_	2
 
-#Define _TODAS_	1
-#Define _EXIST_	2
-#Define _NEHUMA_	3
+#Define _TODAS_	 1
+#Define _EXIST_	 2
+#Define _NEHUMA_ 3
 
 *******************************************************************************
 User Function Check_TopField()
@@ -21,13 +21,13 @@ User Function Check_TopField()
 	Local lEnd	:= Nil
 	Local cScript	:= Nil
 
-	Private oError := ErrorBlock( {|e| CaixaTexto("Mensagem de Erro: "+ chr(10) + e:Description, "cristiano.machado@imdepa.com.br") } )
+	Private oError := ErrorBlock( {|e| conout( "Mensagem de Erro: "+ chr(10) + e:Description ) /*, "cristiano.machado@imdepa.com.br")**/ } )
 	Private lShowSql := .F.
 	Private lContinua := .T.
 
-	PREPARE ENVIRONMENT EMPRESA "01" FILIAL "05" FUNNAME 'Check_TopField'  TABLES 'SM0'
+	PREPARE ENVIRONMENT EMPRESA "01" FILIAL "01" FUNNAME 'Check_TopField'  TABLES 'SM0'
 
-	SysErrorBlock( {|e| CaixaTexto("Mensagem de Erro: "+ chr(10) + e:Description, "cristiano.machado@imdepa.com.br") } )
+	SysErrorBlock( {|e| conout("Mensagem de Erro: "+ chr(10) + e:Description)/*, "cristiano.machado@imdepa.com.br")*/ } )
 
 	While lContinua //If Iw_MsgBox( "Deseja Recriar a Tabela TOP_FIELD ?? ", "TOP_FIELD", "YESNO" )
 
@@ -105,16 +105,16 @@ Static Function Verifica(oProcess, lEnd)
 
 		While Alltrim(SX3->X3_ARQUIVO) == Alltrim(x2Alias)
 
-			oProcess:IncRegua2(	PadR("Analisando Campo...:",20) + SX3->X3_CAMPO )
+			Procmem(oProcess,	PadR("Analisando Campo...:",20) + SX3->X3_CAMPO )
 
 			If Sx3ToTop(@cFTable, @cFName, @cFType, @cFPrec, @cFDec ) // Alimneta as Variaveis envolvidas e se deve ser criado...
 
 				//| Deleta o Campos Caso Exista....
-				oProcess:IncRegua2( PadR("Deletando Campo....:",20) + SX3->X3_CAMPO )
+				Procmem(oProcess, PadR("Deletando Campo....:",20) + SX3->X3_CAMPO )
 				cRet := ExecMySql( Eval(bDelCpo),"","E",lShowSql)
 
 				//| Insere a Nova Config do Campo ...
-				oProcess:IncRegua2( PadR("Inserindo Campo....:",20) + SX3->X3_CAMPO )
+				Procmem(oProcess, PadR("Inserindo Campo....:",20) + SX3->X3_CAMPO )
 				cRet := ExecMySql( Eval(bInsert),"","E",lShowSql)
 
 			EndIf
@@ -130,16 +130,16 @@ Static Function Verifica(oProcess, lEnd)
 
 				Begin Sequence
 
-					oProcess:IncRegua2("DbSelectArea.......:"+x2Alias )
+					Procmem(oProcess,"DbSelectArea.......:"+x2Alias )
 					DbSelectArea(x2Alias)
 
-					oProcess:IncRegua2("TcRefresh..........:"+x2Alias )
+					Procmem(oProcess,"TcRefresh..........:"+x2Alias )
 					TcRefresh( x2Table )
 
-					oProcess:IncRegua2("ChkFile............:"+x2Alias )
+					Procmem(oProcess,"ChkFile............:"+x2Alias )
 					ChkFile( x2Alias, .F. ) //, .F. , x2Alias)
 
-					oProcess:IncRegua2("TcRefresh..........:"+x2Alias )
+					Procmem(oProcess,"TcRefresh..........:"+x2Alias )
 					TcRefresh( x2Table )
 
 				End Sequence
@@ -160,6 +160,8 @@ Static Function Verifica(oProcess, lEnd)
 		DbSkip()
 
 	EndDo
+
+	lContinua := .F.
 
 	Return()
 	*******************************************************************************
@@ -231,13 +233,13 @@ Static Function Perguntas()
 
 	Pergunte("CHETOPF",.F.)
 	
-	MV_PAR01 := "S" 
-	MV_PAR02 := "AAA"
+	MV_PAR01 := _SIM_ //_SIM_ 
+	MV_PAR02 := "AA1"
 	MV_PAR03 := "ZZZ"
-	MV_PAR04 := "N"
-	MV_PAR05 := "N"
+	MV_PAR04 := _NEHUMA_
+	MV_PAR05 := _NAO_
 
-	Return()
+	Return .T.
 	*********************************************************************
 Static Function CaixaTexto( cTexto , cMail)
 	*********************************************************************
@@ -323,5 +325,14 @@ Static Function ExecMySql( cSql , cCursor , lModo, lMostra, lChange )
 		Return(cRet)
 
 	Endif
+
+Return()
+*******************************************************************************
+Static Function Procmem(oProcess, cTexto )
+*******************************************************************************
+
+	oProcess:IncRegua2( cTexto )
+
+	conout(cTexto)
 
 Return()
