@@ -45,7 +45,6 @@ User Function ImptGerVenC()
 
 
 	Return Nil
-
 *******************************************************************************
 Static Function AjusArquivo() // Ajusta o Arquivo e converte em array...
 *******************************************************************************
@@ -75,10 +74,7 @@ Static Function AjusArquivo() // Ajusta o Arquivo e converte em array...
 		Next
 
 
-
-
 	Return Nil
-	
 *******************************************************************************
 Static Function VerItem(aItem) // Monta as Chaves
 *******************************************************************************
@@ -95,13 +91,6 @@ Static Function VerItem(aItem) // Monta as Chaves
 	//MntChCli() // Monta a Chave do Cliente que vai ser atualizado
 	
 	//MntChArq() // Monta a Chave do Arquivo
-
-	
-	
-	
-	
-	
-
 
 
 

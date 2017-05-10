@@ -208,9 +208,9 @@ Static Function ConfigVar(_lPerg) //| Configura as Variaves necessarias
 	_SetOwnerPrvt( 'lNTR', .F. ) //| 1 *   -> Sigla "NTR" -> Nao Tributado  | Contem : "102"
 	_SetOwnerPrvt( 'lSTI', .F. ) //| 2 **  -> Sigla "STI" -> ST Inclusa 	| Contem : "405"
 	_SetOwnerPrvt( 'lSTT', .F. ) //| 3 *** -> Sigla "STT" -> ST Tributada   | Contem : "403"	
-	_SetOwnerPrvt( 'cNTR', "  * -> Não Tributado" ) //| 1 *   -> Sigla "NTR" -> Nao Tributado  | Contem : "102"
-	_SetOwnerPrvt( 'cSTI', " ** -> S.T. Inclusa" ) //| 2 **  -> Sigla "STI" -> ST Inclusa 	| Contem : "405"
-	_SetOwnerPrvt( 'cSTT', "*** -> S.T. Tributada" ) //| 3 *** -> Sigla "STT" -> ST Tributada   | Contem : "403"	
+	_SetOwnerPrvt( 'cNTR', "1 -> Não Tributado" ) //| 1 *   -> Sigla "NTR" -> Nao Tributado  | Contem : "102"
+	_SetOwnerPrvt( 'cSTI', "2 -> S.T. Inclusa" ) //| 2 **  -> Sigla "STI" -> ST Inclusa 	| Contem : "405"
+	_SetOwnerPrvt( 'cSTT', "3 -> S.T. Tributada" ) //| 3 *** -> Sigla "STT" -> ST Tributada   | Contem : "403"	
 	
 	_SetOwnerPrvt( 'lProspect'  , SUA->UA_PROSPEC ) //Se for Prospect... lProspect->.T.
  
@@ -510,7 +510,7 @@ Static Function DItens(aItens)//| Obtem dados dos Itens
 
 			aItens[nIok][I_PREVEN] := Dtoc( __aCCols[nItem][A_PREVEN] )
 			
-			aItens[nIok][I_CFOP]   := VerRegraCF( __aCCols[nItem][A_CFOP] )  
+			aItens[nIok][I_CFOP]   :=  __aCCols[nItem][A_CFOP]   
 
 			// aItens[nIok][I_ALICMS] := Transform( eVal( bCAICMS ), _MASC_AL_U_ ) //Transform( MaFisRet( nItem , "IT_ALIQICM" ), _MASC_AL_U_ )
 			
@@ -815,11 +815,8 @@ Static Function PCliente(oPrn)	//| Imprime Dados do Cliente
 Static Function PItens(oPrn, aItem)
 	*******************************************************************************
 	Local nPIMM := -1 //| Variavel de Controle para Pulo quando ocorre Mensagem de Marketing
-	Local bPos := {|| nFPG+nVIL+850 + ((nI+nPIMM) * 50 )} //| Monta a Posicao da Linha
-	Local bPon := {|| nFPG+nVIL+870 + ((nI+nPIMM) * 50 )}	//| Monta a Posicao da Linha para NCM
-	Local bPox := {|| nFPG+nVIL+887 + ((nI+nPIMM) * 50 )}	//| Monta a Posicao da Linha Gates
-
-
+	Local bPoL := {|| nFPG+nVIL+850 + ((nI+nPIMM) * 50 )} //| Monta a Posicao da Linha
+	Local bPoS := {|| nFPG+nVIL+870 + ((nI+nPIMM) * 50 )}	//| Monta a Posicao da Sub-Linha 
 	Local bItem := {|| StrZero((nIp+nI)-1,3) } //| Monta o Numero do Item
 
 	//|Controla a Impressao dos Itens..
@@ -842,77 +839,71 @@ Static Function PItens(oPrn, aItem)
 
 	//| Codigo Produto
 	oFont := TFont():New( 'Courier new' , , -10);	oFont:Bold := .F.
-	oPrn:Say( eVal(bPos) , 30 , aItem[I_CODIGO] , oFont , , 0 , )
+	oPrn:Say( eVal(bPoL) , 30 , aItem[I_CODIGO] , oFont , , 0 , )
 
 	//| Item
 	oFont := TFont():New( 'Courier new' , , -9);	oFont:Italic := .T.
-	oPrn:Say( eVal(bPon) , 25+nVIC , eVal(bItem) , oFont , , 0 , )
-
-	//| Legenda Regra ST  //| Chamado : 16463 -> Melhoria orçamento - Legenda
-	oFont := TFont():New( 'Courier new' , , -9);	oFont:Italic := .T.
-	oPrn:Say( eVal(bPon) , 69+nVIC , aItem[I_CFOP] , oFont , , 0 , )
-
+	oPrn:Say( eVal(bPoS) , 25+nVIC , eVal(bItem) , oFont , , 0 , )
 
 	//| Descricao
 	oFont := TFont():New( 'Courier new' , , -10); oFont:Bold := .T.
-	oPrn:Say( eVal(bPos) , 162+nVIC , aItem[I_DESCRI] , oFont , , 0 , )
-
+	oPrn:Say( eVal(bPoL) , 162+nVIC , aItem[I_DESCRI] , oFont , , 0 , )
 
 	//| NCM
 	oFont := TFont():New( 'Courier new' , , -9);	oFont:Italic := .T.
-	oPrn:Say( eVal(bPon) , 350-193+nVIC ,Alltrim(aItem[I_CODNCM]), oFont , , 0 , )
-	//oPrn:Say( eVal(bPon) , 350-193+nVIC ,Alltrim(aItem[I_CODNCM]) +" "+aItem[I_REFGATES], oFont , , 0 , )
+	oPrn:Say( eVal(bPoS) , 350-193+nVIC ,Alltrim(aItem[I_CODNCM]), oFont , , 0 , )
 
-	//| NCM
-	oFont := TFont():New( 'Courier new' , , -10);	oFont:Bold := .T.
-	oPrn:Say( eVal(bPon) , 350-193+99+nVIC ," "+aItem[I_REFGATES], oFont , , 0 , )
+	//| CFOP
+	oFont := TFont():New( 'Courier new' , , -9);	oFont:Italic := .T.
+	oPrn:Say( eVal(bPoS) , 350-193+105+nVIC , '/'+aItem[I_CFOP] , oFont , , 0 , )
 
+	//| Legenda Regra ST  //| Chamado : 16463 -> Melhoria orçamento - Legenda
+	oFont := TFont():New( 'Courier new' , , -7);	oFont:Italic := .T. ; oFont:Bold := .T.
+	oPrn:Say( eVal(bPoS)-8 , 350-193+173+nVIC , VerRegraCF(aItem[I_CFOP]) , oFont , , 0 , )
 
-
-	//If aItem[I_REFGATES]
-	 //Msginfo('Tem Correias')
-	//Endif
-
+	//| Correias - Referencia Gates
+	oFont := TFont():New( 'Courier new' , , -7);	oFont:Bold := .T.
+	oPrn:Say( eVal(bPoS)-2 , 350-193+190+nVIC  ,  PADL(aItem[I_REFGATES],35) , oFont , , 0 , )
 
 	//| Unidade Medida
 	oFont := TFont():New( 'Courier new' , , -10)
-	oPrn:Say( eVal(bPos) , 668+nVIC , aItem[I_UNIDME] , oFont , , 0 , )
+	oPrn:Say( eVal(bPoL) , 668+nVIC , aItem[I_UNIDME] , oFont , , 0 , )
 
 	//| Quantidade
 	oFont := TFont():New( 'Courier new' , , -12);	oFont:Bold := .T.
-	oPrn:Say( eVal(bPos) , 690+nVIC , aItem[I_QUANTI] , oFont , , 0 , )
+	oPrn:Say( eVal(bPoL) , 690+nVIC , aItem[I_QUANTI] , oFont , , 0 , )
 
 	//| Valor Unitario
 	oFont := TFont():New( 'Courier new' , , -10)
-	oPrn:Say( eVal(bPos) , 947+nVIC , aItem[I_VALUNI] , oFont , , 0 , )
+	oPrn:Say( eVal(bPoL) , 947+nVIC , aItem[I_VALUNI] , oFont , , 0 , )
 
 	//| Aliquota ICMS
 	oFont := TFont():New( 'Courier new' , , -10)
-	oPrn:Say( eVal(bPos) , 1172+nVIC , aItem[I_ALICMS] , oFont , , 0 , )
+	oPrn:Say( eVal(bPoL) , 1172+nVIC , aItem[I_ALICMS] , oFont , , 0 , )
 
 	//| Aliquota IPI
 	oFont := TFont():New( 'Courier new' , , -10)
-	oPrn:Say( eVal(bPos) , 1247+nVIC , aItem[I_ALIPIU] , oFont , , 0 , )
+	oPrn:Say( eVal(bPoL) , 1247+nVIC , aItem[I_ALIPIU] , oFont , , 0 , )
 
 	// Valor IPI
 	oFont := TFont():New( 'Courier new' , , -10)
-	oPrn:Say( eVal(bPos) , 1307+nVIC , aItem[I_VAIPIU] , oFont , , 0 , )
+	oPrn:Say( eVal(bPoL) , 1307+nVIC , aItem[I_VAIPIU] , oFont , , 0 , )
 
 	//| Valor ST Unitario
 	oFont := TFont():New( 'Courier new' , , -10)
-	oPrn:Say( eVal(bPos) , 1467+nVIC , aItem[I_VALSTU] , oFont , , 0 , )
+	oPrn:Say( eVal(bPoL) , 1467+nVIC , aItem[I_VALSTU] , oFont , , 0 , )
 
 	//| Valor + IPI + ST Unitario
 	oFont := TFont():New( 'Courier new' , , -10); oFont:Bold := .T.
-	oPrn:Say( eVal(bPos) , 1648+nVIC , aItem[I_VIPSTU] , oFont , , 0 , )
+	oPrn:Say( eVal(bPoL) , 1648+nVIC , aItem[I_VIPSTU] , oFont , , 0 , )
 
 	//| Valor + IPI + St Total
 	oFont := TFont():New( 'Courier new' , , -10); oFont:Bold := .T.
-	oPrn:Say( eVal(bPos) , 1875+nVIC , aItem[I_VIPSTT] , oFont , , 0 , )
+	oPrn:Say( eVal(bPoL) , 1875+nVIC , aItem[I_VIPSTT] , oFont , , 0 , )
 
 	//| Previsao de Entrega
 	oFont := TFont():New( 'Courier new' , , -10)
-	oPrn:Say( eVal(bPos) , 2110+nVIC , aItem[I_PREVEN] , oFont , , 0 , )
+	oPrn:Say( eVal(bPoL) , 2110+nVIC , aItem[I_PREVEN] , oFont , , 0 , )
 
 
 	Return()
@@ -1200,7 +1191,7 @@ Static Function PLayout(oPrn) //|Imprime Layout Completo do Or amento
 	oPrn:Say( nFPG+nVIL+750 , 325+nVIC , 'Descrição' , oFont , , 0 , )
 
 	oFont := TFont():New( 'Courier new' , , -10);	oFont:Italic := .T.
-	oPrn:Say( nFPG+nVIL+770 , 370+nVIC , 'NCM' , oFont , , 0 , )
+	oPrn:Say( nFPG+nVIL+770 , 335+nVIC , 'NCM/CFOP' , oFont , , 0 , )
 
 	oFont := TFont():New( 'Courier new' , , -12);	oFont:Bold := .T.
 	oPrn:Say( nFPG+nVIL+750 , 668+nVIC , 'UM' , oFont , , 0 , )
@@ -1563,13 +1554,13 @@ cCF  := Substr(cCFOP,2,3)
 
 Do Case 
    	Case cCF == NTR
-   		cRet := "*"
+   		cRet := "1"
    		lNTR := .T.
  	Case cCF == STI
- 		cRet := "**"
+ 		cRet := "2"
  		lSTI := .T.
  	Case cCF == STT
- 		cRet := "***"
+ 		cRet := "3"
  		lSTT := .T.
  	OtherWise
  		cRet := "   "
