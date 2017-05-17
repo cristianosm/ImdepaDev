@@ -27,7 +27,7 @@ User Function TK271BOK()
 *******************************************************************************
 
 	Local lReturn       :=.T.
-	Local lAbaTeleVendas:=IIf( nFolder == 2,.T.,.F.)  // Define se a Aba em uso ?a do TeleVendas
+	Private lAbaTeleVendas:=IIf( nFolder == 2,.T.,.F.)  // Define se a Aba em uso ?a do TeleVendas
 
 	If lAbaTeleVendas // Chamado - erro telecobrança ( agenda do operador) - ID 16688
 		TeleVendas(@lReturn)
