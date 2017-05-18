@@ -976,7 +976,7 @@ Static Function PMsgens(oPrn)//| Imprime Mensagens
 	//| Impressao da Numeracao da Pagina
 	
 	//| Chamado : 16463 -> Melhoria orçamento - Legenda
-	oFont := TFont():New( 'Courier new' , , -12);	oFont:Bold := .F.
+	oFont := TFont():New( 'Courier new' , , -12);	oFont:Bold := .T.
 	If lNTR 
 		oPrn:Say( nVIL+2029 , 050 , cNTR , oFont , , 0 , )
 	EndIF
