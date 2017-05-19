@@ -276,7 +276,7 @@ cSql += "ON   AC.AC8_CODENT = A1.A1_COD||A1.A1_LOJA "
 cSql += "               FULL JOIN SU5010 U5 "
 cSql += "ON   AC.AC8_CODCON =  U5.U5_CODCONT "
 cSql += "WHERE AC.AC8_ENTIDA = 'SA1' " 
-cSql += "AND TRIM(TRIM(REPLACE(A1.A1_DDD,'0',''))  ||' '  ||TRIM(A1.A1_TEL)) <> TRIM("+Substr(cCampo,6)+") " 
+cSql += "AND TRIM(TRIM(REPLACE(A1.A1_DDD,'0',''))  ||' '  ||TRIM(A1.A1_TEL)) <> NVL(TRIM("+Substr(cCampo,6)+"),' ')  " 
 cSql += "AND   EXISTS (SELECT E1_CLIENTE, E1_LOJA FROM SE1010 WHERE E1_FILIAL = ' ' AND E1_EMISSAO >= '20150201' AND D_E_L_E_T_ = ' ' AND E1_CLIENTE = A1_COD AND E1_LOJA = A1_LOJA ) "
 
 
@@ -297,14 +297,16 @@ While !EOF()
 
 	oProcess:IncRegua2( "Atualizando Contato do Cliente " + CST->A1_COD +"-"+ CST->A1_LOJA )
 	
-	DbSelectArea("SU5")
-	DBGoto(CST->RECNO)
-	RecLock("SU5",.F.)
-	&cCampo.		:= CST->A1_TEL
-	MsUnlock()
+	If CST->RECNO > 0 
+		DbSelectArea("SU5"	)
+		DBGoto(CST->RECNO)
+		RecLock("SU5",.F.)
+		&cCampo.		:= CST->A1_TEL
+		MsUnlock()
 	
-	nCA += 1
-
+		nCA += 1
+	EndIf
+	
 	DbSelectArea("CST")
 	DbSkip()
 
