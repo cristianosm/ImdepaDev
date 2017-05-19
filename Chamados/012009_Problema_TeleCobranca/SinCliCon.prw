@@ -270,13 +270,17 @@ cSql += "Else  Trim(Replace(A1.A1_DDD,'0',''))||' '||Trim(A1.A1_TEL) "
 cSql += "    End A1_TEL, "
 cSql += "  AC.AC8_CODENT, AC.AC8_CODCON, "
 cSql += "  U5.U5_CODCONT, U5.U5_FCOM1, "
-cSql += "  NVL(U5.R_E_C_N_O_,0) RECNO "
+///cSql += "  NVL(U5.R_E_C_N_O_,0) RECNO "
+cSql += "    NVL(U5.R_E_C_N_O_,0) RECNOU5, "
+cSql += "    NVL(AC.R_E_C_N_O_,0) RECNOAC "
 cSql += "FROM SA1010 A1 FULL JOIN AC8010 AC "
 cSql += "ON   AC.AC8_CODENT = A1.A1_COD||A1.A1_LOJA "
 cSql += "               FULL JOIN SU5010 U5 "
 cSql += "ON   AC.AC8_CODCON =  U5.U5_CODCONT "
 cSql += "WHERE AC.AC8_ENTIDA = 'SA1' " 
-cSql += "AND TRIM(TRIM(REPLACE(A1.A1_DDD,'0',''))  ||' '  ||TRIM(A1.A1_TEL)) <> NVL(TRIM("+Substr(cCampo,6)+"),' ')  " 
+cSql += "AND(  AC.D_E_L_E_T_ = ' ' OR AC.D_E_L_E_T_ IS NULL ) "
+cSql += "AND(  U5.D_E_L_E_T_ = ' ' OR U5.D_E_L_E_T_ IS NULL ) "
+cSql += "AND   TRIM(TRIM(REPLACE(A1.A1_DDD,'0',''))  ||' '  ||TRIM(A1.A1_TEL)) <> NVL(TRIM("+Substr(cCampo,6)+"),' ')  " 
 cSql += "AND   EXISTS (SELECT E1_CLIENTE, E1_LOJA FROM SE1010 WHERE E1_FILIAL = ' ' AND E1_EMISSAO >= '20150201' AND D_E_L_E_T_ = ' ' AND E1_CLIENTE = A1_COD AND E1_LOJA = A1_LOJA ) "
 
 
@@ -297,14 +301,23 @@ While !EOF()
 
 	oProcess:IncRegua2( "Atualizando Contato do Cliente " + CST->A1_COD +"-"+ CST->A1_LOJA )
 	
-	If CST->RECNO > 0 
-		DbSelectArea("SU5"	)
-		DBGoto(CST->RECNO)
+	If CST->RECNOU5 > 0 
+		DbSelectArea("SU5")
+		DBGoto(CST->RECNOU5)
 		RecLock("SU5",.F.)
 		&cCampo.		:= CST->A1_TEL
 		MsUnlock()
 	
 		nCA += 1
+	Elseif CST->RECNOAC > 0 // Esclui Relacionamento(AC8) Quando nao existe um contato...
+		
+		//Alert("Deletou Recno: "+cValToChar(CST->RECNOAC))
+		DbSelectArea("AC8")
+		DBGoto(CST->RECNOAC)
+		RecLock("AC8",.F.)
+		DBDelete()
+		MsUnlock()
+		
 	EndIf
 	
 	DbSelectArea("CST")
