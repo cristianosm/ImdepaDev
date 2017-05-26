@@ -970,21 +970,23 @@ Static Function PTotais(oPrn)//| Imprime os Totais e Outras Informacoes Finais
 	*******************************************************************************
 Static Function PMsgens(oPrn)//| Imprime Mensagens
 	*******************************************************************************
-
+    Local nPLegenda := 0 
 	//| Mensagem Marketing
 	PMarketing(@oPrn)
 	//| Impressao da Numeracao da Pagina
 	
 	//| Chamado : 16463 -> Melhoria orçamento - Legenda
-	oFont := TFont():New( 'Courier new' , , -12);	oFont:Bold := .T.
+	oFont := TFont():New( 'Courier new' , , -16);	oFont:Bold := .T.
 	If lNTR 
-		oPrn:Say( nVIL+2029 , 050 , cNTR , oFont , , 0 , )
+		oPrn:Say( nVIL+2029 , 050+nPLegenda , cNTR , oFont , , 0 , )
+		nPLegenda += 550
 	EndIF
 	If lSTI
-		oPrn:Say( nVIL+2029 , 450 , cSTI , oFont , , 0 , )
+		oPrn:Say( nVIL+2029 , 050+nPLegenda , cSTI , oFont , , 0 , )
+		nPLegenda += 550
 	EndIf
 	If lSTT
-		oPrn:Say( nVIL+2029 , 850 , cSTT , oFont , , 0 , )
+		oPrn:Say( nVIL+2029 , 050+nPLegenda , cSTT , oFont , , 0 , )
 	Endif
 	
 	//| Impressao da Numeracao da Pagina
