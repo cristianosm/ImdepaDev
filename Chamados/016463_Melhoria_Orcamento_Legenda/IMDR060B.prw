@@ -208,9 +208,9 @@ Static Function ConfigVar(_lPerg) //| Configura as Variaves necessarias
 	_SetOwnerPrvt( 'lNTR', .F. ) //| 1 *   -> Sigla "NTR" -> Nao Tributado  | Contem : "102"
 	_SetOwnerPrvt( 'lSTI', .F. ) //| 2 **  -> Sigla "STI" -> ST Inclusa 	| Contem : "405"
 	_SetOwnerPrvt( 'lSTT', .F. ) //| 3 *** -> Sigla "STT" -> ST Tributada   | Contem : "403"	
-	_SetOwnerPrvt( 'cNTR', "1 -> Não Tributado" ) //| 1 *   -> Sigla "NTR" -> Nao Tributado  | Contem : "102"
-	_SetOwnerPrvt( 'cSTI', "2 -> S.T. Inclusa" ) //| 2 **  -> Sigla "STI" -> ST Inclusa 	| Contem : "405"
-	_SetOwnerPrvt( 'cSTT', "3 -> S.T. Tributada" ) //| 3 *** -> Sigla "STT" -> ST Tributada   | Contem : "403"	
+	_SetOwnerPrvt( 'cNTR', "* Não Tributado" ) //| 1 *   -> Sigla "NTR" -> Nao Tributado  | Contem : "102"
+	_SetOwnerPrvt( 'cSTI', "** S.T. Inclusa" ) //| 2 **  -> Sigla "STI" -> ST Inclusa 	| Contem : "405"
+	_SetOwnerPrvt( 'cSTT', "*** S.T. Tributada" ) //| 3 *** -> Sigla "STT" -> ST Tributada   | Contem : "403"	
 	
 	_SetOwnerPrvt( 'lProspect'  , SUA->UA_PROSPEC ) //Se for Prospect... lProspect->.T.
  
@@ -858,8 +858,8 @@ Static Function PItens(oPrn, aItem)
 	oPrn:Say( eVal(bPoS) , 350-193+105+nVIC , '/'+aItem[I_CFOP] , oFont , , 0 , )
 
 	//| Legenda Regra ST  //| Chamado : 16463 -> Melhoria orçamento - Legenda
-	oFont := TFont():New( 'Courier new' , , -7);	oFont:Italic := .T. ; oFont:Bold := .T.
-	oPrn:Say( eVal(bPoS)-8 , 350-193+173+nVIC , VerRegraCF(aItem[I_CFOP]) , oFont , , 0 , )
+	oFont := TFont():New( 'Courier new' , , -9);	oFont:Italic := .T. ; oFont:Bold := .T.
+	oPrn:Say( eVal(bPoS)-6 , 350-193+173+nVIC , VerRegraCF(aItem[I_CFOP]) , oFont , , 0 , )
 
 	//| Correias - Referencia Gates
 	oFont := TFont():New( 'Courier new' , , -7);	oFont:Bold := .T.
@@ -1556,13 +1556,13 @@ cCF  := Substr(cCFOP,2,3)
 
 Do Case 
    	Case cCF == NTR
-   		cRet := "1"
+   		cRet := "*"
    		lNTR := .T.
  	Case cCF == STI
- 		cRet := "2"
+ 		cRet := "**"
  		lSTI := .T.
  	Case cCF == STT
- 		cRet := "3"
+ 		cRet := "***"
  		lSTT := .T.
  	OtherWise
  		cRet := "   "
