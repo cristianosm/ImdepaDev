@@ -199,7 +199,6 @@ Static Function CriaFLog( )//| Cria Arquivo de LOG
 	Local nModo			:= 2 //| 0-> READ | 1-> WRITE | 2-> READ_WRITE |
 	Local cBuffer		:= ""
 	Local lChangeCase	:= .T. //| Case sensitive .T. , .F. |
-	Local aLine			:= {}
 
 	nHFile	:= FCreate(cFilLog, nModo)
 
@@ -328,11 +327,6 @@ Static Function AjusArquivo() // Ajusta os Dados com os tamanhos Corretos...
 Static Function VerItem(aItem) //| Valida, Prepara e Lança e efetua a alteração
 *******************************************************************************
 
-	Local nCampos 	 := Len( aItem ) // Numero de Campos
-
-	Local cChCli     := "" // Monta a Chave do Cliente que vai ser atualizado
-	Local cChVen     := "" // Monta a Chave do Cliente que vai ser atualizado
-
 	//Posiciona no Cliente
 	DbSelectArea("SA1")
 	If DbSeek(xFilial("SA1")+aItem[P_COD]+aItem[P_LOJA],.F.)
@@ -392,15 +386,15 @@ Static Function ValAlt() // Valida se alteração eh possivel ...
 
 	If lValGer .And. lValCar // Alteração Gerente Valida....
 
-		If L_VEND .And. lValVen	.And. lValCar	// Alteração de Vendedor...
+		If L_VEND .And. lValVen	.And. lValCar .And. A_VEND <> "VAZIO"	// Alteração de Vendedor...
 			lValCar := ValCargo( A_VEND	, G_VEND)
 			lValVen	:= VAltVen( A_VEND )
 		EndIF
-		If L_VENDEXT .And. lValVen	.And. lValCar	  	// Alteração de Vendedor Externo...
+		If L_VENDEXT .And. lValVen	.And. lValCar .And. A_VENDEXT <> "VAZIO"	  	// Alteração de Vendedor Externo...
 			lValCar := ValCargo( A_VENDEXT, G_VENDEXT)
 			lValVen	:= VAltVen( A_VENDEXT )
 		EndIF
-		If L_VENDCOO .And. lValVen	.And. lValCar		 	// Alteração de Coordenador...
+		If L_VENDCOO .And. lValVen	.And. lValCar  .And. A_VENDCOO <> "VAZIO"		 	// Alteração de Coordenador...
 			lValCar := ValCargo( A_VENDCOO, G_VENDCOO)
 			lValVen	:= VAltVen( A_VENDCOO )
 		EndIf
@@ -419,7 +413,7 @@ Static Function ValCargo(cCodVen , cCargoD ) // Valida se o Cargo do Vendedor es
 *******************************************************************************
 	Local cCargoV := ""
 	Local lVal 	  := .F.
-
+	
 	cCargoV := Posicione( "SA3", 1, xFilial("SA3")+cCodVen, "A3_NVLVEN" )
 
 	If cCargoV == cCargoD
@@ -499,14 +493,14 @@ Static Function AltItem() //| Efetua a alteração do Item...
 	Local cUpd 	 := "Update SA1010 Set "
 	Local cWhere := " Where A1_COD = '"+C_COD+"' And A1_Loja = '"+C_LOJA+"' "
 
-	If L_VEND
-		cUpd += " A1_VEND = '" + A_VEND + "' ,"
+	If L_VEND 
+		cUpd += " A1_VEND = '" + IIF(A_VEND=='VAZIO',' ',A_VEND) + "' ,"
 	EndIF
 	If L_VENDEXT
-		cUpd += " A1_VENDEXT = '" + A_VENDEXT + "' ,"
+		cUpd += " A1_VENDEXT = '" + IIF(A_VENDEXT=='VAZIO',' ',A_VENDEXT) + "' ,"
 	EndIf
 	If L_VENDCOO
-		cUpd += " A1_VENDCOO = '" + A_VENDCOO + "' ,"
+		cUpd += " A1_VENDCOO = '" + IIF(A_VENDCOO=='VAZIO',' ',A_VENDCOO) + "' ,"
 	EndIf
 	If L_GERVEN
 		cUpd += " A1_GERVEN = '" + A_GERVEN + "' ,"
