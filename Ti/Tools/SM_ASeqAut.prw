@@ -127,7 +127,8 @@ Static Function VerNewDOC(cNewSeq) // Obtem novo Sequencia
 	Local cTabela 	:= RetSqlName(cTalias)
 	Local lRet    	:= .T.
 
-	cSql := "SELECT NVL(MAX("+cCpoSeq+"),'0') NUM FROM "+cTabela+" WHERE "+Substr(cCpoSeq,1,3)+"FILIAL = '"+xFilial(cTalias)+"' AND D_E_L_E_T_ = ' ' "
+	
+	cSql := "SELECT NVL(MAX("+cCpoSeq+"),'0') NUM FROM "+cTabela+" WHERE "+Substr(cCpoSeq,1,AT("_",cCpoSeq))+"FILIAL = '"+xFilial(cTalias)+"' AND D_E_L_E_T_ = ' ' "
 	If !Empty(cFilSql)
 		cSql += "AND " + Alltrim(cFilSql)
 	EndIf
