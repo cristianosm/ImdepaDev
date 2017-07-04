@@ -137,7 +137,7 @@ Return()
 Static Function SelRegistros()// Seleciona os Registros que devem ser atualizados...
 *******************************************************************************
 	Local cData		:= DToS(Date())
-	Local n1Hora 	:= 900 //| 10800 seg = 3 Horas.... Motivo... Tempo de Orcamento... Para validar Capas...
+	Local n1Hora 	:= SuperGetMv("IM_INTERCO", .F., 300, Nil)	//900 //| 10800 seg = 3 Horas.... Motivo... Tempo de Orcamento... Para validar Capas...
 	Local cTime		:= StrTran(Left(U_FTimeTo(Seconds()-n1Hora,,"HC"),5),":","")
 	//Local nLastRec	:= ZA0->( LASTREC()) - 1000
 
@@ -354,7 +354,7 @@ Return()
 Static Function SendErros()// Envia por email o log de erro..
 *******************************************************************************
 	Local cFrom 	:= "protheus@imdepa.com.br"
-	Local cTo		:= Alltrim( SuperGetsMv("IM_LOGF110", .F., "cristiano.machado@imdepa.com.br", Nil) )
+	Local cTo		:= Alltrim( SuperGetMv("IM_LOGF110", .F., "cristiano.machado@imdepa.com.br", Nil) )
 	Local cBcc		:= ""
 	Local cSubject	:= ""
 	Local cHtmCab	:= ""
