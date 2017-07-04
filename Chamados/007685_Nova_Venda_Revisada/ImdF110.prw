@@ -32,6 +32,9 @@
 User Function ImdF110()
 *******************************************************************************
 
+
+	PREPARE ENVIRONMENT EMPRESA '01' FILIAL '05' FUNNAME "IMDF110" TABLES 'SB2','SX6'
+
 	Private nQtd 			:= 0 	//| Quantidade de Itens Marcados
 	Private cLogE			:= ""	//| Grava o Log de Incosistencia encontradas...
 	Private cLogTab		:= ""	//| Grava o Log de Incosistencia encontradas...
@@ -56,7 +59,6 @@ User Function ImdF110()
 
 	//IF !lTeste
 	//Prepare Environment Empresa ("01") Filial ("05") MODULO ("FAT") FunName ("IMDF110") Tables 'SUB','SUA','SB2','ZA0'
-	PREPARE ENVIRONMENT EMPRESA '01' FILIAL '05' FUNNAME "IMDF110" TABLES 'SB2','SX6','SM0'
 	//EndIf
 
 	RegExec(1) //| Registra Execucao
@@ -137,7 +139,7 @@ Return()
 Static Function SelRegistros()// Seleciona os Registros que devem ser atualizados...
 *******************************************************************************
 	Local cData		:= DToS(Date())
-	Local n1Hora 	:= SuperGetMv("IM_INTERCO", .F., 300, Nil)	//900 //| 10800 seg = 3 Horas.... Motivo... Tempo de Orcamento... Para validar Capas...
+	Local n1Hora 	:= U_GetSx6("IM_INTERCO", Nil, 300)	//900 //| 10800 seg = 3 Horas.... Motivo... Tempo de Orcamento... Para validar Capas...
 	Local cTime		:= StrTran(Left(U_FTimeTo(Seconds()-n1Hora,,"HC"),5),":","")
 	//Local nLastRec	:= ZA0->( LASTREC()) - 1000
 
@@ -354,7 +356,7 @@ Return()
 Static Function SendErros()// Envia por email o log de erro..
 *******************************************************************************
 	Local cFrom 	:= "protheus@imdepa.com.br"
-	Local cTo		:= Alltrim( SuperGetMv("IM_LOGF110", .F., "cristiano.machado@imdepa.com.br", Nil) )
+	Local cTo		:= Alltrim(U_GetSx6("IM_LOGF110", Nil, "cristiano.machado@imdepa.com.br"))
 	Local cBcc		:= ""
 	Local cSubject	:= ""
 	Local cHtmCab	:= ""
