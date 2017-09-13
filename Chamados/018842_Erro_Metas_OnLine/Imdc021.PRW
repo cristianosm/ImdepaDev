@@ -87,6 +87,7 @@ User Function IMDC021()
 	Private cHtml 				:= " "
 	Private cFilGerente := "" // Filtrar os Gerentes que estao nessa variavel, para nao apresentar no relatorio
 	Private lCaptura := .F.
+	Private nSMedDiaFil := 0 // Soma Media Dia de Todas as Filiais... 
 
 	Private cDtTriIni
 	Private cDtTriFim
@@ -163,7 +164,8 @@ User Function IMDC021()
 	Endif
 
 	dDataConsiderada 	:= ddatabase
-
+	//conout('dDataConsiderada: '+ cValToChar(dDataConsiderada))
+	
 	//| Monta as Datas do Relatório
 	dataIni 				:= DTOS(FirstDay(dDataConsiderada))
 	datafim 				:= Dtos( dDataConsiderada -1 )
@@ -1264,7 +1266,7 @@ Static Function Executar()//| Função Principal do Relatório...
 	Do While !Eof()
 		lancaValor(  _CN7->GERENTE ,, '10' , _CN7->VALOR ,"GERENTE"  ) 	//( _CN7->FILIAL , '10', _CN7->VALOR  )
 		If MV_PAR05 == 1		// Considera o dia
-			lancaValor(  _CN7->GERENTE ,, '11' , _CN7->VALOR ,"GERENTE"  )  	//( _CN7->FILIAL , '11', _CN7->VALOR  )
+			lancaValor(  _CN7->GERENTE ,, '11' , _CN7->VALOR ,"GERENTE"  )  //( _CN7->FILIAL , '11', _CN7->VALOR  )
 			lancaValor(  _CN7->GERENTE ,, '12' , _CN7->VALOR ,"GERENTE"  )	//( _CN7->FILIAL , '12', _CN7->VALOR  )
 			lancaValor(  _CN7->GERENTE ,, '14' , _CN7->VALOR ,"GERENTE"  )	//( _CN7->FILIAL , '14', _CN7->VALOR  ) TAVA 13
 		EndIf
@@ -1370,7 +1372,18 @@ Static Function Executar()//| Função Principal do Relatório...
 		If aCols[ ind, X_TIPO  ] == '11'	// Media Dia
 			nPos := aScan(aDiasPass, {|x| x[1]==cgerenteAtual})
 			If nPos > 0
+				
 				aCols[ ind, X_VALOR ] := aCols[ ind, X_VALOR ] / aDiasPass[nPos,2]
+
+				//| Chamado: 018842 Analista: Cristiano Machado Data: 12/09/2017
+				If Alltrim(aCols[ ind, X_COD_GER ]) <> "XXXXXX"
+					//| Soma Media Dia de Todas as Filiais Menos o Gerente TOTALIZADOR. Para ser Usado no % Total da Meta Alcançado.
+					nSMedDiaFil += ( aCols[ ind, X_VALOR ] * ( aDiasPass[nPos,2] + aDiasRest[nPos,2] ))
+					
+					//conout( 'DEBUG -> Gerente: ' + cgerenteAtual + ' nSMedDiaFil: '+cValToChar(nSMedDiaFil) + ' Dias: ' + cValToChar( aDiasPass[nPos,2] + aDiasRest[nPos,2] ) )
+					
+				EndIf
+								
 			EndIf
 		EndIf
 
@@ -1505,8 +1518,14 @@ Static Function Executar()//| Função Principal do Relatório...
 
 			nMetaParcial := ( aCols[mult+13 , X_VALOR] / (aDiasPass[nPos,2]+aDiasRest[nPos,2]) ) * aDiasPass[nPos,2]
 			// Define o percentual da meta parcial atingida
-			aCols[mult+12, X_PERCENT] := aCols[mult+12, X_VALOR] / nMetaParcial * 100
-
+		    
+		    //| Chamado: 018842    Analista: Cristiano Machado    Data: 12/09/2017
+			If Alltrim(aCols[mult+12,  X_COD_GER  ]) == "XXXXXX" 
+				aCols[mult+12, X_PERCENT] := ( nSMedDiaFil / aCols[mult+13, X_VALOR] * 100 )  
+			else
+				aCols[mult+12, X_PERCENT] := aCols[mult+12, X_VALOR] / nMetaParcial * 100
+			EndIf
+			
 		Else
 			aCols[mult+12, X_PERCENT] := 0
 		EndIf
@@ -2354,18 +2373,13 @@ Static Function EnviaEmail(cTipo,cCodG)//Envia o Html Gerado
 	If lResult
 		Conout(cNomProg + " - Enviando Email para " + cEmailTo + cEmailBcc )
 
-		/* TESTE
-		SEND MAIL FROM cAccount ;
-		TO "cristiano.machado@imdepa.com.br" ;
-		CC "" ;
-		*/
-
+		
 		/* TESTE 
 		SEND MAIL FROM cAccount ;
 		TO "cristiano.machado@imdepa.com.br" ;
 		CC "" ;
 		*/
-
+		/* NORMAL */ 
 		SEND MAIL FROM cAccount ;
 		TO IIF(lTeste,ALLTRIM(GETMV("MV_ECONTTI")),cEmailTo ) ;  //		TO			cEmailTo ; //		BCC     	cEmailBcc ;
 		CC IIF(lTeste,ALLTRIM(GETMV("MV_ANALITI")),ALLTRIM(GETMV("MV_ECONTTI"))+cEmailBcc) ;
