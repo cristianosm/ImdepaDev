@@ -224,10 +224,11 @@ Else
 	oDCFont := TFont():New('Arial',,-10,.T.,.F.)// Fonte Dados Cliente
 	oBPFont := TFont():New('Arial',,-12,.T.,.T.)// Fonte Bloqueio Pedido
 	
-	oObjLC  		:= TSay():New( 010, 485,{|| "Limite Crédito:        R$ "	+	Transform(  aDadosCli[_LC]   , '@E 999,999,999.99') },oGrpCli,,oDCFont,.F.,.F.,.F.,.T.,CLR_BLACK,CLR_WHITE, 160,008 )
+	oObjLC  		:= TSay():New( 010, 485,{|| "Limite Crédito:        R$ "	+	Transform(  aDadosCli[_LC]   , '@E 999,999,999.99') + "  Venc.L.: " + cValToChar(aDadosCli[_VENCLC]) },oGrpCli,,oDCFont,.F.,.F.,.F.,.T.,CLR_BLACK,CLR_WHITE, 160,008 )
 	oObjSalDup  	:= TSay():New( 020, 485,{|| "Sld Duplicatas:        R$ "	+	Transform( aDadosCli[_SALDUP], '@E 999,999,999.99') },oGrpCli,,oDCFont,.F.,.F.,.F.,.T.,CLR_BLACK,CLR_WHITE, 160,008 )
 	oObjRisco  		:= TSay():New( 030, 485,{|| "Risco: "				+	aDadosCli[_RISCO]   },oGrpCli,,oDCFont,.F.,.F.,.F.,.T.,CLR_BLACK,CLR_WHITE, 160,008 )
 	oObjDtUCom		:= TSay():New( 030, 516,{|| "Ult.Compra: "			+	aDadosCli[_ULTCOM]  },oGrpCli,,oDCFont,.F.,.F.,.F.,.T.,CLR_BLACK,CLR_WHITE, 160,008 )
+
 	// Status Pedido
 	lPedido :=  if( M->UA_OPER == "1" , .T., .F. )
 	If lPedido

@@ -229,13 +229,17 @@ Static Function Sx3ToTop(cFTable, cFName, cFType, cFPrec, cFDec )
 	*******************************************************************************
 Static Function Perguntas()
 	*******************************************************************************
+/*
+   //					   X1_PERGUNT			,X1_PERSPA	,X1_PERENG	,X1_VARIAVL	,X1_TIPO,X1_TAMANHO	,X1_DECIMAL	,X1_PRESEL	,X1_GSC	,X1_VALID	,X1_VAR01	,X1_DEF01	,X1_DEFSPA1	,X1_DEFENG1	,X1_CNT01	,X1_VAR02	,X1_DEF02		,X1_DEFSPA2		,X1_DEFENG2		,X1_CNT02	,X1_VAR03	,X1_DEF03	,X1_DEFSPA3	,X1_DEFENG3	,X1_CNT03	,X1_VAR04	,X1_DEF04	,X1_DEFSPA4	,X1_DEFENG4 ,X1_CNT04	,X1_VAR05	,X1_DEF05	,X1_DEFSPA5	,X1_DEFENG5	,X1_CNT05	,X1_F3	,X1_GRPSXG	,X1_PYME	,X1_HELP	,X1_PICTURE	,aHelpPor,aHelpEng,aHelpSpa
+	FMX_AJSX1("CHETOPF" ,{"Truncar TOP_FIELD ?" 		,"" ,"" 		,"MV_CH0" 	,"C" 	,1 			,0 			,2 			,"C" 	,""			,"MV_PAR01"	,"Sim"		,"Sim"		,"Sim"		,"" 		,""			,"Nao"		 	,"Nao" 			,"Nao" 			,""			,"" 		,"" 		,"" 		,"" 		,"" 		,"" 		,"" 		,"" 		,"" 		,""			,""			,""			,""			,""			,""			,""		,""			,""			,""			,""			,{""} ,{""} ,{""} })
+	FMX_AJSX1("CHETOPF" ,{"Tabela Inicial: " 			,"" ,"" 		,"MV_CH1" 	,"C" 	,3 			,0 			,0 			,"G" 	,""			,"MV_PAR02"	,"" 		,"" 		,"" 		,"" 		,""			,"" 		 	,"" 			,"" 			,""			,"" 		,"" 		,"" 		,"" 		,"" 		,"" 		,"" 		,"" 		,"" 		,""			,""			,""			,""			,""			,""			,""		,""			,""			,""			,""			,{""} ,{""} ,{""} })
+	FMX_AJSX1("CHETOPF" ,{"Tabela Final: " 				,"" ,"" 		,"MV_CH2" 	,"C" 	,3 			,0 			,0 			,"G" 	,""			,"MV_PAR03"	,"" 		,"" 		,"" 		,"" 		,""			,"" 		 	,"" 			,"" 			,""			,"" 		,"" 		,"" 		,"" 		,"" 		,""			,"" 		,"" 		,"" 		,""			,""			,""			,""			,""			,""			,""		,""			,""			,""			,""			,{""} ,{""} ,{""} })
+	FMX_AJSX1("CHETOPF" ,{"Abrir Tabela (CheckFile) ?" 	,"" ,"" 		,"MV_CH3" 	,"C" 	,1 			,0 			,2 			,"C" 	,""			,"MV_PAR04"	,"Todas"	,"Todas"	,"Todas"	,"" 		,""			,"Existentes"	,"Existentes" 	,"Existentes"	,""			,"Nenhuma" 	,"Nenhuma" ,"Nenhuma" 	,"" 		,"" 		,"" 		,"" 		,"" 		,"" 		,""			,""			,""			,""			,""			,""			,""		,""			,""			,""			,""			,{""} ,{""} ,{""} })
+	FMX_AJSX1("CHETOPF" ,{"Deseja Sair ? " 				,"" ,"" 		,"MV_CH4" 	,"C" 	,1 			,0 			,2 			,"C" 	,""			,"MV_PAR05"	,"Sim"		,"Sim"		,"Sim"		,"" 		,""			,"Nao"		 	,"Nao" 			,"Nao" 			,""			,"" 		,"" 		,"" 		,"" 		,"" 		,"" 		,"" 		,"" 		,"" 		,""			,""			,""			,""			,""			,""			,""		,""			,""			,""			,""			,{""} ,{""} ,{""} })
 
-	PutSx1("CHETOPF","01" ,"Truncar TOP_FIELD ?" ,"" ,"" ,"MV_CH0" ,"C" ,1 ,0 ,0 ,"C" ,"","","","","MV_PAR01","Sim"	,"Sim"	,"Sim"	,"" ,"Nao"	,"Nao" ,"Nao" ,"" ,"" ,"" ,"" ,"" ,"" ,"" ,"" ,"" ,{""} ,{""} ,{""} )
-	PutSx1("CHETOPF","02" ,"Tabela Inicial: " ,"" ,"" ,"MV_CH1" ,"C" ,3 ,0 ,0 ,"G" ,"","","","","MV_PAR02","" ,"" ,"" ,"" ,"" ,"" ,"" ,"" ,"" ,"" ,"" ,"" ,"" ,"" ,"" ,"" ,{""} ,{""} ,{""} )
-	PutSx1("CHETOPF","03" ,"Tabela Final: " ,"" ,"" ,"MV_CH2" ,"C" ,3 ,0 ,0 ,"G" ,"","","","","MV_PAR03","" ,"" ,"" ,"" ,"" ,"" ,"" ,"" ,"" ,"" ,"" ,"" ,"" ,"" ,"" ,"" ,{""} ,{""} ,{""} )
-	PutSx1("CHETOPF","04" ,"Abrir Tabela (CheckFile) ?" ,"" ,"" ,"MV_CH3" ,"C" ,1 ,0 ,0 ,"C" ,"","","","","MV_PAR04","Todas"	,"Todas"	,"Todas"	,"" ,"Existentes"	,"Existentes" ,"Existentes"	,"Nenhuma" ,"Nenhuma" ,"Nenhuma" ,"" ,"" ,"" ,"" ,"" ,"" ,{""} ,{""} ,{""} )
-	PutSx1("CHETOPF","05" ,"Deseja Sair ? " ,"" ,"" ,"MV_CH4" ,"C" ,1 ,0 ,0 ,"C" ,"","","","","MV_PAR05","Sim"	,"Sim"	,"Sim"	,"" ,"Nao"	,"Nao" ,"Nao" ,"" ,"" ,"" ,"" ,"" ,"" ,"" ,"" ,"" ,{""} ,{""} ,{""} )
+	backup: SX1_CHETOPF.DTC
 
+*/
 	If lViaWorkFlow
 	
 		Pergunte("CHETOPF",.F.)
