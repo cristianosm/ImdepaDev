@@ -254,6 +254,8 @@ Class oCliente
 	Data cFilCli
 	Data lFilImd
 
+	
+
 	Method New() Constructor
 
 EndClass
