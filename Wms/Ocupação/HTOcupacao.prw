@@ -25,7 +25,7 @@ Pergunte("HTOCUP", .T. )
 U_WfOcupacao(.T.)
 
 //| Consulta Tabela Auxiliar de Ocupacao...
-Consulta()
+Consulta() 
 
 //| Gera Arquivo CSV...
 GeraCsv()
@@ -33,7 +33,7 @@ GeraCsv()
 //| Envia email com arquivo CSV...
 EnviaEmail()
 
-If IW_MsgBox("Deseja Visualizar a Tabela % de Ocupação por Endereço ?  ", "Atenção", "YESNO" )
+If IW_MsgBox("Deseja Visualizar a Tabela % de Ocupacao por EndereÁo ?  ", "AtenÁ„o", "YESNO" )
 	U_ZZ0TABAUX()
 EndIf
 
@@ -54,9 +54,9 @@ Local cRet		:= ""
 cRet := U_EnvMyMail( cFrom, cTo, cBcc, cSubject, cBody, cAttach ) //| U_EnvMyMail(De, Para, Copia, Assunto, Corpo, Anexo )
 
 If !Empty(cRet)
-	IW_MsgBox("Erro no Envio !!! " + cRet, "Atenção", "ALERT" )
+	IW_MsgBox("Erro no Envio !!! " + cRet, "AtenÁ„o", "ALERT" )
 Else
-		IW_MsgBox("Email Enviado com Sucesso !!! ", "Atenção", "INFO" )
+		IW_MsgBox("Email Enviado com Sucesso !!! ", "AtenÁ„o", "INFO" )
 EndIf
 
 Return()
