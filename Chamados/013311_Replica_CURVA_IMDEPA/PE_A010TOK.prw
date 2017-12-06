@@ -20,7 +20,8 @@ User Function A010TOK()
 Local aAreaZLP := GetArea()      
 //Local aDadTOP  := {{ "B1_CUSTRP", "B1_MCUSTRP", "B1_CURVA", "B1_GRMAR3", "B1_GRTRIB", "B1_CLASSVE", "B1_ATIVO", "B1_MSBLQL", "B1_OBSTPES" }, {} }
 Local aDadTOP  := {{ "B1_CUSTRP", "B1_MCUSTRP", "B1_GRMAR3", "B1_GRTRIB", "B1_CLASSVE", "B1_ATIVO", "B1_MSBLQL", "B1_OBSTPES" }, {} }         
-                    
+
+Alert("Entrou A010TOK")                    
     aAdd(aDadTOP[2], Iif(M->B1_CUSTRP 	<> SB1->B1_CUSTRP	, SB1->B1_CUSTRP	, .F.	) )
 	aAdd(aDadTOP[2], Iif(M->B1_MCUSTRP 	<> SB1->B1_MCUSTRP	, SB1->B1_MCUSTRP	, .F.	) )  
 	//aAdd(aDadTOP[2], Iif(M->B1_CURVA 	<> SB1->B1_CURVA	, SB1->B1_CURVA		, .F.	) ) //| CHAMADO: 13311 - Replica CURVA IMDEPA
