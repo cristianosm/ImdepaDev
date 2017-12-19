@@ -149,6 +149,7 @@ Static Function TelaParametros() //| Monta Tela Inicial de Parametros
 	Local lCheckRD	 	:= .F.
 	Local lCheckRE 		:= .F.
 	Local nComboBoUAS 	:= 5
+	Local nComboClIna 	:= 1
 	Local nSB_LCI		:= 0
 	Local nSB_LCI		:= 0
 	Local nSB_LCF		:= 5000
@@ -162,7 +163,7 @@ Static Function TelaParametros() //| Monta Tela Inicial de Parametros
 
 	Local cGerI			:= Space(06)
 	Local cGerF			:= Replicate('Z',6)
-	Default FimLWin		:= 550 //463
+	Default FimLWin		:= 570 //463
 	Default lAlter		:= .F.
 
 	Static oCheck
@@ -187,7 +188,7 @@ Static Function TelaParametros() //| Monta Tela Inicial de Parametros
 
 	DEFINE MSDIALOG oDlg TITLE "ANALISE CREDITO"  FROM 000, 000  TO FimLWin, 260 COLORS 0, 16777215 PIXEL
 
-	@ 007, 006 GROUP oGroup TO 275, 123 PROMPT "FILTROS"			OF oDlg COLOR 0, 16777215 PIXEL
+	@ 007, 006 GROUP oGroup TO 280, 123 PROMPT "FILTROS"			OF oDlg COLOR 0, 16777215 PIXEL
 
 //| GROUP RISCO ----------------------------------------------------------------------------------------------------------------------
 	@ 017, 014 GROUP oGroup TO 052, 114 PROMPT "Risco" 				OF oDlg COLOR 0, 16777215 PIXEL
@@ -238,14 +239,26 @@ Static Function TelaParametros() //| Monta Tela Inicial de Parametros
 
 
 //| ULTIMA ANALISE SERASA ----------------------------------------------------------------------------------------------------------------------
-	@ 205, 014 GROUP oGroup TO 233, 067 PROMPT "Últ.Analise Serasa" 	OF oDlg COLOR 0, 16777215 PIXEL //@ 145, 014 GROUP oGroup TO 172, 067 PROMPT "Ultima Analise" 	OF oDlg COLOR 0, 16777215 PIXEL
+	@ 205, 014 GROUP oGroup TO 231, 065 PROMPT "Últ.Analise Serasa" 	OF oDlg COLOR 0, 16777215 PIXEL 
 
 	@ 215, 022 MSCOMBOBOX oComboBox VAR nComboBoUAS ITEMS {"6 Meses","12 Meses","24 Meses","Nunca","Todos"} SIZE 040, 010 OF oDlg COLORS 0, 16777215 PIXEL
 
 
+//| APENAS CLIENTE INATIVO ----------------------------------------------------------------------------------------------------------------------
+	@ 205, 067 GROUP oGroup TO 231, 114 PROMPT "Só Cli. Inativos?"	OF oDlg COLOR 0, 16777215 PIXEL 
+
+	@ 215, 070 MSCOMBOBOX oComboBox VAR nComboClIna ITEMS {"Não, Todos","Só Inativos"} SIZE 040, 010 OF oDlg COLORS 0, 16777215 PIXEL
+
+
 //| BOTOES ----------------------------------------------------------------------------------------------------------------------
-	@ 207, 075 BUTTON oButton PROMPT "OK" 		SIZE 040, 012 OF oDlg ACTION {lcontinua := .T., oDlg:End()} PIXEL
-	@ 220, 075 BUTTON oButton PROMPT "SAIR" 	SIZE 040, 012 OF oDlg ACTION {lcontinua := .F., oDlg:End()} PIXEL
+	
+//	@ 207, 075 BUTTON oButton PROMPT "OK" 		SIZE 040, 012 OF oDlg ACTION {lcontinua := .T., oDlg:End()} PIXEL
+//	@ 220, 075 BUTTON oButton PROMPT "SAIR" 	SIZE 040, 012 OF oDlg ACTION {lcontinua := .F., oDlg:End()} PIXEL
+
+	@ 235, 014 BUTTON oButton PROMPT "OK" 		SIZE 040, 012 OF oDlg ACTION {lcontinua := .T., oDlg:End()} PIXEL
+	@ 235, 074 BUTTON oButton PROMPT "SAIR" 	SIZE 040, 012 OF oDlg ACTION {lcontinua := .F., oDlg:End()} PIXEL
+
+
 
 	If  FimLWin	==	463 //| 550 -> MAIS | 463 -> MENOS
 	//	@ 227, 115 BUTTON oButton PROMPT "+" 	SIZE 005, 005 OF oDlg ACTION {lAlter := .T.	, lcontinua := .T.,oDlg:End()} PIXEL
@@ -254,11 +267,11 @@ Static Function TelaParametros() //| Monta Tela Inicial de Parametros
 	EndIf
 
 //| GROUP CNPJ CLIENTE ----------------------------------------------------------------------------------------------------------------------
-	@ 238, 064 SAY oSay PROMPT "OU" 			SIZE 263, 010 OF oDlg COLORS 0, 16777215 PIXEL
+	@ 238, 060 SAY oSay PROMPT "OU" 			SIZE 263, 010 OF oDlg COLORS 0, 16777215 PIXEL
 
-	@ 245, 014 GROUP oGroup TO 272, 114 PROMPT "Código do Cliente" OF oDlg COLOR 0, 16777215 PIXEL //@ 180, 014 GROUP oGroup TO 207, 114 PROMPT "Cnpj Cliente" 		OF oDlg COLOR 0, 16777215 PIXEL
+	@ 250, 014 GROUP oGroup TO 277, 114 PROMPT "Código do Cliente" OF oDlg COLOR 0, 16777215 PIXEL 
 
-	@ 255, 022 MSGET oCodCli VAR cCodCli  PICTURE "@!" F3 "SA1" SIZE 82, 010 OF oDlg COLORS 0, 16777215 PIXEL //| Filtro CodCli
+	@ 260, 022 MSGET oCodCli VAR cCodCli  PICTURE "@!" F3 "SA1" SIZE 87, 010 OF oDlg COLORS 0, 16777215 PIXEL //| Filtro CodCli
 
 	ACTIVATE MSDIALOG oDlg CENTERED
 
