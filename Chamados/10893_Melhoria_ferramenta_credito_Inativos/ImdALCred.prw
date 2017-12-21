@@ -34,7 +34,7 @@
 #DEFINE COR_RGB_AZ  "100,100,255" //| Azul
 #DEFINE COR_RGB_CZ 	"133,133,133" //| Cinza
 
-#Define MOSTRAQRY 	.F.  	//| Mostra Querys para Captura em tempo de execucao
+#Define MOSTRAQRY 	.T.  	//| Mostra Querys para Captura em tempo de execucao
 #Define SLEEPTIME 	0  		//| Mostra Querys para Captura em tempo de execucao
 
 #Define ARREDONDA	100     //| Arredondamento Limite de Credito Sugerido Ex.: 25 -> 477 = 475...  498 = 500
@@ -77,6 +77,9 @@ User Function ImdALCred()
 	Private cFGerF 	 := ""           	//| Filtra Gerente Final
 	Private nColAr   := 0
 	Private cExt 	 := cValToChar(Randomize( 101, 999 )) //StrZero(Randomize( 0, 1000 ),3) // Resultado: Varia a cada chamada e deve estar entre 10 e 999
+	Private dDtCliI	 := STod( SubStr( DToS( DDataBase - SuperGetMv("IM_DIACLIN",.F.,541,"  ")),1,6) + "01" )  //| Definie data para considerar clientes inativos...
+	Private lCliIna	 :=  .F. // Só Clientes Inativos ?
+	Private nRDtIPr  := dDataBase -  DPInic 			//| Define o numero de dias a ser retornado para analise do Maior acumulo pela Procedure
 	
 	Private cCodCli  :=  Space(06)//TESTE 001711 //
 	Private FimLWin	 //:=  0
@@ -98,6 +101,7 @@ User Function ImdALCred()
 	Private aSeriGS	:= {} //| Array Serie Grafico Saldo
 	
 	Private lCSug   := .F.	//| Calculado Sugestao
+ 
 	
 //inicializa
 	sValG := Val( Posicione("SX5",1,xFilial("SX5")+"ZPSG","X5_DESCRI") ) //| Status - Green
@@ -314,7 +318,15 @@ Static Function TelaParametros() //| Monta Tela Inicial de Parametros
 	ElseIf cValToChar(nComboBoUAS) == "Todos"
 		DatUAS 	:=	dDataBase
 	Endif
-
+	
+	If cValToChar(nComboClIna) == "Não, Todos"
+		lCliIna := .F.
+	ElseIf cValToChar(nComboClIna) == "Só Inativos"
+		lCliIna := .T.
+		nRDtIPr  += dDataBase -  dDtCliI // No Caso dos Inativos retorna 36 meses para avaliar o passado dos mesmos no acumulo
+	EndIf
+		
+	
 Return(lcontinua)
 *********************************************************************
 Static Function ObtemDados() //| Monta Tela com Parametros
@@ -325,7 +337,8 @@ Static Function ObtemDados() //| Monta Tela com Parametros
 	Private cNcomp 		:= "NCOMP" 		+ cExt
 	Private cMSaldo 	:= "MSALDO"		+ cExt
 	Private cMAtraso 	:= "MATRASO" 	+ cExt
-	Private lAllCli		:=  Empty(cCodCli)
+	Private lAllCli		:=  Empty(cCodCli)	// Todos os Clientes
+	
 	oProcess:SetRegua1(9)
 	oProcess:SetRegua2(0)
 
@@ -343,18 +356,19 @@ Static Function ObtemDados() //| Monta Tela com Parametros
 
 	For nAvl := 1 To 2
 
-		If nAvl == 1
+		If nAvl == 2
 		//Verifica Numero de Clientes Selecionados....
-			cSql += "select Count(CodCli) QtdCli from ( "
+			cSql := "select Count(CodCli) QtdCli from " + cBaseCli + " "
 		Else
 			cSql := "create table "+cBaseCli+" as "
 			cSql += "select codcli from (
-		EndIf
-		cSql += "select a1_cod CodCli, MAX(a1.a1_ultcom) ultcom "
+//		EndIf
+		cSql += "select a1_cod CodCli, MAX(a1.a1_ultcom) ultcom, SUM(a1.a1_lc) limcred "
 		cSql += "from sa1010 a1 "
 		cSql += "where a1.a1_filial 	=  '  ' " //and a1.a1_loja = '01' "
 
-		If lAllCli  //| Filtra Paramentro entre todos clientes
+		If lAllCli .And. !lCliIna //| Filtra Paramentro entre todos clientes
+
 			cSql += "  and   a1.a1_risco   	in "+RiscoC+" "
 			cSql += "  and   a1.a1_lc      	between "+ cValToChar(ValLCI) +" and "+ cValToChar(ValLCF) +" "
 			cSql += "  and   a1.a1_venclc  	between '"+ dtos(DatVLI) +"' and '"+ dtos(DatVLF) +"' "
@@ -373,6 +387,12 @@ Static Function ObtemDados() //| Monta Tela com Parametros
 			EndIf
 	
 			cSql += "  and   a1.a1_cod  > ' ' " //and a1.a1_loja = '01' "
+
+		ElseIf lCliIna // Só Clientes Inativos...
+	
+			cSql += "  and   a1.a1_risco   	in "+RiscoC+" "
+			cSql += "  and   a1_cod NOT IN ( SELECT a1_cod FROM sa1010 WHERE A1_ULTCOM >=  '"+ dtos(dDtCliI) +"' AND D_E_L_E_T_ = ' ' )
+	
 		Else
 			cSql += "  and   a1.a1_cod  = '"+cCodCli+" ' " //and a1.a1_loja = '01' "
 	
@@ -383,16 +403,24 @@ Static Function ObtemDados() //| Monta Tela com Parametros
 	
 		cSql += "  group by a1_cod "
 		cSql += "  order by MAX(a1_ultcom) desc ) "
+
+		
+		cSql += "Where rownum <= " + cValToChar(LIMCLIFIL) + " "
+		
+		If lCliIna // Só Clientes Inativos...
+		cSql += "and  limcred   >  0 "
+		EndIf
+		
+		EndIf
+
 		If nAvl == 2
-			cSql += "where rownum <= " + cValToChar(LIMCLIFIL) + " "
-		Endif
-		If nAvl == 1
 			ExecSql(cSql,"AVA","Q")//| Comando, Tabela
 			DbSelectArea("AVA")
 			nQtdClAval := AVA->QTDCLI
 			DbCloseArea()
 		Else
 			ExecSql(cSql,""+cBaseCli+"","E")//| Comando, Tabela
+			
 		EndIf
 	Next
 
@@ -408,14 +436,23 @@ Static Function ObtemDados() //| Monta Tela com Parametros
 	cSql += "				count(1) 				compras, "
 	cSql += "				sum(f2.f2_valbrut)     valorfat, "
 	cSql += "				0                       macumulo "
-	cSql += "	from 		sf2010 f2, "+cBaseCli+" "
-	cSql += "	where f2.f2_filial 		in("+ U_cRetFils("Q") +") "
+	
+	cSql += "	from 		SF2010 F2 RIGHT JOIN "+cBaseCli+" "
+	cSql += "		ON f2.f2_cliente = "+cBaseCli+".CodCli "
+	
+	
+	cSql += "	where ( f2.f2_filial 		in("+ U_cRetFils("Q") +") "
+	
 	cSql += "		and f2.f2_tipo 		= 'N' "
-	cSql += "		and f2.f2_emissao 	between '"+ dtos(DPInic) +"' and '"+ dtos(DPFina) +"' "
+	
+	If !lCliIna // Só Clientes Inatifos = Falso
+		cSql += "		and f2.f2_emissao 	between '"+ dtos(DPInic) +"' and '"+ dtos(DPFina) +"' "
+	EndIf
+	
 	cSql += "		and f2.f2_dupl 		> ' ' "
-	cSql += "		and f2.d_e_l_e_t_  	= ' ' "
+	cSql += "		and f2.d_e_l_e_t_  	= ' '  ) or f2.d_e_l_e_t_ is null "
 
-	cSql += "		and f2.f2_cliente = "+cBaseCli+".CodCli "
+
 
 	cSql += " group by	f2.f2_cliente "
 
@@ -436,7 +473,11 @@ Static Function ObtemDados() //| Monta Tela com Parametros
 	cSql += "			from se1010 e1, "+cBaseCli+", sf2010 f2 "
 	cSql += "			where e1_filial 			=  '  ' "
 	cSql += "			and   e1.e1_loja > ' ' "
-	cSql += "			and   e1_emissao			>= '"+ dtos(DPInic) +"' "
+	
+	If !lCliIna // Só Clientes Inatifos = Falso
+		cSql += "			and   e1_emissao			>= '"+ dtos(DPInic) +"' "
+	EndIf
+	
 	cSql += "			and   e1_baixa				>= ' ' "
 	cSql += "			and   e1.d_e_l_e_t_ = ' ' "
 	cSql += "			and   e1_cliente = "+cBaseCli+".codcli "
@@ -454,7 +495,10 @@ Static Function ObtemDados() //| Monta Tela com Parametros
 	cSql += "			from se1010 e1, "+cBaseCli+", sf2010 f2 "
 	cSql += "			where e1_filial 			=  '  ' "
 	cSql += "			and   e1.e1_loja    > ' ' "
-	cSql += "			and   e1_baixa		>= '"+ dtos(DPInic) +"' "
+	If !lCliIna // Só Clientes Inatifos = Falso
+		cSql += "			and   e1_baixa		>= '"+ dtos(DPInic) +"' "
+	EndIf
+	
 	cSql += "			and   e1.d_e_l_e_t_ = ' ' "
 	cSql += "			and   e1_cliente = "+cBaseCli+".codcli "
 	cSql += "			and f2.f2_filial 	= e1.e1_msfil "
@@ -539,7 +583,11 @@ Static Function ObtemDados() //| Monta Tela com Parametros
 
 	cSql += "	from se1010 e1, "+cBaseCli+", sf2010 f2 "
 	cSql += "	where e1.e1_filial 				=  '  ' "
-	cSql += "		and   e1.e1_emissao 		>= '"+ dtos(DPInic) +"' "
+	
+	If !lCliIna // Só Clientes Inatifos = Falso
+		cSql += "		and   e1.e1_emissao 		>= '"+ dtos(DPInic) +"' "
+	EndIf
+	
 	cSql += "		and   e1.e1_tipo 			= 'NF' "
 	cSql += "		and   e1.d_e_l_e_t_ 		= ' ' "
 	cSql += "		and   e1_cliente	= "+cBaseCli+".CodCli "
@@ -606,7 +654,11 @@ Static Function ObtemDados() //| Monta Tela com Parametros
 
 	DbSelectArea("TBASE");DbGoTop()
 
-	cSql := "Select CODCLI, MES,CREDITO,DEBITO,SALDO,ACUMULO From "+cMSaldo+" Order by CODCLI, MES"
+	cSql := "Select CODCLI, MES,CREDITO,DEBITO,SALDO,ACUMULO From "+cMSaldo+" "
+	If !lCliIna // Só Clientes Inatifos = Falso
+		cSql += "WHERE MES BETWEEN '20150101' AND '20160531' "
+	EndIf
+	cSql += " Order by CODCLI, MES"
 	ExecSql(cSql,"TACUM","Q")
 
 
@@ -1925,7 +1977,7 @@ Static Function ExecSql(cSql,cTable,cTp)//| Comando, Tabela, tipo
 	
 		TCSQLExec("BEGIN")
 
-		nRet := TCSPExec(cSql,cExt)
+		nRet := TCSPExec(cSql,cExt,nRDtIPr)
 
 		If Empty(nRet)
 			cRet := TCSQLError()
