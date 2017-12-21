@@ -56,11 +56,11 @@ User Function GlayMon()// Ferramenta para Desenvolver Relatorio Grafico
 	Private aValDef 	:= { "L", "0000", "0000", "0000", "0000", "PT", "00", SPACE(250), "N" }
 	Private oPrn		:= Nil
 
-	If DATE() > cTod("29/03/2016")
+	/*If DATE() > cTod("29/03/2016")
 		Iw_MsgBox("Desculpe. Versão Expirada !!! Entre em contato com cristianosm@gmail.com","Atenção","ALERT")
 		Return()
 	EndIf
-	
+	*/
 //| Menu Tela Principal....
 	TelaPrincipal()
 
