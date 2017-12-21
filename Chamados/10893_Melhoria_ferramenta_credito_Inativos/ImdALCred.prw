@@ -257,7 +257,7 @@ Static Function TelaParametros() //| Monta Tela Inicial de Parametros
 
 	@ 235, 014 BUTTON oButton PROMPT "OK" 		SIZE 040, 012 OF oDlg ACTION {lcontinua := .T., oDlg:End()} PIXEL
 	@ 235, 074 BUTTON oButton PROMPT "SAIR" 	SIZE 040, 012 OF oDlg ACTION {lcontinua := .F., oDlg:End()} PIXEL
-
+     // salvar git
 
 
 	If  FimLWin	==	463 //| 550 -> MAIS | 463 -> MENOS
