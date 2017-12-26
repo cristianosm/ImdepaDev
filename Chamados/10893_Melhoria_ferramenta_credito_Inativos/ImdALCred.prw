@@ -34,7 +34,7 @@
 #DEFINE COR_RGB_AZ  "100,100,255" //| Azul
 #DEFINE COR_RGB_CZ 	"133,133,133" //| Cinza
 
-#Define MOSTRAQRY 	.T.  	//| Mostra Querys para Captura em tempo de execucao
+#Define MOSTRAQRY 	.F.  	//| Mostra Querys para Captura em tempo de execucao
 #Define SLEEPTIME 	0  		//| Mostra Querys para Captura em tempo de execucao
 
 #Define ARREDONDA	100     //| Arredondamento Limite de Credito Sugerido Ex.: 25 -> 477 = 475...  498 = 500
@@ -71,7 +71,7 @@ User Function ImdALCred()
 	Private DatUCI	 :=	dDataBase		//| Data Ultima Compra = 10/10/2010
 	Private DatUCF	 :=	dDataBase		//| Data Ultima Compra = 10/10/2010
 	Private DatUAS 	 :=	dDataBase		//| Data Ultima Avaliacao Serasa = 10/10/2010
-	Private DPInic	 :=	STod(substr(dTos(dDataBase - 541),1,6) + "01")	//| Data Periodo Inicial 18 Meses = 10/10/2009
+	Private DPInic	 :=	STod(substr(dTos(dDataBase - 541),1,6) + "01")	//| Data Periodo Inicial, normalmente 18 Meses 
 	Private DPFina 	 :=	dDataBase - 1	//| Data Periodo Final Otem = 10/10/2012
 	Private cFGerI 	 := ""				//| Filtra Gerente Inicial
 	Private cFGerF 	 := ""           	//| Filtra Gerente Final
@@ -324,6 +324,8 @@ Static Function TelaParametros() //| Monta Tela Inicial de Parametros
 	ElseIf cValToChar(nComboClIna) == "Só Inativos"
 		lCliIna := .T.
 		nRDtIPr  += dDataBase -  dDtCliI // No Caso dos Inativos retorna 36 meses para avaliar o passado dos mesmos no acumulo
+		DPInic := STod(substr(dTos(dDataBase - nRDtIPr),1,6) + "01") //| Data Periodo Inicial, em Clinetes Inativos eh 36 Meses
+		DPFina := dDtCliI // Data Final 
 	EndIf
 		
 	
@@ -608,10 +610,9 @@ Static Function ObtemDados() //| Monta Tela com Parametros
 //|--- Procedure Maior Saldo -------------------------------------------------
 	oProcess:IncRegua1("Estruturando Maior Saldo por Mes..")
 
-	cSql := "MAIOR_ACUMULO_AC"
+	cSql := "MAcumulo_AcII"
 
 	ExecSql(cSql,"","P") //| Procedure
-
 
 
 //|--- Dados principais ------------------------------------------------------
@@ -655,8 +656,8 @@ Static Function ObtemDados() //| Monta Tela com Parametros
 	DbSelectArea("TBASE");DbGoTop()
 
 	cSql := "Select CODCLI, MES,CREDITO,DEBITO,SALDO,ACUMULO From "+cMSaldo+" "
-	If !lCliIna // Só Clientes Inatifos = Falso
-		cSql += "WHERE MES BETWEEN '20150101' AND '20160531' "
+	If lCliIna // Só Clientes Inatifos = Falso
+		cSql += "Where MES Between '20150101' AND '20160531' "
 	EndIf
 	cSql += " Order by CODCLI, MES"
 	ExecSql(cSql,"TACUM","Q")
