@@ -1213,6 +1213,7 @@ Static Function VerSx1(lPerg) //| Verifica Se Existe as Perguntas e Faz os devid
 *******************************************************************************
 
 //PutS(cPerg    ,"01"    ,cStringP                       ,cStringE,cStringI  ,"mv_ch1"  ,"D"    ,8         ,0         ,0        ,"G"   ,"","","","","mv_par01",""       ,""       ,""       ,""     ,""        ,""        ,""        ,""         ,""         ,""         ,""        ,""        ,""        ,""      ,""        ,""        ,aHelpPor,aHelpIng,aHelpEsp) 
+	
 	PutSx1("GLAYMON","01"    ,"Escolha o Tipo de Impressao:" ,""      ,""        ,"MV_CH0"  ,"N"    ,1	       ,0         ,1        ,"C"   ,"","","","","MV_PAR01","PDF"    ,"PDF"    ,"PDF"    ,""     ,"SPOOL"   ,"SPOOL"   ,"SPOOL"   ,""         ,""         ,""         ,""        ,""        ,""        ,""      ,""        ,""        ,{""}    ,{""}    ,{""}    )
 	PutSx1("GLAYMON","02"    ,"Salvar Arquivo PDF em ?"      ,""      ,""        ,"MV_CH1"  ,"C"    ,60        ,0         ,0        ,"F"   ,"","","","","MV_PAR02","56"     ,""       ,""       ,""     ,""        ,""        ,""        ,""         ,""         ,""         ,""        ,""        ,""        ,""      ,""        ,""        ,{""}    ,{""}    ,{""}    )
 	PutSx1("GLAYMON","03"    ,"Tamanho da Pagina ?"          ,""      ,""        ,"MV_CH2"  ,"N"    ,1         ,0         ,1        ,"C"   ,"","","","","MV_PAR03","A4"     ,"A4"     ,"A4"     ,""     ,"A3"      ,"A3"      ,"A3"      ,"Executivo","Executivo","Executivo","Tabloide","Tabloide","Tabloide","Carta" ,"Carta"   ,"Carta"   ,{""}    ,{""}    ,{""}    )
@@ -1222,7 +1223,7 @@ Static Function VerSx1(lPerg) //| Verifica Se Existe as Perguntas e Faz os devid
 	PutSx1("GLAYMON","07"    ,"Margem Direita  (Milimetro):" ,""      ,""        ,"MV_CH6"  ,"N"    ,5         ,0         ,0        ,"G"   ,"","","","","MV_PAR07",""       ,""       ,""       ,""     ,""        ,""        ,""        ,""         ,""         ,""         ,""        ,""        ,""        ,""      ,""        ,""        ,{""}    ,{""}    ,{""}    )
 	PutSx1("GLAYMON","08"    ,"Margem Inferior (Milimetro):" ,""      ,""        ,"MV_CH7"  ,"N"    ,5         ,0         ,0        ,"G"   ,"","","","","MV_PAR08",""       ,""       ,""       ,""     ,""        ,""        ,""        ,""         ,""         ,""         ,""        ,""        ,""        ,""      ,""        ,""        ,{""}    ,{""}    ,{""}    )
 
-	Pergunte("RLAYMON",lPerg)
+	Pergunte("GLAYMON",lPerg)
 
 //| Ajusta as Variaveis Conforme as Perguntas....
 	If !lperg
