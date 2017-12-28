@@ -55,7 +55,9 @@ User Function GlayMon()// Ferramenta para Desenvolver Relatorio Grafico
 	Private cExporta	:= ""
 	Private aValDef 	:= { "L", "0000", "0000", "0000", "0000", "PT", "00", SPACE(250), "N" }
 	Private oPrn		:= Nil
-
+	Private cFileSv		:= ""
+	Private lCheckBox	:= .F.
+	
 	/*If DATE() > cTod("29/03/2016")
 		Iw_MsgBox("Desculpe. Versão Expirada !!! Entre em contato com cristianosm@gmail.com","Atenção","ALERT")
 		Return()
@@ -494,8 +496,8 @@ Static Function FWindows(oDlg, cCaption, nBottom, nRight, lTransparent) //| Mont
 	uParam7	 	:= Nil		 //| Qualquer	Compatibilidade.
 	uParam8	 	:= Nil		 //| Qualquer	Compatibilidade.
 	uParam9	 	:= Nil		 //| Qualquer	Compatibilidade.
-	nClrText 	:= CLR_BLACK //| Objeto		Indica a cor do texto.
-	nClrBack 	:= CLR_WHITE //| Qualquer	Indica a cor de fundo.
+//	nClrText 	:= CLR_BLACK //| Objeto		Indica a cor do texto.
+//	nClrBack 	:= CLR_WHITE //| Qualquer	Indica a cor de fundo.
 	uParam12 	:= Nil 		 //| Qualquer	Compatibilidade.
 	oWnd 	 	:= Nil 		 //| Objeto	Indica a janela mãe (principal) da janela que será criada. O padrão é a janela principal do programa.
 	lPixel 	 	:= Nil 		 //| lógico	Indica se considera as coordenadas passadas em pixels (.T.) ou caracteres (.F.).
@@ -612,8 +614,8 @@ Static Function FMultG(oTMultGet,cTxtMG,oDlgT,nWidth,nHeight, bWhen)
 	oWnd		:= oDlgT 	//| Objeto	Indica a janela ou controle visual onde o objeto será criado.
 	nWidth		:= nWidth 	//| Numérico	Indica a largura em pixels do objeto.
 	nHeight		:= nHeight 	//| Numérico	Indica a altura em pixels do objeto.
-	oFont		:= 	TFont():New( 'Courier new' , , 20, , .T.) //| Objeto	Indica o objeto do tipo TFont utilizado para definir as características da fonte aplicada na exibição do conteúdo do controle visual.
-	lHScroll	:= .F. //| Lógico	Indica se habilita(.T.)/desabilita (.F.) a barra de rolagem horizontal.
+	oFont		:= TFont():New( 'Courier new' , , 20, , .T.) //| Objeto	Indica o objeto do tipo TFont utilizado para definir as características da fonte aplicada na exibição do conteúdo do controle visual.
+	lHScroll	:= .T. //| Lógico	Indica se habilita(.T.)/desabilita (.F.) a barra de rolagem horizontal.
 	uP09		:= Nil //| Numérico	Compatibilidade
 	uP10		:= Nil //| Numérico	Compatibilidade
 	uP11		:= Nil //| Objeto	Compatibilidade.
@@ -627,7 +629,7 @@ Static Function FMultG(oTMultGet,cTxtMG,oDlgT,nWidth,nHeight, bWhen)
 	bValid		:= {||} //| Bloco de código	Indica o bloco de código de validação que será executado quando o conteúdo do objeto for modificado. Retorna verdadeiro (.T.), se o conteúdo é válido; caso contrário, falso (.F.).
 	uP20		:= {||}  //| Bloco de código	Compatibilidade.
 	uP21		:= Nil //| Lógico	Compatibilidade.
-	lNoBorder	:= .T. //| Lógico	Indica se habilita(.T.)/desabilita(.F.) a apresentação da borda no objeto.
+	lNoBorder	:= Nil //| Lógico	Indica se habilita(.T.)/desabilita(.F.) a apresentação da borda no objeto.
 	lVScroll	:= .T. //| Lógico	Indica se habilita(.T.)/desabilita(.F.) a barra de rolagem vertical. Obs.: O valor default é Desabilitado.
 	cLabelText	:= "" //| Caractere	indica o texto que será apresentado na Label.
 	nLabelPos	:= 1 //| Numérico	Indica a posição da label, sendo 1=Topo e 2=Esquerda
@@ -635,7 +637,41 @@ Static Function FMultG(oTMultGet,cTxtMG,oDlgT,nWidth,nHeight, bWhen)
 	nLabelColor	:= Nil //| Numérico	Indica a cor do texto da Label.
 
 	oTMultGet := TMultiget():New(nRow,nCol,bSetGet,oWnd,nWidth,nHeight,oFont,lHScroll,uP09,uP10,uP11,lPixel,uP13,uP14,bWhen,uP16,uP17,lReadOnly,bValid,uP20,uP21,lNoBorder,lVScroll,cLabelText,nLabelPos,oLabelFont,nLabelColor)
-//TSimpleEditor(): GoTo ( < nLine> ) -->
+	
+	oTMultGet:EnableVScroll( .T. )
+	oTMultGet:EnableHScroll( .T. )
+	
+Return()
+*******************************************************************************
+Static Function FCheckB(oCheckB, nRow, nCol, cCaption, bSetGet, nWidth, nHeight, oWnd, bWhen )
+*******************************************************************************
+	
+	Default bSetGet := {|| lCheckBox }
+	Default bWhen  := {|| }
+	
+	
+	nRow		:= nRow  		//| numérico - Indica a coordenada vertical.
+	nCol	 	:= nCol			//| numérico - Indica a coordenada horizontal.
+	cCaption 	:= cCaption 	//| caractere - Indica o título do objeto.
+	bSetGet 	:= bSetGet		//| bloco de código - Indica o bloco de código que será executado na mudança do item selecionado. O bloco de código é responsável pela mudança do valor, da variável lógica, que indica o item selecionado.
+	oDlg 		:= oWnd			//| objeto - Indica a janela ou controle visual onde o objeto será criado.
+	nWidth  	:= nWidth		//| numérico - Indica a largura do objeto.
+	nHeight 	:= nHeight		//| numérico - Indica a altura do objeto. É estipulada uma altura padrão para o objeto de 21 pixels, somente sendo possível sua alteração através da aplicação de estilo, utilizando o método SetCss, devidamente documentado no TDN.
+	uParam8 	:= Nil 			//| numérico - Compatibilidade.
+	bLClicked 	:= {||}			//| bloco de código - Indica o bloco de código que será executado quando clicar, com o botão esquerdo do mouse, sobre o objeto.
+	oFont 		:= Nil 			//| objeto - Indica o objeto do tipo TFont utilizado para definir as características da fonte aplicada na exibição do conteúdo do controle visual.
+	bValid 		:= {||} 		//| bloco de código - Indica o bloco de código de validação que será executado quando o conteúdo do objeto for modificado. Retorna verdadeiro (.T.), se o conteúdo é válido; caso contrário, falso (.F.).
+	nClrText 	:= Nil			//| numérico - Indica a cor do texto da janela.
+	nClrPane 	:= Nil 			//| numérico - Indica a cor de fundo da janela.
+	uParam14 	:= Nil 			//| lógico - Compatibilidade.
+	lPixel 		:= .T.			//| lógico - Indica se considera as coordenadas passadas em pixels (.T.) ou caracteres (.F.).
+	cMsg 		:= Nil 			//| caractere - Indica a mensagem, do tipo dica de contexto (tooltip/hint), que será apresentada ao posicionar o ponteiro do mouse sobre o objeto.
+	uParam17 	:= Nil 			//| lógico - Compatibilidade.
+	bWhen 		:= bWhen		//|bloco de código - Indica o bloco de código que será executado quando a mudança de foco da entrada de dados, na janela em que o controle foi criado, estiver sendo efetuada. Observação: O bloco de código retornará verdadeiro (.T.), se o controle permanecer habilitado; caso contrário, retornará falso (.F.).
+
+	//| oCheck1 := TCheckBox():New(01,01,'CheckBox 001',{||lCheck},oDlg,100,210,,,,,,,,.T.,,,)
+	oCheckB := TCheckBox():New( nRow,nCol,cCaption,bSetGet,oDlg,nWidth,nHeight,uParam8,bLClicked,oFont,bValid,nClrText,nClrPane,uParam14,lPixel,cMsg,uParam17,bWhen)
+
 Return()
 *******************************************************************************
 Static Function FComboBox(oCombo, nRow, nCol, aItems, cCombo, nWidth, nHeight, oWnd, bWhen, bChange)
@@ -721,22 +757,27 @@ Static Function TelaMultG( cTexto )//| Exibe Texto em Memo para Edicao....
 	Local oTMultGet 	:= Nil
 	Local oGroup		:= Nil
 	
+	
 	Local cAuxTxt		:= cTexto
-	local oBtAdic		:= Nil
-	local oBtEdit		:= Nil
-	local oBtExcl		:= Nil
-	local oBtFech		:= Nil
+	
+	Local oCheckB		:= Nil
+	Local oBtAdic		:= Nil
+	Local oBtEdit		:= Nil
+	Local oBtExcl		:= Nil
+	Local oBtFech		:= Nil
 		
-	FWindows(@oDlgT, cNameArq, 700, 600, .T.) //| Monta o Objeto Odlg
+	FWindows(@oDlgT, cNameArq, 700, 1200, .T.) //| Monta o Objeto Odlg
 
-	FMultG(@oTMultGet,@cAuxTxt,@oDlgT,299,315)
+	FMultG(@oTMultGet,@cAuxTxt,@oDlgT,600 /*299*/,315)
 	
-	FGroup(@oGroup,325,025,350,275,oDlgT,"" )//| oGroup,nTop,nLeft,nBottom,nRight,oDlg,cCaption )
+	FGroup(@oGroup,325,095,350,470,oDlgT,"" )//| oGroup,nTop,nLeft,nBottom,nRight,oDlg,cCaption )
 	
-	FButton(@oBtAdic,330,035,"Incluir"	,oDlgT,{|| AdicLine(oTMultGet:nPos,@cAuxTxt )},050) //| Cria Botao no Odlg
-	FButton(@oBtEdit,330,095,"Alterar"	,oDlgT,{|| EditLine(oTMultGet:nPos,@cAuxTxt )},050) //| Cria Botao no Odlg
-	FButton(@oBtExcl,330,155,"Excluir"	,oDlgT,{|| ExcLine (oTMultGet:nPos,@cAuxTxt )},050) //| Cria Botao no Odlg
-	FButton(@oBtFech,330,215,"Fechar"	,oDlgT,{|| cTexto := cAuxTxt, oDlgT:End()	},050) //| Cria Botao no Odlg
+	FCheckB(oCheckB, 333, 005, "Auto-Save ?", Nil , 200, Nil, oDlgT, Nil )
+	
+	FButton(@oBtAdic,330,100,"Incluir"	,oDlgT,{|| AdicLine(oTMultGet:nPos,@cAuxTxt )},050) //| Cria Botao no Odlg
+	FButton(@oBtEdit,330,200,"Alterar"	,oDlgT,{|| EditLine(oTMultGet:nPos,@cAuxTxt )},050) //| Cria Botao no Odlg
+	FButton(@oBtExcl,330,300,"Excluir"	,oDlgT,{|| ExcLine (oTMultGet:nPos,@cAuxTxt )},050) //| Cria Botao no Odlg
+	FButton(@oBtFech,330,400,"Fechar"	,oDlgT,{|| cTexto := cAuxTxt, oDlgT:End()	},050) //| Cria Botao no Odlg
 	
 	oDlgT:Activate( Nil, Nil, Nil, lCentered )
 
@@ -1030,7 +1071,7 @@ Static Function AtuLabel(aLabTO, aBW , cQuem, nOperac )
 		
 Return()
 *********************************************************************
-Static Function ASFile(lOper, cTitulo )//| Abre/Salva Arquivo
+Static Function ASFile(lOper, cTitulo, lAuto )//| Abre/Salva Arquivo
 *********************************************************************
 
 	Local cMascara		:= "Arquivo Layout (.lay)|*.lay" //| Caracter	Indica o nome do arquivo ou máscara.
@@ -1043,12 +1084,19 @@ Static Function ASFile(lOper, cTitulo )//| Abre/Salva Arquivo
 	Local lKeepCase	:= .T. 				//| Lógico	Indica se, verdadeiro (.T.), mantém o case original; caso contrário, falso (.F.).
 
 	Default cTitulo := If(lOper==_SAVE,"Salvar arquivo...","Abrir arquivo...")
-
-	cPathFile := cGetFile( cMascara, cTitulo, nMascpad, cDirIni, lSalvar, nOpcoes, lArvore, lKeepCase)
-
-	cNameArq := cPathFile
+	Default lAuto	:= .F.
 	
-	If !Empty(cPathFile)
+	
+	If !lAuto
+		cPathFile := cGetFile( cMascara, cTitulo, nMascpad, cDirIni, lSalvar, nOpcoes, lArvore, lKeepCase)
+
+		cNameArq := cPathFile
+
+		If !Empty(cPathFile)
+			cFileSv	 := cPathFile
+			WRFile( cPathFile, lOper )
+		EndIf
+	ElseIf !Empty(cPathFile)
 		WRFile( cPathFile, lOper )
 	EndIf
 	
