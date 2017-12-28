@@ -220,7 +220,8 @@ Static Function FAtuSBtm(cQual) //Atualiza Estatus dos Botoes conforme Operacao.
 	Do Case
 	Case cQual == "I" //| Inicio
 		lBtNovo := lBtImportar := .T.
-		lBtSalvar := lBtExportar := lBtParametros := lBtVisualizar := lBtEdtar := .F.
+		lBtSalvar := lBtExportar := lBtParametros := lBtVisualizar := lBtEdtar := .T.
+	/*
 	Case cQual == "N"  //| Novo
 		lBtEdtar := lBtSalvar := lBtParametros := .T.
 		lBtImportar := lBtNovo := lBtExportar := lBtVisualizar := .F.
@@ -239,7 +240,7 @@ Static Function FAtuSBtm(cQual) //Atualiza Estatus dos Botoes conforme Operacao.
 	Case cQual == "V" //| Editar
 		lBtExportar := .T.
 	OtherWise  //| Parametros //| Visualizar //Case cQual == "P" .Or. cQual == "V"
-	
+	*/
 	EndCase
 	
 Return()
