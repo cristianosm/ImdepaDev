@@ -55,7 +55,7 @@ User Function GlayMon()// Ferramenta para Desenvolver Relatorio Grafico
 	Private cExporta	:= ""
 	Private aValDef 	:= { "L", "0000", "0000", "0000", "0000", "PT", "00", SPACE(250), "N" }
 	Private oPrn		:= Nil
-	Private cFileSv		:= ""
+	Private cPathFile   := ""
 	Private lCheckBox	:= .F.
 	
 	/*If DATE() > cTod("29/03/2016")
@@ -477,7 +477,7 @@ Static Function FDImagem(oPrn) //| Desenha a Imagem...
 	Local cBitmap	:= aLines[nL][TEXTO] 		//| Caracter	Indica o diretório e o nome, com extensão BMP (Bitmap), da imagem.	X
 	Local nWidth	:= if(Val(aLines[nL][LIN2])>0,Val(aLines[nL][LIN2]),Nil)  	//| Numérico	Indica a largura em pixels do objeto. Default é 100.
 	Local nHeight	:= If(Val(aLines[nL][COL2])>0,Val(aLines[nL][COL2]),Nil)	//| Numérico	Indica a altura em pixels do objeto. Default é 100.
-	//Alert(cBitmap)
+
 	
 	oPrn:SayBitmap( nRow , nCol , cBitmap , nWidth , nHeight )
 	cExporta += "oPrn:SayBitmap( "+XC( nRow  )+" , "+XC(  nCol  )+" , '"+XC(  cBitmap  )+"' , "+XC(  nWidth  )+" , "+XC(  nHeight )+" ) " + _ENTER
@@ -646,7 +646,7 @@ Return()
 Static Function FCheckB(oCheckB, nRow, nCol, cCaption, bSetGet, nWidth, nHeight, oWnd, bWhen )
 *******************************************************************************
 	
-	Default bSetGet := {|| lCheckBox }
+	Default bSetGet := { bSetGet(lCheckBox) }
 	Default bWhen  := {|| }
 	
 	
@@ -670,7 +670,7 @@ Static Function FCheckB(oCheckB, nRow, nCol, cCaption, bSetGet, nWidth, nHeight,
 	bWhen 		:= bWhen		//|bloco de código - Indica o bloco de código que será executado quando a mudança de foco da entrada de dados, na janela em que o controle foi criado, estiver sendo efetuada. Observação: O bloco de código retornará verdadeiro (.T.), se o controle permanecer habilitado; caso contrário, retornará falso (.F.).
 
 	//| oCheck1 := TCheckBox():New(01,01,'CheckBox 001',{||lCheck},oDlg,100,210,,,,,,,,.T.,,,)
-	oCheckB := TCheckBox():New( nRow,nCol,cCaption,bSetGet,oDlg,nWidth,nHeight,uParam8,bLClicked,oFont,bValid,nClrText,nClrPane,uParam14,lPixel,cMsg,uParam17,bWhen)
+	oCheckB := TCheckBox():New( nRow,nCol,cCaption,bSetGet(lCheckBox),oDlg,nWidth,nHeight,uParam8,bLClicked,oFont,bValid,nClrText,nClrPane,uParam14,lPixel,cMsg,uParam17,bWhen)
 
 Return()
 *******************************************************************************
@@ -777,7 +777,7 @@ Static Function TelaMultG( cTexto )//| Exibe Texto em Memo para Edicao....
 	FButton(@oBtAdic,330,100,"Incluir"	,oDlgT,{|| AdicLine(oTMultGet:nPos,@cAuxTxt )},050) //| Cria Botao no Odlg
 	FButton(@oBtEdit,330,200,"Alterar"	,oDlgT,{|| EditLine(oTMultGet:nPos,@cAuxTxt )},050) //| Cria Botao no Odlg
 	FButton(@oBtExcl,330,300,"Excluir"	,oDlgT,{|| ExcLine (oTMultGet:nPos,@cAuxTxt )},050) //| Cria Botao no Odlg
-	FButton(@oBtFech,330,400,"Fechar"	,oDlgT,{|| cTexto := cAuxTxt, oDlgT:End()	},050) //| Cria Botao no Odlg
+	FButton(@oBtFech,330,400,"Fechar"	,oDlgT,{|| cTexto := cAuxTxt, oDlgT:End(), ASFile(_SAVE, Nil,.T. ) 	},050) //| Cria Botao no Odlg
 	
 	oDlgT:Activate( Nil, Nil, Nil, lCentered )
 
@@ -862,7 +862,7 @@ Static Function RecTxt(nPos,cTxt,cLine,nPI,nPF, nOperac)// Recorta o texto corre
 			cTxt 	:= Substr(cTxt,nPF+3)
 		EndIf
 		
-		//Alert(" cLine: " + cLine)
+
 	EndIf
 	
 Return(aLine)
@@ -1081,22 +1081,26 @@ Static Function ASFile(lOper, cTitulo, lAuto )//| Abre/Salva Arquivo
 	Local lSalvar		:= lOper 			//| Lógico	Indica se é um "save dialog - (.F.)" ou um "open dialog - .T. ".
 	Local nOpcoes		:= GETF_LOCALHARD	//| Numérico	Indica a opção de funcionamento. Para mais informações das funcionalidades disponíveis, consulte a área Observações.
 	Local lArvore		:= .F.				//| Lógico	Indica se, verdadeiro (.T.), apresenta o árvore do servidor; caso contrário, falso (.F.).
-	Local lKeepCase	:= .T. 				//| Lógico	Indica se, verdadeiro (.T.), mantém o case original; caso contrário, falso (.F.).
-
+	Local lKeepCase		:= .T. 				//| Lógico	Indica se, verdadeiro (.T.), mantém o case original; caso contrário, falso (.F.).
+	
+	
 	Default cTitulo := If(lOper==_SAVE,"Salvar arquivo...","Abrir arquivo...")
 	Default lAuto	:= .F.
 	
 	
-	If !lAuto
+	If !lAuto 
 		cPathFile := cGetFile( cMascara, cTitulo, nMascpad, cDirIni, lSalvar, nOpcoes, lArvore, lKeepCase)
 
 		cNameArq := cPathFile
 
 		If !Empty(cPathFile)
 			cFileSv	 := cPathFile
+	
 			WRFile( cPathFile, lOper )
+			lAuto := .T.
 		EndIf
-	ElseIf !Empty(cPathFile)
+	ElseIf !Empty(cPathFile) .And. lCheckBox 
+	
 		WRFile( cPathFile, lOper )
 	EndIf
 	
@@ -1106,7 +1110,7 @@ Static Function WRFile( cArq, lOper )//| Escreve/Le Arquivo
 *******************************************************************************
 
 	Local cArq			:= cArq
-	Local nModo			:= If(lOper==_SAVE, 1, 0 ) //| 0-> READ | 1-> WRITE | 2-> READ_WRITE |
+	Local nModo			:= If(lOper==_SAVE, 2, 0 ) //| 0-> READ | 1-> WRITE | 2-> READ_WRITE |
 	Local cBuffer		:= ""
 	Local lChangeCase	:= .T. //| Case sensitive .T. , .F. |
 	Local nHandle		:= 0 //FCREATE(cArq, nModo)
@@ -1117,7 +1121,7 @@ Static Function WRFile( cArq, lOper )//| Escreve/Le Arquivo
 //| B   ;10  ;10  ;11  ;12   |
 
 	If ( lOper == _SAVE )
-	
+
 		nHandle	:= FCreate(cArq, nModo)
 		FWrite(nHandle, cTexto, Len(cTexto))
 		FClose(nHandle)
