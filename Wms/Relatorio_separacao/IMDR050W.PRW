@@ -7,6 +7,10 @@
 #DEFINE PSAY SAY
 #ENDIF
 
+
+#Define _NIPCO_	18		//| Numero de intens que cabem na Pagina completa
+#Define _NIPFI_	14		//| Numero de intens que cabem na Pagina Final
+
 #Define CLR_ORANGE      RGB( 255, 229, 204 )
 #Define CLR_GRAYH       RGB( 224, 224, 224 )
 #Define CLR_GRAY        RGB( 128, 128, 128 )
@@ -18,16 +22,8 @@
 #Define CLR_YELLOW      RGB( 255, 255,   0 )
 #Define CLR_WHITE       RGB( 255, 255, 255 )
 
-///////////////JULIO JACOVENKO, em 30/01/2017
-///////////////contador de paginas e outras melhorias
-/////////////////////////////////////////////////////
 
-/////////////////MELHORIAS REF. CHAMADO N. 9868 (geral) e 0011014 (para SC)
-///////////////////////////////////////////////
-///20161107////////////////////////////////////
-///////////////////////////////////////////////
 
-//////////
 /*‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹‹
 ±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
 ±±…ÕÕÕÕÕÕÕÕÕÕÕÀÕÕÕÕÕÕÕÕÕÕÀÕÕÕÕÕÕÕÀÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÕÀÕÕÕÕÕÕÀÕÕÕÕÕÕÕÕÕÕÕÕª±±
@@ -124,7 +120,6 @@ User Function IMDR050w()
 		Private cNomeProg := 'IMDR050b'
 		Private cTamanho  := 'P'
 		Private nLastKey  := 0
-		Private m_pag     := 1
 		Private cNomeRel  := Time()
 		cNomeRel  := ( DtoS( Date() ) + SubStr( cNomeRel, 1, 2 ) + SubStr( cNomeRel, 4, 2 ) + SubStr( cNomeRel, 7, 2 ) )
 		Private wnrel     //:= SetPrint( cString, cNomeRel, cPerg, cTitulo, cDesc1, cDesc2, cDesc3, .F., '', .T., cTamanho,, .F. )
@@ -406,10 +401,8 @@ Static Function BuscaItensDBC9(cCodFil,cPedido)
 	Local cController:=.F.
 	Local lController
 
-	*************************************************************************************
-	//Busca Itens de Produto com seus respectivos EndereÁos e Lotes separados pelo WMS //
-	*************************************************************************************
 	
+	//Busca Itens de Produto com seus respectivos EndereÁos e Lotes separados pelo WMS //	
 	/////////////JULIO JACOVENKO, em 29/09/2016
 	CQUERY:=" SELECT DB_FILIAL,DB_DOC,DB_PRODUTO,DB_ESTFIS,DB_LOCALIZ,BE_CODZON,BE_ESTFIS, ""
 	CQUERY+=" DB_QUANT,DB_LOTECTL,B1_MARCA,B1_DESC,B1_PESO,B1_ORIGEM,B1_UM "
@@ -445,13 +438,6 @@ Static Function BuscaItensDBC9(cCodFil,cPedido)
 	CQUERY+=" AND SBE.D_E_L_E_T_ = ' ' "
 	CQUERY+=" ORDER BY DB_ESTFIS,BE_ESTFIS,DB_LOCALIZ, BE_CODZON ASC ""
 
-	MemoWrite("c:\sqlsiga\AJONAS1.SQL", cQuery)
-
-	//cQuery +=" AND SDB.D_E_L_E_T_ = ' ' "
-	//cQuery +=" AND SC9.D_E_L_E_T_ = ' ' "
-	//cQuery +=" AND SB1.D_E_L_E_T_ = ' ' "
-	//cQuery +=" ORDER BY DB_LOCALIZ ASC "
-
 	IF Select('TRB') <> 0
 		TRB->( DbCLoseArea() )
 	Endif
@@ -461,23 +447,6 @@ Static Function BuscaItensDBC9(cCodFil,cPedido)
 	DbselectARea("TRB")
 
 	ProcRegua(TRB->(Reccount()))
-
-	//////////////////////////////
-	////////JULIO JACOVENKO, em 29/09/2016
-	////////tratar por filial via parametro
-	////////usar supergetmv
-	////////imd_zona1
-	////////imd_zona2
-	////////imd_zona3
-	CZONA:=' '
-	//SUPERGETMV("IMD_COMMARGEM" , , 1)
-	IF     TRB->DB_ESTFIS $ SUPERGETMV("IMD_ZONA1" , ," ") //"000002#000034#000068#000069"
-		CZONA:='ZONA1'
-	ELSEIF TRB->DB_ESTFIS $ SUPERGETMV("IMD_ZONA2" , ," ") //"000010#000042#000066#000067"
-		CZONA:='ZONA2'
-	ELSEIF TRB->DB_ESTFIS $ SUPERGETMV("IMD_ZONA3" , ," ") //"000005#000037"
-		CZONA:='ZONA3'
-	ENDIF
 
 	///////////////////////////////
 
@@ -497,54 +466,17 @@ Static Function BuscaItensDBC9(cCodFil,cPedido)
 		TRB->B1_UM,;
 		TRB->B1_ORIGEM,;
 		TRB->DB_LOTECTL,;
-		Iif(lController,'N„o Possui','S'),;
-		CZONA})
+		Iif(lController,'N„o Possui','S')} )
 
-		//Incproc('Estruturando lista de produtos com EndereÁo e Lote')
 		DbSkip()
-		IF     TRB->DB_ESTFIS $ SUPERGETMV("IMD_ZONA1" , ," ") //"000002#000034#000068#000069"
-			CZONA:='ZONA1'
-		ELSEIF TRB->DB_ESTFIS $ SUPERGETMV("IMD_ZONA2" , ," ") //"000010#000042#000066#000067"
-			CZONA:='ZONA2'
-		ELSEIF TRB->DB_ESTFIS $ SUPERGETMV("IMD_ZONA3" , ," ") //"000005#000037"
-			CZONA:='ZONA3'
-		ENDIF
-
+	
 	Enddo
 
 	DbselectARea("TRB")
 	DbCloseArea()
 
-	//////JULIO JACOVENKO, em 29/09/2016
-	//////13 posicao no array he CZONA+DB_LOCALIZ
-	aSort(aItensPed,,,{|X,Y| X[13]+X[5] < Y[13]+Y[5]})
-
 Return(aItensPed)
-/*
-*****************************************************************************
-Static Function RodaRel(aPedidos)
-*****************************************************************************
 
-	nLastKey := 0
-
-	wnrel := SetPrint( cString, cNomeRel, cPerg, cTitulo, cDesc1, cDesc2, cDesc3, .F., '', .T., cTamanho,, .F. )
-
-	If nLastKey == 27
-		Set Filter to
-		Return
-	EndIf
-
-	SetDefault( aReturn, cString )
-
-	If nLastKey == 27
-		Set Filter to
-		Return
-	EndIf
-
-	Processa( { || RptDetail(aPedidos) } )
-	
-	Return
-*/
 *****************************************************************************
 Static Function RptDetail(aPedidos, oPrn)
 *****************************************************************************
@@ -555,44 +487,48 @@ Static Function RptDetail(aPedidos, oPrn)
 	Local aItensPV:={}
 	Local lRetabastAuto
 	Local nLin := 0
-	//Local cPictPeso := PesqPict( "SB1", "B1_PESO" )
+	
 	Private cPictPeso := "@E 999.99"
 	Private nPesTot
-	Private nPagina := 0
+	Private nPagina := 0	// Numero da Pagina Atual do Pedido
+	Private nTotPag := 0    // Numero Total de Paginas do Pedido
+	Private bFinalP := {|| if(nPagina==nTotPag,.T.,.F.)} // Verifica se eh pagina final
+	
+	Private cLibCom :=""
+	Private cLibFin :=""
+	
 	Private cNomeVend1, cNomeVend2
 	Private nTipo := If( aReturn[4] == 1, 15, 18 )
 
-	//ProcRegua( Len(aPedidos) )
+	SA1->( DbSetOrder( 1 ) )
+	SA2->( DbSetOrder( 1 ) )
+	SA3->( DbSetOrder( 1 ) )
+	SA4->( DbSetOrder( 1 ) )
+	SC5->( DbSetOrder( 1 ) )
+	SC6->( DbSetOrder( 1 ) )
+	SC9->( DbSetOrder( 1 ) )
+	SE4->( DbSetOrder( 1 ) )
+	SU7->( DbSetOrder( 1 ) )
+	SUA->( DbSetOrder( 8 ) )
+	ZZV->( DbSetOrder( 1 ) )
 
-	SA1->( dbSetOrder( 1 ) )
-	SA2->( dbSetOrder( 1 ) )
-	SA3->( dbSetOrder( 1 ) )
-	SA4->( dbSetOrder( 1 ) )
-	SC5->( dbSetOrder( 1 ) )
-	SC6->( dbSetOrder( 1 ) )
-	SC9->( dbSetOrder( 1 ) )
-	SE4->( dbSetOrder( 1 ) )
-	SU7->( dbSetOrder( 1 ) )
-	SUA->(DbSetOrder(8))
-	ZZV->( dbSetOrder( 1 ) )
+	SC9->( DbSetOrder(1))
 
-	SC9->(DBSETORDER(1))
-
-	lTESTA:=.F.
 	For nStart := 1 To Len(aPedidos) // Pedido
 
 		// ajusta variaveis de controle
 		cFilPed   := aPedidos[nStart,2]
 		cNumPed   := aPedidos[nStart,3]
 
-			SC5->( dbSeek( cFilPed + cNumPed, .F. ) )
-		SA3->( dbSeek( xFilial( 'SA3' ) + SC5->C5_VEND1, .F. ) )
-		SA3->( dbSeek( xFilial( 'SA3' ) + SC5->C5_VEND2, .F. ) )	; cNomeVend2 := AllTrim( SA3->A3_NOME )
-		SA4->( dbSeek( xFilial( 'SA4' ) + SC5->C5_TRANSP, .F. ) )
-		SE4->( dbSeek( xFilial( 'SE4' ) + SC5->C5_CONDPAG, .F. ) )
-		SU7->( dbSeek( xFilial( 'SU7' ) + SC5->C5_OPERADO, .F. ) )  ; cNomeVend1 := AllTrim( SU7->U7_NOME )
-		SUA->( dbSeek( xFilial( 'SUA' ) + SC5->C5_NUM, .F. ) )
-
+		SC5->( dbSeek( cFilPed + cNumPed, .F. ) )
+		SA3->( dbSeek( xFilial( 'SA3' ) + SC5->C5_VEND1		, .F. ) )
+		SA3->( dbSeek( xFilial( 'SA3' ) + SC5->C5_VEND2		, .F. ) )	; cNomeVend2 := AllTrim( SA3->A3_NOME )
+		SA4->( dbSeek( xFilial( 'SA4' ) + SC5->C5_TRANSP	, .F. ) )
+		SE4->( dbSeek( xFilial( 'SE4' ) + SC5->C5_CONDPAG	, .F. ) )
+		SU7->( dbSeek( xFilial( 'SU7' ) + SC5->C5_OPERADO	, .F. ) )  ; cNomeVend1 := AllTrim( SU7->U7_NOME )
+		SUA->( dbSeek( xFilial( 'SUA' ) + SC5->C5_NUM		, .F. ) )
+		SC9->( dbSeek( cFilPed + cNumPed, .F. ) )
+		                                                                                                                
 		nValTot := 0
 		nPesTot := 0
 		cKey    := cFilPed + cNumPed
@@ -600,94 +536,18 @@ Static Function RptDetail(aPedidos, oPrn)
 		aItensPV := BuscaItensDBC9(cFilPed,cNumPed)
 
 		nPos := Ascan(aItensPV, {|x| x[1]+x[2] = cKey})
-
-		NCtZona1:=NCtZona2:=NCtZona3:=NTotItZonas:=NZona1:=NZona2:=NZona3:=0
 		
-		For nItem:=nPos to Len(aItensPV)
-			If AITENSPV[NITEM,13]='ZONA1'
-				NCtZona1+=1
-				NZona1:=1
-			ElseIF AITENSPV[NITEM,13]='ZONA2'
-				NCtZona2+=1
-				NZona2:=1
-			ElseIf AITENSPV[NITEM,13]='ZONA3'
-				NCtZona3+=1
-				NZona3:=1
-			EndIF
-		Next
-		nTotItZonas := NCtZona1+NCtZona2+NCtZona3
-
-		///QUANTA ZONAS SERA IMPRESSAS
-		nTotZonasIp := NZona1+NZona2+NZona3
-		NPAGZONA1:=NPAGZONA2:=NPAGZONA3:=0
-
-		IF NCTZONA1<>0
-			//NPAGZONA1:=((NCTZONA1*2)+22+20)/14   //ITEM ZONA * 2 (linha em branco) +  22 (Cabecalho) + 20 (Rodape)  / 50 (total de linhas p pagina)
-			NPAGZONA1:=NCTZONA1 / 15 //(NCTZONA1*2)/20
-
-			IF (NPAGZONA1 - INT(NPAGZONA1) > 0)
-				NPAGZONA1:=INT(NPAGZONA1)+1          ///sempre mais um para totalizar a pagina
-			ELSEIF INT(NPAGZONA1)=0
-				NPAGZONA1:=1
-			ELSE
-				NPAGZONA1:=INT(NPAGZONA1)
-			ENDIF
-		ELSE
-			NPAGZONA1:=NCTZONA1
-		ENDIF
-
-		IF NCTZONA2<>0
-			NPAGZONA2:=NCTZONA2/15 //(NCTZONA2*2)/20
-
-			//ALERT('NPAGZONA2 '+STR(NPAGZONA2))
-
-			IF (NPAGZONA2 - INT(NPAGZONA2) > 0)
-				NPAGZONA2:=INT(NPAGZONA2)+1
-			ELSEIF INT(NPAGZONA2)=0
-				NPAGZONA2:=1
-			ELSE
-				NPAGZONA2:=INT(NPAGZONA2)
-			ENDIF
-		ELSE
-			NPAGZONA2:=NCTZONA2
-		ENDIF
-
-		IF NCTZONA3<>0
-			NPAGZONA3:=NCTZONA3/15 //(NCTZONA3*2)/20
-
-			//ALERT('NPAGZONA3 '+STR(NPAGZONA3))
-
-			IF (NPAGZONA3 - INT(NPAGZONA3) > 0)
-				NPAGZONA3:=INT(NPAGZONA3)+1
-			ELSEIF INT(NPAGZONA3)=0
-				NPAGZONA3:=1
-			ELSE
-				NPAGZONA3:=INT(NPAGZONA3)
-			ENDIF
-		ELSE
-			NPAGZONA3:=NCTZONA3
-		ENDIF
-
-		NTOTPAGIMPCZONA := NPAGZONA1 + NPAGZONA2 + NPAGZONA3  ///totais de paginas a serem impressas
-
-		If nPos > 0
-
-			cSaltaZona := AITENSPV[1,13]
-			cNomeZonas := '' 
-
-			IF cSaltaZona<>''
-				nMudaZona  := 1
-				cPaginaZona:= STRZERO(nMUDAZONA,2)+"/"+STRZERO(NTOTZONASIP,02)
-			EndIF
+		If nPos > 0 // Se Encontrou o Pedido
 			
-			nLin := 1
-			// Varre Itens
+			cLibCom := DtoC(SC9->C9_DTLCOM) + ' - ' + SC9->C9_HRLCOM + ' - ' +  SC9->C9_USRLCOM
+			cLibFin := DtoC(SC9->C9_DTLCRE) + ' - ' + SC9->C9_HRLCRE + ' - ' +  SC9->C9_USRLCRE
+			nLin 	:= 1
 			nPagina := 1
-			ImpCabec(@oPrn); Alert('ImpCabec : 684')
+			nTotPag := CalcTotPag(Len(aItensPV)) 
+			
+			ImpCabec(@oPrn)//; Alert('ImpCabec : 548')
 			For nItem := nPos To Len(aItensPV)
-				
-				
-				CZONA       := AITENSPV[NITEM,13]  // ZONA
+						
 				cFilPed     := aItensPV[nItem,1]   // SC6TMP->C6_FILIAL
 				cUM			:= aItensPV[nItem,9]   // SC6TMP->B1_UM
 				cNumPed     := aItensPV[nItem,2]   // SC6TMP->C6_NUM
@@ -703,100 +563,26 @@ Static Function RptDetail(aPedidos, oPrn)
 
 				nC6_PRCVEN  := 0
 
-				If cFilPed + cNumPed <> cKey
-					Exit
-				EndIf
+				//If cFilPed + cNumPed <> cKey
+				//	Exit
+				//EndIf
 
 				SC6->( dbSeek( cFilPed + cNumPed, .F. ) )
 
-				///////////////////////////48+3salta zona////////////////////////////////////////////////////////
-				//IF (pROW() <= 51  .AND. cSaltaZona<>CZONA) //.or. NSTART=LEN(APEDIDOS)
-			
-				IF (nLin <= 14  .And. cSaltaZona <> CZONA )
-
-					*/
-					IF SC9->(dbSeek( cFilPed + ALLTRIM(cNumPed), .F. ) )
-
-						cDTLCOM  := DtoC(SC9->C9_DTLCOM)
-						cHRLCOM  := SC9->C9_HRLCOM
-						cUSRLCOM := SC9->C9_USRLCOM
-
-						cDTLCRE  := DtoC(SC9->C9_DTLCRE)
-						cHRLCRE  := SC9->C9_HRLCRE
-						cUSRLCRE := SC9->C9_USRLCRE
-
-					ENDIF
-					*/
-					//////|||||| Impress„o Dados Liberacao pedido e  Rodape ************************************************************************************************
-					
-					DLibPed(@oPrn)
-					
-					Roddape(@oPrn)
-					
-					/*
-					@ pRow()+1, 000 pSay 'Visto Expedicao em ___/___/___     Visto:_________________    NF:_______________'
-					@ pRow()+1, 000 pSay __PrtThinLine()
-					@ pRow()+2, 000 pSay "Lib. Pedidos : Comercial "+cDTLCOM+" - "+cHRLCOM+" - "+cHRLCOM
-					@ pRow()+1, 000 pSay "Lib. Pedidos : Credito   "+cDTLCRE+" - "+cHRLCRE+" - "+cUSRLCRE
-					// Jorge Oliveira - 10/12/10 - Chamado AAZRS1 - Incluida uma "Ficha de Separacao", para preenchimento manual do pessoal do CD
-					@ pRow()+2, 000 pSay __PrtThinLine()
-					@ pRow()+1, 000 pSay Space( 28 ) + "FICHA DE SEPARACAO - :"+cSaltaZona
-					@ pRow()+1, 000 pSay __PrtThinLine()
-					@ pRow()+1, 000 pSay "SEPARADOR:___________________________"
-					@ pRow()  , 040 pSay "INICIO:_____:_____ "
-					@ pRow()+2, 000 pSay " "
-					@ pRow()  , 040 pSay "TERMINO:_____:_____"
-					@ pRow()+2, 000 pSay "CONFERENTE:__________________________"
-					@ pRow()  , 040 pSay "FATURAMENTO:_____:_____"
-					@ pRow()+2, 000 pSay "QUANTIDADE DE ERROS:_________________"
-					@ pRow()  , 040 pSay "TIPOS DE ERROS:______________________"
-					@ pRow()+2, 000 pSay "<<< AREA DE CONSOLIDACAO:_______________________________ >>>"
-					@ pRow()  , 040 pSay " "
-					*/
-
-					cSaltaZona := CZONA
-					NMUDAZONA += 1
-					lImpresso := .T.
-
-					///MUDOU DE ZONA
-					nPagina += 1
-					ImpCabec(@oPrn); Alert('ImpCabec : 759')
-					nLin := 1
-					lImpresso := .T.
-
-				EndIF
-		
 				//////|||||| Impress„o dos Itens  ************************************************************************************************
-				
-				//If pRow() >= 51 .or. m_pag == 1 // salto de pagina, neste caso o formulario tem 55 linhas...
-			
-				
-				If nLin > 14 //.Or. m_pag == 1 // salto de pagina, neste caso o formulario tem 55 linhas...
+				If nLin > _NIPCO_ //| Verifica se a Pagina completa atingio o Limite de Itens
 					
-					DLibPed(@oPrn)
+					nPagina 	+= 1
+					nLin 		:= 1
+					lImpresso 	:= .T.
+					
+					DLibPed(@oPrn) // Imprime Dados LiberaÁ„o e Rodape
+					
+					ImpCabec(@oPrn)//;Alert('ImpCabec : 581')
 
-					Roddape(@oPrn)
-					nPagina += 1
-					ImpCabec(@oPrn);Alert('ImpCabec : 776')
-					nLin := 1
-					
-					lImpresso := .T.
 				EndIf
 				
 				lRetabastAuto := SF4->(chekReabastAuto(SC5->C5_NUM,cProduto))
-
-				If CZONA == 'ZONA1'
-					CZ := '1'
-				ElseIf CZONA == 'ZONA2'
-					CZ := '2'
-				ElseIf CZONA == 'ZONA3'
-					CZ := '3'
-				Else
-					CZ := ' '
-				EndIf
-
-				//@ pRow()+1, 000 pSay CZ
-				//@ pRow()  , 002 pSay LEFT(cEnd,8)
 
 				If lRetabastAuto
 					//@ pRow()  , 011 pSay 'R'
@@ -804,29 +590,22 @@ Static Function RptDetail(aPedidos, oPrn)
 					//@ pRow()  , 011 pSay ' '
 				Endif
 
-				//@ pRow()  , 013 pSay Transform( nC9_QTDLIB, "@E 999999.99"  )
 
-				CPRODN := Alltrim(cProduto)
+				cProdN := Alltrim(cProduto)
 				If Len(Alltrim(cProduto)) == 8
-					CPRODN := cProduto
+					cProdN := cProduto
 				ElseIf Len(Alltrim(cProduto)) == 9
-					CPRODN := Substr(Alltrim(cProduto),2,8)
+					cProdN := Substr(Alltrim(cProduto),2,8)
 				Else
-					CPRODN := Substr(Alltrim(cProduto),6,8)
+					cProdN := Substr(Alltrim(cProduto),6,8)
 				EndIf
-				/*
-				@ pRow()  , 023 pSay Alltrim(cProdN)
-				@ pRow()  , 038 pSay SubStr(cB1_REFER,1,20) //15
-				@ pRow()  , 060 pSay SubStr( cB1_MARCA, 1, 05 )
-				@ pRow()  , 067 pSay cB1_ORIGEM
-				@ pRow()  , 070 pSay cUM
-				@ pRow()  , 073 pSay nB1_PESO Picture cPictPeso //"@E 999.9999"
-				*/
+
 				nPesTot += nB1_PESO * nC9_QTDLIB
 				
+				// Impress„o dos Itens 
 				Itens(@oPrn, nLin,;
 				 	cEnd		:= LEFT(cEnd,8),;
-				 	cQtd		:= Transform( nC9_QTDLIB, "@E 999999.99"  ),;
+				 	cQtd		:= Transform( nC9_QTDLIB, "@E 99,999.99"  ),;
 				 	cProduto 	:= Alltrim(cProdN),;
 				 	cRefer 		:= SubStr(cB1_REFER,1,20),;
 				 	cMarca 		:= SubStr( cB1_MARCA, 1, 05 ),;
@@ -834,97 +613,26 @@ Static Function RptDetail(aPedidos, oPrn)
 				 	cUM			:= cUM,;
 				 	cPESO		:= Transform( nB1_PESO,cPictPeso)  )
 				 
-				//@ pRow()+1, 000 pSay __PrtThinLine()
-				
 				nLin += 1
 			Next
-
-		Else
-			//50
-			//If nItem > 51                       //48  .or. m_pag == 1	// salto de pagina, neste caso o formulario tem 55 linhas...
-				nPagina := 1
-				ImpCabec(@oPrn);Alert('ImpCabec : 843')
-				nLin := 1
-			//EndIf
-
+			
+			If nPagina < nTotPag // Em Caso de Haver uma pagina pendente por nao ter itens a imprimir ... Gera o Cabecalho
+				nPagina 	+= 1
+				nLin 		:= 1
+				lImpresso 	:= .T.
+				ImpCabec(@oPrn)//;Alert('ImpCabec : 623')
+			EndIf
+			
+			DLibPed(@oPrn) // Imprime Dados LiberaÁ„o e Rodape
+					
+			//ImpCabec(@oPrn);Alert('ImpCabec : 579')
+					
+			//| Fim Itens
+			
 		Endif
-		
-		/*
-		IF SC9->(dbSeek( cFilPed + ALLTRIM(cNumPed), .F. ) )
-	
-			cDTLCOM :=DtoC(SC9->C9_DTLCOM)
-			cHRLCOM :=SC9->C9_HRLCOM
-			cUSRLCOM:=SC9->C9_USRLCOM
-
-				cDTLCRE:=DtoC(SC9->C9_DTLCRE)
-			cHRLCRE:=SC9->C9_HRLCRE
-			cUSRLCRE:=SC9->C9_USRLCRE
-
-		ENDIF
-		*/
-		If nLin > 14             //48 //48  // 50
-			nPagina := 1
-			ImpCabec(@oPrn);Alert('ImpCabec : 863')
-			nLin := 1
-		EndIf
-
-		//////|||||| Impress„o Dados Liberacao pedido ************************************************************************************************
-		DLibPed(@oPrn)
-		
-		/*
-		@ pRow()  +1,040 psay 'Peso Total           :'+cNomeZonas
-		@ pRow()  , 068 pSay nPesTot     Picture  '@E 99,999.99999' //'@E 999,999.99999'
-
-		@ pRow()+1, 000 pSay __PrtThinLine()  //2
-		@ pRow()+1, 000 pSay 'Visto Expedicao em ___/___/___     Visto:_________________    NF:_______________'
-		@ pRow()+1, 000 pSay __PrtThinLine()
-
-		@ pRow()+1, 000 pSay "Lib. Pedidos : Comercial "+cDTLCOM+" - "+cHRLCOM+" - "+cHRLCOM   //2
-		@ pRow()+1, 000 pSay "Lib. Pedidos : Credito   "+cDTLCRE+" - "+cHRLCRE+" - "+cUSRLCRE
-		*/
-				
-		If NSTART < LEN(APEDIDOS)  //48 //48 //50
-			nPagina := 1
-			ImpCabec(@oPrn);Alert('ImpCabec : 885')
-			nLin := 0
-		EndIf
-
-		// Jorge Oliveira - 10/12/10 - Chamado AAZRS1 - Incluida uma "Ficha de Separacao", para preenchimento manual do pessoal do CD
-		
-		//////|||||| Impress„o Rodape ************************************************************************************************
-		Roddape(@oPrn)
-		/*
-		@ pRow()+1, 000 pSay __PrtThinLine()
-		@ pRow()+1, 000 pSay Space( 28 ) + "FICHA DE SEPARACAO - Final - : "+CZONA
-		@ pRow()+1, 000 pSay __PrtThinLine()
-		@ pRow()+1, 000 pSay "SEPARADOR:___________________________"
-		@ pRow()  , 040 pSay "INICIO:_____:_____ "
-
-		@ pRow()+2, 000 pSay "EMBALADOR:___________________________"
-		@ pRow()  , 040 pSay "TERMINO:_____:_____"
-
-		@ pRow()+2, 000 pSay "CONFERENTE:__________________________"
-		@ pRow()  , 040 pSay "FATURAMENTO:_____:_____"
-
-		@ pRow()+2, 000 pSay "QUANTIDADE DE ERROS:_________________"
-		@ pRow()  , 040 pSay "TIPOS DE ERROS:______________________"
-
-		@ pRow()+2, 000 pSay "PESO BRUTO:_________________"
-		@ pRow()  , 040 pSay "QTD VOLUMES:______________________"
-
-		@ pRow()+2, 000 pSay "<<< AREA DE CONSOLIDACAO:_______________________________ >>>"
-		*/
-		m_pag := 1
 
 	Next
-	/*
-	If aReturn[5] == 1
-		Set Printer to
-		Commit
-		OurSpool( wnrel )
-	EndIf
-	Ms_Flush()
-	*/
+	
 	Return
 *****************************************************************************
 Static Function ImpCabec(oPrn)	//  Impress„o do CabeÁalho do RelatÛrio Pedido de SeparaÁ„o //
@@ -976,17 +684,25 @@ Static Function ImpCabec(oPrn)	//  Impress„o do CabeÁalho do RelatÛrio Pedido de
 	//////|||||| Impress„o Cabecalho  ************************************************************************************************
 	
 	oPrn:Box( 100 , 50 , 250 , 2930 , '02' )
-	oPrn:Line( 270 , 50 , 2200 , 50 , 0 , '01'  )
-	oPrn:Line( 270 , 2930 , 2200 , 2930 , 0 , '01'  )
+	
+	//Linhas Laterais externas aos itens   
+	If eVal(bFinalP) // eh pagina final ? Caso nao imprime os itens 
+		oPrn:Line( 270 , 50   , 2200 , 50 , 0 , '01'  )
+		oPrn:Line( 270 , 2930 , 2200 , 2930 , 0 , '01'  )
+	Else
+		oPrn:Line( 270 , 50   , 2430 , 50 , 0 , '01'  )
+		oPrn:Line( 270 , 2930 , 2430 , 2930 , 0 , '01'  )
+	EndIf
+
 
 	oFont :=  TFont():New( 'Courier new' , , -12)
-	oPrn:Say( 130 , 60 , Alltrim(SM0->M0_NOME)  , oFont ,   , 0 , ) //oPrn:Say( 130 , 60 , 'IMDEPA - CD PORTO ALEGRE ' , oFont ,   , 0 , )
+	oPrn:Say( 140 , 60 , Alltrim(SM0->M0_CODFIL)+' : '+Alltrim(SM0->M0_NOME)+' - '+ Alltrim(SM0->M0_FILIAL) , oFont ,   , 0 , ) //oPrn:Say( 130 , 60 , 'IMDEPA - CD PORTO ALEGRE ' , oFont ,   , 0 , )
 
 	oFont :=  TFont():New( 'Courier new' , , -18) ; oFont:Bold 	:= .T.
 	oPrn:Say( 160 , 1000 , 'Pedido de Venda - SeparaÁ„o WMS ' , oFont ,   , 0 , )
 
 	oFont :=  TFont():New( 'Courier new' , , -12)
-	oPrn:Say( 130 , 2530 , 'Emiss„o: '+ dToc(dDataBase) + ' - ' + Substr(Time(),1,5) , oFont ,   , 0 , ) //oPrn:Say( 130 , 2530 , 'Emiss„o: 11/12/17 - 09:33 ' , oFont ,   , 0 , )
+	oPrn:Say( 140 , 2530 , 'Emiss„o: '+ dToc(dDataBase) + ' - ' + Substr(Time(),1,5) , oFont ,   , 0 , ) //oPrn:Say( 130 , 2530 , 'Emiss„o: 11/12/17 - 09:33 ' , oFont ,   , 0 , )
 
 	oFont :=  TFont():New( 'Courier new' , , -12)
 	oPrn:Say( 230 , 60 , 'Visto ExpediÁ„o em : ____/____/____  ' , oFont ,   , 0 , )
@@ -998,7 +714,7 @@ Static Function ImpCabec(oPrn)	//  Impress„o do CabeÁalho do RelatÛrio Pedido de
 	oPrn:Say( 230 , 1050 , 'NF : ______________ ' , oFont ,   , 0 , )
 
 	oFont :=  TFont():New( 'Courier new' , , -12)
-	oPrn:Say( 230 , 2760 , 'P·gina: '+Strzero(nPagina,2) , oFont ,   , 0 , )
+	oPrn:Say( 230 , 2715 , 'P·gina: '+Strzero(nPagina,2)+'-'+Strzero(nTotPag,2) , oFont ,   , 0 , )
 
 	oPrn:Line( 270 , 50 , 270 , 2930 , 0 , '01'  )
 
@@ -1040,7 +756,7 @@ Static Function ImpCabec(oPrn)	//  Impress„o do CabeÁalho do RelatÛrio Pedido de
 		oPrn:Say( 400 , 400 , SC5->C5_NUM , oFont ,   , 0 , )
 	EndIf
 
-	oPrn:Say( 450 , 400 , 'VOrdem de Compra  ' , oFont ,   , 0 , )
+	oPrn:Say( 450 , 400 , SC5->C5_OCCLI , oFont ,   , 0 , )
 
 	oPrn:Say( 500 , 400 , cCliente      , oFont ,   , 0 , )
 
@@ -1090,7 +806,7 @@ Static Function ImpCabec(oPrn)	//  Impress„o do CabeÁalho do RelatÛrio Pedido de
 
 	oPrn:Say( 650 , 1765 , IIF(SC5->C5_TPFRETE='2','1','2') , oFont ,   , 0 , )
 
-	oPrn:Say( 700 , 1765 , +Transform(SUA->UA_FRETE,"@E 999,999.99") , oFont ,   , 0 , )
+	oPrn:Say( 700 , 1765 , +Alltrim(Transform(SUA->UA_FRETE,"@E 999,999.99")) , oFont ,   , 0 , )
 
 	// Linha Fim Cabecalho
 	oPrn:Line( 770 , 50 , 770 , 2930 , 0 , '-6'  )
@@ -1104,79 +820,8 @@ Static Function ImpCabec(oPrn)	//  Impress„o do CabeÁalho do RelatÛrio Pedido de
 	// Linha Fim Observacao
 	oPrn:Line( 850 , 50 , 850 , 2930 , 0 , '01'  )
 	
-	 CabItens(@oPrn)
-	/*
-	//Inserido por Edivaldo GonÁalves Cordeiro
-	If !Empty(SC5->C5_NUMSUA) .AND. cCliImdepa = SC5->C5_CLIENTE
-		@ pRow()+1,000 pSay 'Pedido No..: ' + SC5->C5_NUM +' **ALOCADO**'
-	Else
-		@ pRow()+1,000 pSay 'Pedido No.........: ' + SC5->C5_NUM
-	Endif
+	CabItens(@oPrn)
 
-	@ pRow()  ,050 pSay 'Emissao: ' + DtoC( SC5->C5_EMISSAO )
-	@ pRow()  ,078 pSay AllTrim(SC5->C5_TIPFAT)
-
-	If MV_PAR01 = 1
-		@ pRow(),079 pSay 'R'
-	EndIf
-
-	If !Empty(SC5->C5_OCCLI)
-		@ pRow()+1,000 pSay 'Ordem de Compra...: '
-	ELSE
-		@ pRow()+1,000 pSay 'Ordem de Compra...: '
-	Endif
-
-	@ pRow()+1,000 pSay 'Cliente...........: ' + cCliente
-	@ pRow()+1,000 pSay 'Endereco Fatura...: ' + cEndFatu
-	@ pRow()+1,000 pSay 'Cidade   Fatura...: ' + cCidFatu
-	@ pRow()+1,000 pSay 'Endereco Entrega..: ' + cEndEntr
-	@ pRow()+1,000 pSay 'Cidade   Entrega..: ' + cCidEntr
-	@ pRow()  ,053 pSay 'Origem.: 0 - Nacional'
-	@ pRow()+1,062 pSay '1 - Importado'
-	@ pRow()+1,000 pSay 'Representante.....: ' + cNomeVend2
-	@ pRow()  ,062 pSay '2 - Nacionalizado'
-	@ pRow()+1,000 pSay 'Vendedor Interno..: ' + cNomeVend1
-	@ pRow()  ,053 pSay 'Tipo Frete .: '+IIF(SC5->C5_TPFRETE='2','1','2')
-	@ pRow()+1,000 pSay 'Transportadora....: ' +Substr(Alltrim( SA4->A4_NOME ),1,26)
-	@ pRow()  ,053 pSay 'R$ Frete .: '+Transform(SUA->UA_FRETE,"@E 999,999.99")
-
-	//@ 13,000 PSay 'Condicoes Pgto....: '+cConPgto
-	@ pRow()+1,000 PSay 'Condicoes Pgto....: '+cDescCondpg
-
-	////JULIO JACOVENKO, em 30/09/2016
-	////so imprime se tiver controle de ZONA
-	////se ntotzonasip for maior que zero.
-	IF NTOTZONASIP>0
-
-		@ PROW()  ,023+20     pSAY 'Tot.Pag.Imp: '+STRZERO(NTOTPAGIMPCZONA,2,0)    //STRZERO(nTotZonasIp,2,0)
-		cPaginaZona:= STRZERO(NMUDAZONA,2)+"/"+STRZERO(NTOTZONASIP,02)
-		@ PROW()  ,023+20+18  pSAY 'Pg.Zonas: '+CPAGINAZONA
-
-	ENDIF
-
-	@ pRow()+1,000 pSay 'Segmento..........: **'+cSegmento+'/'+cDescSeg+'**'
-
-	If lTemGuia
-		//053
-		@ pRow(),023+020 pSay '**Pedido com GUIA**'
-	Endif
-	If !Empty(SUA->UA_OBSEXP)
-		@ pRow()+1,000 pSay 'Observacao........: ' + Substr( SUA->UA_OBSEXP, 01, 45 )
-		@ pRow()+1,000 pSay '                    ' + Substr( SUA->UA_OBSEXP, 46, 45 )
-	ELSE
-		@ pRow()+1,000 pSay 'Observacao........: '
-		@ pRow()+1,000 pSay '*                    '
-
-	Endif
-
-	@ pRow()+1, 000 pSay __PrtFatLine()
-
-	//@ pRow()+1,000 pSay 'EndereÁo |  Qtd    | Codigo | DescriÁ„o                |Marca|Or|UM| Peso_Un '
-	//@ pRow()+1,000 pSay 'EndereÁo    Qtd      Codigo   DescriÁ„o                 Marca Or UM  Peso_Un '
-	@ pRow()+1,000 pSay 'EndereÁo    Qtd      Codigo           DescriÁ„o            Marca Or UM  Peso_Un '
-
-	@ pRow()+1, 000 pSay __PrtThinLine()
-	*/
 Return
 *****************************************************************************
 Static Function MarcaPV(aPedidos)
@@ -1324,21 +969,7 @@ Static Function RodaRel(aPedidos, aItensPV)
 	oPrn:SetMargin(10,10,10,10)
 	oPrn:SetViewPDF(lSetView)
 
-	
-
 	RptDetail(aPedidos, @oPrn)
-	/*
-	Cabecalho(oPrn)
-
-	CabItens(oPrn)
-
-	Itens(oPrn)
-
-	DLibPed(oPrn)
-
-	Roddape(oPrn)
-	*/
-	//oPrn:EndPage()
 
 	oPrn:Preview()
 
@@ -1349,59 +980,80 @@ Static Function CabItens(oPrn)
 	*******************************************************************************
 
 	// Cabecalho dos itens
-	oPrn:Box( 870 , 65 , 2090 , 2915 , '01' )
+	If eVal(bFinalP) // eh pagina final ? Caso nao imprime os itens 
+		oPrn:Box( 870 , 65 , 2090 , 2915 , '01' )
+	Else
+		oPrn:Box( 870 , 65 , 2410 , 2915 , '01' )
+	Endif
 
 	oFont :=  TFont():New( 'Courier new' , , -16);oFont:Bold 	:= .T.
 	oPrn:Say( 907 , 130 , 'EndereÁo ' , oFont ,   , 0 , )
 
-	oPrn:Say( 907 , 400 , 'Qtd ' , oFont ,   , 0 , )
+	oPrn:Say( 907 , 370 , 'Qtd ' , oFont ,   , 0 , )
 
-	oPrn:Say( 907 , 650 , 'Codigo ' , oFont ,   , 0 , )
+	oPrn:Say( 907 , 550 , 'Codigo ' , oFont ,   , 0 , )
 
-	oPrn:Say( 907 , 1000 , 'DescriÁ„o ' , oFont ,   , 0 , )
+	oPrn:Say( 907 , 0950 , 'DescriÁ„o ' , oFont ,   , 0 , )
 
-	oPrn:Say( 907 , 2000 , 'Marca ' , oFont ,   , 0 , )
+	oPrn:Say( 907 , 2050 , 'Marca ' , oFont ,   , 0 , )
 
 	oPrn:Say( 907 , 2300 , 'Origem ' , oFont ,   , 0 , )
 
 	oPrn:Say( 907 , 2500 , 'UM ' , oFont ,   , 0 , )
 
-	oPrn:Say( 907 , 2700 , 'Peso Un ' , oFont ,   , 0 , )
+	oPrn:Say( 907 , 2650 , 'Peso Un ' , oFont ,   , 0 , )
 
 	// Linha fim Cabecalho Itens
 	oPrn:Line( 920 , 90 , 920 , 2890 , 0 , '01'  )
 	
 	
 	// Linhas Itens 
-	// Item 02
+	// Item 01
 	oPrn:Line( 1000 , 90 , 1000 , 2890 , 0 , '-2'  )
-	// Item 03
+	// Item 02
 	oPrn:Line( 1080 , 90 , 1080 , 2890 , 0 , '-2'  )
-	// Item 04
+	// Item 03
 	oPrn:Line( 1160 , 90 , 1160 , 2890 , 0 , '-2'  )
 	// Item 04
 	oPrn:Line( 1240 , 90 , 1240 , 2890 , 0 , '-2'  )
-	// Item 04
+	// Item 05
 	oPrn:Line( 1320 , 90 , 1320 , 2890 , 0 , '-2'  )
-	// Item 04
+	// Item 06
 	oPrn:Line( 1400 , 90 , 1400 , 2890 , 0 , '-2'  )
-	// Item 04
+	// Item 07
 	oPrn:Line( 1480 , 90 , 1480 , 2890 , 0 , '-2'  )
-	// Item 04
+	// Item 08
 	oPrn:Line( 1560 , 90 , 1560 , 2890 , 0 , '-2'  )
-	// Item 04
+	// Item 09
 	oPrn:Line( 1640 , 90 , 1640 , 2890 , 0 , '-2'  )
-	// Item 04
+	// Item 10
 	oPrn:Line( 1720 , 90 , 1720 , 2890 , 0 , '-2'  )
-	// Item 04
+	// Item 11
 	oPrn:Line( 1800 , 90 , 1800 , 2890 , 0 , '-2'  )
-	// Item 04
+	// Item 12
 	oPrn:Line( 1880 , 90 , 1880 , 2890 , 0 , '-2'  )
-	// Item 04
+	// Item 13
 	oPrn:Line( 1960 , 90 , 1960 , 2890 , 0 , '-2'  )
-	// Item 04
+	// Item 14
 	oPrn:Line( 2040 , 90 , 2040 , 2890 , 0 , '-2'  )
 
+	If !eVal(bFinalP) // eh pagina final ? Caso nao imprime os itens 
+		
+		// Item 15
+		oPrn:Line( 2120 , 90 , 2120 , 2890 , 0 , '-2'  )
+		// Item 16
+		oPrn:Line( 2200 , 90 , 2200 , 2890 , 0 , '-2'  )
+		// Item 17
+		oPrn:Line( 2280 , 90 , 2280 , 2890 , 0 , '-2'  )
+		// Item 18
+		oPrn:Line( 2360 , 90 , 2360 , 2890 , 0 , '-2'  )
+		// Item 18
+		//oPrn:Line( 2440 , 90 , 2440 , 2890 , 0 , '-2'  )
+		
+		oPrn:Line( 2430 , 50 , 2430 , 2930 , 0 , '01'  )
+		
+	EndIf
+	
 	Return
 *****************************************************************************
 Static Function Itens(oPrn, nitem, cEnd,cQtd,cProduto,cRefer,cMarca,cOrigem,cUM,cPESO)
@@ -1412,140 +1064,132 @@ Static Function Itens(oPrn, nitem, cEnd,cQtd,cProduto,cRefer,cMarca,cOrigem,cUM,
 	oFont :=  TFont():New( 'Courier new' , , -15)
 	oPrn:Say( nSalto , 130 , cEnd , oFont ,   , 0 , )
 
-	oPrn:Say( nSalto , 400 , cQtd , oFont ,   , 0 , )
+	oPrn:Say( nSalto , 300 , cQtd , oFont ,   , 0 , )
 
-	oPrn:Say( nSalto , 650 , cProduto , oFont ,   , 0 , )
+	oPrn:Say( nSalto , 550 , cProduto , oFont ,   , 0 , )
 
-	oPrn:Say( nSalto , 1000 , cRefer , oFont ,   , 0 , )
+	oPrn:Say( nSalto , 0950 , cRefer , oFont ,   , 0 , )
 
-	oPrn:Say( nSalto , 2000 , cMarca , oFont ,   , 0 , )
+	oPrn:Say( nSalto , 2050 , cMarca , oFont ,   , 0 , )
 
 	oPrn:Say( nSalto , 2300 , cOrigem , oFont ,   , 0 , )
 
 	oPrn:Say( nSalto , 2500 , cUM , oFont ,   , 0 , )
 
-	oPrn:Say( nSalto , 2700 , cPESO , oFont ,   , 0 , )
+	oPrn:Say( nSalto , 2650 , cPESO , oFont ,   , 0 , )
 
-	/*
-	// Item 02
 
-	oPrn:Line( 1000 , 90 , 1000 , 2890 , 0 , '-2'  )
-
-	oFont :=  TFont():New( 'Courier new' , , -15)
-	oPrn:Say( 1050 , 130 , 'CF08250 ' , oFont ,   , 0 , )
-
-	oPrn:Say( 1050 , 400 , '100.000' , oFont ,   , 0 , )
-
-	oPrn:Say( 1050 , 650 , '000000092851A' , oFont ,   , 0 , )
-
-	oPrn:Say( 1050 , 1000 , 'R2AT-1.1/4" 1813PSI - 2SN-20 125BAR *20M' , oFont ,   , 0 , )
-
-	oPrn:Say( 1050 , 2000 , 'GBR/GTOP ' , oFont ,   , 0 , )
-
-	oPrn:Say( 1050 , 2300 , '2 ' , oFont ,   , 0 , )
-
-	oPrn:Say( 1050 , 2500 , 'PC ' , oFont ,   , 0 , )
-
-	oPrn:Say( 1050 , 2700 , '30 ' , oFont ,   , 0 , )
-	*/
-	/*
-	// Item 02
-	oPrn:Line( 1000 , 90 , 1000 , 2890 , 0 , '-2'  )
-	// Item 03
-	oPrn:Line( 1080 , 90 , 1080 , 2890 , 0 , '-2'  )
-	// Item 04
-	oPrn:Line( 1160 , 90 , 1160 , 2890 , 0 , '-2'  )
-	// Item 04
-	oPrn:Line( 1240 , 90 , 1240 , 2890 , 0 , '-2'  )
-	// Item 04
-	oPrn:Line( 1320 , 90 , 1320 , 2890 , 0 , '-2'  )
-	// Item 04
-	oPrn:Line( 1400 , 90 , 1400 , 2890 , 0 , '-2'  )
-	// Item 04
-	oPrn:Line( 1480 , 90 , 1480 , 2890 , 0 , '-2'  )
-	// Item 04
-	oPrn:Line( 1560 , 90 , 1560 , 2890 , 0 , '-2'  )
-	// Item 04
-	oPrn:Line( 1640 , 90 , 1640 , 2890 , 0 , '-2'  )
-	// Item 04
-	oPrn:Line( 1720 , 90 , 1720 , 2890 , 0 , '-2'  )
-	// Item 04
-	oPrn:Line( 1800 , 90 , 1800 , 2890 , 0 , '-2'  )
-	// Item 04
-	oPrn:Line( 1880 , 90 , 1880 , 2890 , 0 , '-2'  )
-	// Item 04
-	oPrn:Line( 1960 , 90 , 1960 , 2890 , 0 , '-2'  )
-	// Item 04
-	oPrn:Line( 2040 , 90 , 2040 , 2890 , 0 , '-2'  )
-	*/
-	
 	Return
 *****************************************************************************
 Static Function DLibPed(oPrn)
 *****************************************************************************
 
+	If eVal(bFinalP) // eh pagina final ? Se for, imprime ...
+
 	// Dados Liberacao do Pedido
 	oFont :=  TFont():New( 'Courier new' , , -12)
-	oPrn:Say( 2080 , 90 , 'Dados LiberaÁ„o do Pedido ' , oFont ,   , 0 , )
+	oPrn:Say( 2075 , 90 , 'LiberaÁ„o do Pedido ' , oFont ,   , 0 , )
 
-	oPrn:Say( 2080 , 600 , 'COMERCIAL: ' , oFont ,   , 0 , )
+	oPrn:Say( 2075 , 500 , 'COMERCIAL: ' , oFont ,   , 0 , )
 
-	oPrn:Say( 2080 , 750 , DtoC(SC9->C9_DTLCOM) + ' - ' + SC9->C9_HRLCOM + ' - ' +  SC9->C9_USRLCOM , oFont ,   , 0 , )
+	oPrn:Say( 2075 , 750 , cLibCom , oFont ,   , 0 , )
 
-	oPrn:Say( 2080 , 1650 , 'CREDITO: ' , oFont ,   , 0 , )
+	oPrn:Say( 2075 , 1650 , 'CREDITO: ' , oFont ,   , 0 , )
 
-	oPrn:Say( 2080 , 1800 , DtoC(SC9->C9_DTLCRE) + ' - ' + SC9->C9_HRLCRE + ' - ' +  SC9->C9_USRLCRE , oFont ,   , 0 , )
+	oPrn:Say( 2075 , 1800 , cLibFin  , oFont ,   , 0 , )
 
 	oFont :=  TFont():New( 'Courier new' , , -12) ;oFont:Bold 	:= .T.
-	oPrn:Say( 2080 , 2500 , 'Peso Total: ' , oFont ,   , 0 , )
+	oPrn:Say( 2075 , 2500 , 'Peso Total: ' , oFont ,   , 0 , )
 
 	oFont :=  TFont():New( 'Courier new' , , -12) ;oFont:Bold 	:= .F.
-	oPrn:Say( 2080 , 2700 , Transform( nPesTot,cPictPeso)  , oFont ,   , 0 , )
+	oPrn:Say( 2075 , 2700 , Transform( nPesTot,cPictPeso)  , oFont ,   , 0 , )
 
-
+	Roddape(@oPrn)
+	
+	EndIf
+	
 	Return
 *****************************************************************************
 Static Function Roddape(oPrn)
 *****************************************************************************
 
 	// Rodape do Relatorio
-	oPrn:Box( 2100 , 50 , 2400 , 2930 , '01' )
+	oPrn:Box( 2100 , 50 , 2455 , 2930 , '01' )
 
 	oFont :=  TFont():New( 'Courier new' , , -14);oFont:Bold 	:= .T.
 	oPrn:Say( 2130 , 1285 , 'FICHA DE SEPARA«√O ' , oFont ,   , 0 , )
 
-	oPrn:Line( 2135 , 200 , 2135 , 2910 , 0 , '-2'  )
+	oPrn:Line( 2135 , 050 , 2135 , 2930 , 0 , '-2'  )
+
+	// Coluna 01
+	oFont :=  TFont():New( 'Courier new' , , -14);oFont:Italic 	:= .T.
+	oPrn:Say( 2235 , 070 , 'SEPARADOR.....:_________________________________ ' , oFont ,   , 0 , )
 
 	oFont :=  TFont():New( 'Courier new' , , -14);oFont:Italic 	:= .T.
-	oPrn:Say( 2185 , 200 , 'SEPARADOR.....:_____________________________________________ ' , oFont ,   , 0 , )
+	oPrn:Say( 2335 , 070 , 'EMBALADOR.....:_________________________________ ' , oFont ,   , 0 , )
+
+	
+	//Coluna 02
+	oFont :=  TFont():New( 'Courier new' , , -14);oFont:Italic 	:= .T.
+	oPrn:Say( 2235 , 1020 , 'INICIO........:_________________________________ ' , oFont ,   , 0 , )
 
 	oFont :=  TFont():New( 'Courier new' , , -14);oFont:Italic 	:= .T.
-	oPrn:Say( 2235 , 200 , 'EMBALADOR.....:_____________________________________________ ' , oFont ,   , 0 , )
+	oPrn:Say( 2335 , 1020 , 'FATURAMENTO...:_________________________________ ' , oFont ,   , 0 , )
+
+
+	// Coluna 03
+	oFont :=  TFont():New( 'Courier new' , , -14);oFont:Italic 	:= .T.
+	oPrn:Say( 2235 , 1950 , 'TERMINO.......:_________________________________ ' , oFont ,   , 0 , )
+	
+	oFont :=  TFont():New( 'Courier new' , , -14);oFont:Italic 	:= .T.
+	oPrn:Say( 2335 , 1950 , 'CONFERENTE....:_________________________________ ' , oFont ,   , 0 , )
+
+	// Coluna 01 linha 03
+	oFont :=  TFont():New( 'Courier new' , , -14);oFont:Italic 	:= .T.
+	oPrn:Say( 2435 , 070 , 'QTD DE ERROS..:____________________ ' , oFont ,   , 0 , )
 
 	oFont :=  TFont():New( 'Courier new' , , -14);oFont:Italic 	:= .T.
-	oPrn:Say( 2285 , 200 , 'CONFERENTE....:_____________________________________________ ' , oFont ,   , 0 , )
+	oPrn:Say( 2435 , 0785 , 'TIPOS DE ERROS:____________________ ' , oFont ,   , 0 , )
 
 	oFont :=  TFont():New( 'Courier new' , , -14);oFont:Italic 	:= .T.
-	oPrn:Say( 2335 , 200 , 'QTD DE ERROS..:_____________________________________________ ' , oFont ,   , 0 , )
+	oPrn:Say( 2435 , 1500 , 'PESO BRUTO....:____________________ ' , oFont ,   , 0 , )
 
 	oFont :=  TFont():New( 'Courier new' , , -14);oFont:Italic 	:= .T.
-	oPrn:Say( 2385 , 200 , 'PESO BRUTO....:_____________________________________________ ' , oFont ,   , 0 , )
-
-	oFont :=  TFont():New( 'Courier new' , , -14);oFont:Italic 	:= .T.
-	oPrn:Say( 2185 , 1565 , 'INICIO........:_____________________________________________ ' , oFont ,   , 0 , )
-
-	oFont :=  TFont():New( 'Courier new' , , -14);oFont:Italic 	:= .T.
-	oPrn:Say( 2235 , 1565 , 'TERMINO.......:_____________________________________________ ' , oFont ,   , 0 , )
-
-	oFont :=  TFont():New( 'Courier new' , , -14);oFont:Italic 	:= .T.
-	oPrn:Say( 2285 , 1565 , 'FATURAMENTO...:_____________________________________________ ' , oFont ,   , 0 , )
-
-	oFont :=  TFont():New( 'Courier new' , , -14);oFont:Italic 	:= .T.
-	oPrn:Say( 2335 , 1565 , 'TIPOS DE ERROS:_____________________________________________ ' , oFont ,   , 0 , )
-
-	oFont :=  TFont():New( 'Courier new' , , -14);oFont:Italic 	:= .T.
-	oPrn:Say( 2385 , 1565 , 'QTD VOLUMES...:_____________________________________________ ' , oFont ,   , 0 , )
+	oPrn:Say( 2435 , 2215 , 'QTD VOLUMES...:____________________ ' , oFont ,   , 0 , )
 
 	oPrn:EndPage()
 
 Return()
+*******************************************************************************
+Static Function CalcTotPag(nItens) //| Calcula o Numero de Paginas para atender o pedido
+*******************************************************************************
+
+ Local nPagCo := 0  //| Paginas Completas
+ Local nPagFi := 1	//| Numero de Paginas Finais
+ Local nItPf  := 0	//| Numero de Itens que ficou para pagina final
+ Local nTotPg := 0	//| Total de Paginas 
+ 
+ If nItens <= _NIPFI_
+ 	nTotPg := 1
+ Else
+ 
+ 	nPagCo := NoRound( nItens  /_NIPCO_, 0 )
+ 	If nPagCo == 0
+ 		nPagCo := 1 //| Minimo 1 pagina
+ 	EndIf
+ 
+ 	nItPf := nItens - ( nPagCo * _NIPCO_ )
+ 	If nItPf < 0 
+ 		nItPf := 0
+ 	EndIf
+ 	
+ 	//If nItPf <= _NIPFI_ //| Verifica se os Itens restantes cabem na Pagina Final ...  
+ 	nTotPg := nPagCo + 1
+ 	//Else
+ 	//	nTotPg := nPagCo + 2
+ 	//EndIf
+ Endif
+ 
+ //Alert('Total de Paginas : ' + cValToChar(nTotPg)) 
+ 
+Return nTotPg
