@@ -404,18 +404,18 @@ Static Function RptDetail(aPedidos, oPrn) // Impressao dos relatorio...
 	Local nValTot, cKey
 	Local nStart, nItem
 	Local cQuery
-	Local aItensPV:={}
+	Local aItensPV		:= {}
 	Local lRetabastAuto
-	Local nLin := 0
 
-	Private cPictPeso := "@E 999.99"
-	Private nPesTot
-	Private nPagina := 0	// Numero da Pagina Atual do Pedido
-	Private nTotPag := 0    // Numero Total de Paginas do Pedido
-	Private bFinalP := {|| if(nPagina==nTotPag,.T.,.F.)} // Verifica se eh pagina final
+	Private cPictPeso 	:= "@E 999.99"
+	Private nPesTot 	:= 0
+	Private nLin 		:= 0
+	Private nPagina 	:= 0	// Numero da Pagina Atual do Pedido
+	Private nTotPag 	:= 0    // Numero Total de Paginas do Pedido
+	Private bFinalP 	:= {|| if(nPagina == nTotPag,.T.,.F.)} // Verifica se eh pagina final
 
-	Private cLibCom :=""
-	Private cLibFin :=""
+	Private cLibCom 	:= ""
+	Private cLibFin 	:= ""
 
 	Private cNomeVend1, cNomeVend2
 	Private nTipo := If( aReturn[4] == 1, 15, 18 )
@@ -457,16 +457,25 @@ Static Function RptDetail(aPedidos, oPrn) // Impressao dos relatorio...
 
 		nPos := Ascan(aItensPV, {|x| x[1]+x[2] = cKey})
 
+		nTotPag := CalcTotPag(Len(aItensPV))
+		
 		If nPos > 0 // Se Encontrou o Pedido
 
 			cLibCom := DtoC(SC9->C9_DTLCOM) + ' - ' + SC9->C9_HRLCOM + ' - ' +  SC9->C9_USRLCOM
 			cLibFin := DtoC(SC9->C9_DTLCRE) + ' - ' + SC9->C9_HRLCRE + ' - ' +  SC9->C9_USRLCRE
-			nLin 	:= 1
-			nPagina := 1
-			nTotPag := CalcTotPag(Len(aItensPV))
+			nLin 	:= 1			
 
 			ImpCabec(@oPrn)
 			For nItem := nPos To Len(aItensPV) // Percorre os Itens do pedido
+
+
+				If nLin > _NIPCO_ //| Verifica se a Pagina completa atingio o Limite de Itens
+
+					//DLibPed(@oPrn) // Imprime Dados Liberação e Rodape
+
+					ImpCabec(@oPrn)//;Alert('ImpCabec : 581')
+			
+				EndIf
 
 				cFilPed     := aItensPV[nItem,1]   // SC6TMP->C6_FILIAL
 				cUM			:= aItensPV[nItem,9]   // SC6TMP->B1_UM
@@ -485,16 +494,6 @@ Static Function RptDetail(aPedidos, oPrn) // Impressao dos relatorio...
 
 				SC6->( dbSeek( cFilPed + cNumPed, .F. ) )
 
-				If nLin > _NIPCO_ //| Verifica se a Pagina completa atingio o Limite de Itens
-
-					nPagina 	+= 1
-					nLin 		:= 1
-
-					DLibPed(@oPrn) // Imprime Dados Liberação e Rodape
-
-					ImpCabec(@oPrn)//;Alert('ImpCabec : 581')
-
-				EndIf
 
 				lRetabastAuto := SF4->(chekReabastAuto(SC5->C5_NUM,cProduto))
 
@@ -530,9 +529,6 @@ Static Function RptDetail(aPedidos, oPrn) // Impressao dos relatorio...
 			Next
 
 			If nPagina < nTotPag // Em Caso de Haver uma pagina pendente por nao ter itens a imprimir ... Gera o Cabecalho
-				nPagina 	+= 1
-				nLin 		:= 1
-
 				ImpCabec(@oPrn)//;Alert('ImpCabec : 623')
 			EndIf
 
@@ -675,7 +671,10 @@ Static Function ImpCabec(oPrn)	//  Impressão do Cabeçalho do Relatório Pedido de
 	lImpresso 	:= .T.
 
 	oPrn:StartPage()
-
+	
+	nPagina 	+= 1
+	nLin 		:= 1
+	
 	If !SC5->C5_TIPO $ 'DB'
 
 		SA1->( dbSeek( xFilial( 'SA1' ) + SC5->C5_CLIENTE + SC5->C5_LOJACLI, .F. ) )
@@ -1089,7 +1088,9 @@ Static Function DLibPed(oPrn)
 		Roddape(@oPrn)
 
 	EndIf
-
+	
+	nPagina := 0
+	
 	Return
 *****************************************************************************
 Static Function Roddape(oPrn)
@@ -1144,10 +1145,34 @@ Static Function Roddape(oPrn)
 Static Function CalcTotPag(nItens) //| Calcula o Numero de Paginas para atender o pedido
 *******************************************************************************
 
-	Local nPagCo := 0  //| Paginas Completas
-	Local nPagFi := 1	//| Numero de Paginas Finais
-	Local nItPf  := 0	//| Numero de Itens que ficou para pagina final
-	Local nTotPg := 0	//| Total de Paginas
+//	Local nPagCo := 0  //| Paginas Completas
+//	Local nPagFi := 1	//| Numero de Paginas Finais
+//	Local nItPf  := 0	//| Numero de Itens que ficou para pagina final
+	Local nTotPg 	:= 0	//| Total de Paginas
+	Local lContinua := .T.
+
+	While lContinua
+	
+		If nItens <= _NIPFI_ // Todos os itens cabem em uma Pagina
+			nTotPg  	:=  1 
+			lContinua 	:= .F.
+		
+		ElseIf nItens <= ( _NIPCO_ +  _NIPFI_ ) // Todos os Itens Cabem em duas Paginas
+			nTotPg  	:=  2
+			lContinua 	:= .F.
+		
+		ElseIf  nItens <= ( ( nTotPg * _NIPCO_ ) + _NIPFI_ ) // Alcançou um Numero de Páginas que comporta o Pedido 
+			nTotPg += 1
+			lContinua 	:= .F.
+		Else // Ainda não alcançou o Numero necessário de paginas... 
+
+			nTotPg += 1
+		EndIf	
+	
+	EndDo
+		
+/*		
+
 
 	If nItens <= _NIPFI_
 		nTotPg := 1
@@ -1171,5 +1196,5 @@ Static Function CalcTotPag(nItens) //| Calcula o Numero de Paginas para atender 
 	Endif
 
 	//Alert('Total de Paginas : ' + cValToChar(nTotPg))
-
+*/
 Return nTotPg
