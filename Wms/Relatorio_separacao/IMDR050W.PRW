@@ -405,8 +405,8 @@ Static Function RptDetail(aPedidos, oPrn) // Impressao dos relatorio...
 	Local nStart, nItem
 	Local cQuery
 	Local aItensPV		:= {}
-	Local lRetabastAuto
-
+	
+	Private lRetabAuto  := .F.
 	Private cPictPeso 	:= "@E 999.99"
 	Private nPesTot 	:= 0
 	Private nLin 		:= 0
@@ -495,12 +495,12 @@ Static Function RptDetail(aPedidos, oPrn) // Impressao dos relatorio...
 				SC6->( dbSeek( cFilPed + cNumPed, .F. ) )
 
 
-				lRetabastAuto := SF4->(chekReabastAuto(SC5->C5_NUM,cProduto))
+				lRetabAuto := SF4->(chekReabastAuto(SC5->C5_NUM,cProduto))
 
-				If lRetabastAuto
-					//@ pRow()  , 011 pSay 'R'
+				If lRetabAuto
+					cRAA := ' R'
 				Else
-					//@ pRow()  , 011 pSay ' '
+					cRAA := '  '
 				Endif
 
 				cProdN := Alltrim(cProduto)
@@ -516,7 +516,7 @@ Static Function RptDetail(aPedidos, oPrn) // Impressao dos relatorio...
 
 				// Impressão dos Itens
 				Itens(@oPrn, nLin,;
-				cEnd		:= LEFT(cEnd,8),;
+				cEnd		:= LEFT(cEnd,8) + cRAA,;
 				cQtd		:= Transform( nC9_QTDLIB, "@E 99,999.99"  ),;
 				cProduto 	:= Alltrim(cProdN),;
 				cRefer 		:= SubStr(cB1_REFER,1,20),;
@@ -641,7 +641,7 @@ Static Function BuscaItensDBC9(cCodFil,cPedido)
 		TRB->DB_DOC,;
 		TRB->DB_PRODUTO,;
 		TRB->DB_QUANT,;
-		ALLTRIM(TRB->DB_LOCALIZ),;
+		Alltrim(TRB->DB_LOCALIZ),;
 		TRB->B1_MARCA,;
 		TRB->B1_DESC,;
 		TRB->B1_PESO,;
@@ -796,7 +796,7 @@ Static Function ImpCabec(oPrn)	//  Impressão do Cabeçalho do Relatório Pedido de
 
 	oPrn:Say( 500 , 400 , cCliente      , oFont ,   , 0 , )
 
-	oPrn:Say( 550 , 400 , cSegmento+' / '+cDescSeg   , oFont ,   , 0 , )
+	oPrn:Say( 550 , 400 , cSegmento + ' / ' + cDescSeg   , oFont ,   , 0 , )
 
 	oPrn:Say( 600 , 400 , cNomeVend2 , oFont ,   , 0 , )
 
