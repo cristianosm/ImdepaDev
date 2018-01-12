@@ -1,11 +1,8 @@
-#INCLUDE "TOPCONN.CH"
-#INCLUDE "RWMAKE.CH"
-#INCLUDE "PROTHEUS.CH"
+#Include "TOPCONN.CH"
+#Include "RWMAKE.CH"
+#Include "PROTHEUS.CH"
 #Include 'Totvs.ch'
 
-#IFNDEF WINDOWS
-#DEFINE PSAY SAY
-#ENDIF
 
 #Define _NIPCO_	18		//| Numero de intens que cabem na Pagina completa
 #Define _NIPFI_	14		//| Numero de intens que cabem na Pagina Final
@@ -83,15 +80,16 @@ User Function IMDR050w()
 		Private cTamanho  := 'P'
 		Private nLastKey  := 0
 		Private cNomeRel  := Time()
+		
 		cNomeRel  := ( DtoS( Date() ) + SubStr( cNomeRel, 1, 2 ) + SubStr( cNomeRel, 4, 2 ) + SubStr( cNomeRel, 7, 2 ) )
+		
 		Private wnrel     //:= SetPrint( cString, cNomeRel, cPerg, cTitulo, cDesc1, cDesc2, cDesc3, .F., '', .T., cTamanho,, .F. )
 
-		MsAguarde({||SF4->(RunProc()) },"Pedido Separação...","Estruturando lista de Pedidos ...")
+		MsAguarde( {|| SF4->( RunProc() ) },"Pedido Separação...","Estruturando lista de Pedidos ...")
 
-	END DO
+	EndDo
 
 	Return
-
 *******************************************************************************
 Static Function VerPerg() // Verifica as Perguntas
 *******************************************************************************
@@ -171,7 +169,7 @@ Static Function RunProc() // Executa a Rotina
 	Public 	cUSRCre    	:= ""
 	Public 	cHRLCre    	:= ""
 
-	SUA->(DbSetOrder(8))
+	SUA->( DbSetOrder(8))
 
 	*--------------------------------------------------------*
 	//Seleciona os pedidos aptos a impressão para Separação  //
@@ -264,18 +262,18 @@ Static Function RunProc() // Executa a Rotina
 		Return
 	Else
 
-		cQuery:=" SELECT C5_FILIAL,C5_NUM,C5_CLIENTE,C5_LOJACLI,C5_EMISSAO,C6_IMPEMB,C5_PEDGUIA"
-		cQuery+=" FROM "
-		cQuery+=RetSqlName( 'SC6' ) + " SC6, "+RetSqlName( 'SC5' ) + " SC5 "
-		cQuery+=" WHERE "
-		cQuery+=" C5_FILIAL='"+ xFilial( 'SC5' )+ "'"
-		cQuery+=" AND C6_FILIAL=C5_FILIAL"
-		cQuery+=" AND C5_NUM in (" + Left( cPedidos, Len( cPedidos ) - 1 ) + ")"
-		cQuery+=" AND C6_NUM = C5_NUM"
-		cQuery+=" AND  SC5.D_E_L_E_T_ = ' '"
-		cQuery+=" AND  SC6.D_E_L_E_T_ = ' '"
-		cQuery+=" GROUP BY C5_FILIAL,C5_NUM,C5_CLIENTE,C5_LOJACLI,C5_EMISSAO,C6_IMPEMB,C5_PEDGUIA "
-		cQuery+=" ORDER BY C5_PEDGUIA DESC ,C5_NUM  "
+		cQuery := " SELECT C5_FILIAL,C5_NUM,C5_CLIENTE,C5_LOJACLI,C5_EMISSAO,C6_IMPEMB,C5_PEDGUIA"
+		cQuery += " FROM "
+		cQuery += RetSqlName( 'SC6' ) + " SC6, "+RetSqlName( 'SC5' ) + " SC5 "
+		cQuery += " WHERE "
+		cQuery += " C5_FILIAL='"+ xFilial( 'SC5' )+ "'"
+		cQuery += " AND C6_FILIAL=C5_FILIAL"
+		cQuery += " AND C5_NUM in (" + Left( cPedidos, Len( cPedidos ) - 1 ) + ")"
+		cQuery += " AND C6_NUM = C5_NUM"
+		cQuery += " AND  SC5.D_E_L_E_T_ = ' '"
+		cQuery += " AND  SC6.D_E_L_E_T_ = ' '"
+		cQuery += " GROUP BY C5_FILIAL,C5_NUM,C5_CLIENTE,C5_LOJACLI,C5_EMISSAO,C6_IMPEMB,C5_PEDGUIA "
+		cQuery += " ORDER BY C5_PEDGUIA DESC ,C5_NUM  "
 
 		IF Select('SC5TMP') <> 0
 			SC5TMP->( DbCLoseArea() )
@@ -468,7 +466,6 @@ Static Function RptDetail(aPedidos, oPrn) // Impressao dos relatorio...
 			ImpCabec(@oPrn)
 			For nItem := nPos To Len(aItensPV) // Percorre os Itens do pedido
 
-
 				If nLin > _NIPCO_ //| Verifica se a Pagina completa atingio o Limite de Itens
 
 					//DLibPed(@oPrn) // Imprime Dados Liberação e Rodape
@@ -493,7 +490,6 @@ Static Function RptDetail(aPedidos, oPrn) // Impressao dos relatorio...
 				nC6_PRCVEN  := 0
 
 				SC6->( dbSeek( cFilPed + cNumPed, .F. ) )
-
 
 				lRetabAuto := SF4->(chekReabastAuto(SC5->C5_NUM,cProduto))
 
@@ -534,9 +530,6 @@ Static Function RptDetail(aPedidos, oPrn) // Impressao dos relatorio...
 
 			DLibPed(@oPrn) // Imprime Dados Liberação e Rodape
 
-			//ImpCabec(@oPrn);Alert('ImpCabec : 579')
-
-			//| Fim Itens
 
 		Endif
 
@@ -588,39 +581,39 @@ Static Function BuscaItensDBC9(cCodFil,cPedido)
 
 	//Busca Itens de Produto com seus respectivos Endereços e Lotes separados pelo WMS //
 	/////////////JULIO JACOVENKO, em 29/09/2016
-	CQUERY:=" SELECT DB_FILIAL,DB_DOC,DB_PRODUTO,DB_ESTFIS,DB_LOCALIZ,BE_CODZON,BE_ESTFIS, ""
-	CQUERY+=" DB_QUANT,DB_LOTECTL,B1_MARCA,B1_DESC,B1_PESO,B1_ORIGEM,B1_UM "
-	CQUERY+=" FROM "+RETSQLNAME("SDB")+" SDB, "+RETSQLNAME("SC90")+" SC9, "+RETSQLNAME("SB1")+" SB1, "+RETSQLNAME("SBE")+" SBE "
-	CQUERY+=" WHERE DB_DOC  = '"+cPedido+"' "
-	CQUERY+=" AND DB_FILIAL = '"+cCodFil +"' "
-	CQUERY+=" AND C9_FILIAL = DB_FILIAL "
-	CQUERY+=" AND B1_FILIAL = DB_FILIAL  "
-	CQUERY+=" AND C9_PEDIDO  = DB_DOC  "
-	CQUERY+=" AND C9_ITEM    = DB_SERIE "
-	CQUERY+=" AND C9_PRODUTO = DB_PRODUTO "
-	CQUERY+=" AND C9_IDDCF   = DB_IDDCF "
-	CQUERY+=" AND B1_COD     = DB_PRODUTO "
-	CQUERY+=" AND B1_LOCALIZ = 'S' "
-	CQUERY+=" AND BE_FILIAL  = DB_FILIAL "
-	CQUERY+=" AND BE_LOCALIZ = DB_LOCALIZ "
-	CQUERY+=" AND BE_LOCAL   = DB_LOCAL "
-	CQUERY+=" AND BE_ESTFIS  = DB_ESTFIS "
-	CQUERY+=" AND DB_ESTORNO <> 'S' "
-	CQUERY+=" AND DB_TM > '500' "
-	CQUERY+=" AND DB_ATUEST = 'N' "
-	CQUERY+=" AND DB_SERVIC = '001' "
-	CQUERY+=" AND DB_TAREFA = '002' "
-	CQUERY+=" AND DB_ATIVID = '015' "
+	cQuery:=" SELECT DB_FILIAL,DB_DOC,DB_PRODUTO,DB_ESTFIS,DB_LOCALIZ,BE_CODZON,BE_ESTFIS, ""
+	cQuery+=" DB_QUANT,DB_LOTECTL,B1_MARCA,B1_DESC,B1_PESO,B1_ORIGEM,B1_UM "
+	cQuery+=" FROM "+RETSQLNAME("SDB")+" SDB, "+RETSQLNAME("SC90")+" SC9, "+RETSQLNAME("SB1")+" SB1, "+RETSQLNAME("SBE")+" SBE "
+	cQuery+=" WHERE DB_DOC  = '"+cPedido+"' "
+	cQuery+=" AND DB_FILIAL = '"+cCodFil +"' "
+	cQuery+=" AND C9_FILIAL = DB_FILIAL "
+	cQuery+=" AND B1_FILIAL = DB_FILIAL  "
+	cQuery+=" AND C9_PEDIDO  = DB_DOC  "
+	cQuery+=" AND C9_ITEM    = DB_SERIE "
+	cQuery+=" AND C9_PRODUTO = DB_PRODUTO "
+	cQuery+=" AND C9_IDDCF   = DB_IDDCF "
+	cQuery+=" AND B1_COD     = DB_PRODUTO "
+	cQuery+=" AND B1_LOCALIZ = 'S' "
+	cQuery+=" AND BE_FILIAL  = DB_FILIAL "
+	cQuery+=" AND BE_LOCALIZ = DB_LOCALIZ "
+	cQuery+=" AND BE_LOCAL   = DB_LOCAL "
+	cQuery+=" AND BE_ESTFIS  = DB_ESTFIS "
+	cQuery+=" AND DB_ESTORNO <> 'S' "
+	cQuery+=" AND DB_TM > '500' "
+	cQuery+=" AND DB_ATUEST = 'N' "
+	cQuery+=" AND DB_SERVIC = '001' "
+	cQuery+=" AND DB_TAREFA = '002' "
+	cQuery+=" AND DB_ATIVID = '015' "
 	// Jorge Oliveira - 28/07/2010 - Inclusao da Atividade 015 - Separar Produtos
 	If cVersao <> "MP8.11"
 		cQuery +=" AND DB_ATIVID = '015' "
 	EndIf
 
-	CQUERY+=" AND SDB.D_E_L_E_T_ = ' ' "
-	CQUERY+=" AND SC9.D_E_L_E_T_ = ' ' "
-	CQUERY+=" AND SB1.D_E_L_E_T_ = ' ' "
-	CQUERY+=" AND SBE.D_E_L_E_T_ = ' ' "
-	CQUERY+=" ORDER BY DB_ESTFIS,BE_ESTFIS,DB_LOCALIZ, BE_CODZON ASC ""
+	cQuery+=" AND SDB.D_E_L_E_T_ = ' ' "
+	cQuery+=" AND SC9.D_E_L_E_T_ = ' ' "
+	cQuery+=" AND SB1.D_E_L_E_T_ = ' ' "
+	cQuery+=" AND SBE.D_E_L_E_T_ = ' ' "
+	cQuery+=" ORDER BY DB_ESTFIS,BE_ESTFIS,DB_LOCALIZ, BE_CODZON ASC ""
 
 	IF Select('TRB') <> 0
 		TRB->( DbCLoseArea() )
@@ -866,8 +859,8 @@ Static Function MarcaPV(aPedidos)
 	Local lSair      := .T.
 	Local nStart
 
-	//³Atualiza informações de impressão do pedido de separação³
-	//³Edivaldo Gonçalves Cordeiro em 29/10/06                   ³
+	// Atualiza informações de impressão do pedido de separação
+	// Edivaldo Gonçalves Cordeiro em 29/10/06      
 
 	If lImpresso
 		If MsgYesNo('Marca os Pedidos como ja Impressos?')
@@ -953,11 +946,10 @@ Static Function cRetset(cSeg)
 
 	If DCFTMP->( !Eof() )
 
-		cRetseg=Alltrim(ZZVTMP->ZZV_DESC)
+		cRetseg := Alltrim(ZZVTMP->ZZV_DESC)
 	Endif
 
 	Return(cRetseg)
-
 *******************************************************************************
 Static Function CabItens(oPrn)
 *******************************************************************************
@@ -1030,8 +1022,6 @@ Static Function CabItens(oPrn)
 		// Item 18
 		oPrn:Line( 2360 , 90 , 2360 , 2890 , 0 , '-2'  )
 		// Item 18
-		//oPrn:Line( 2440 , 90 , 2440 , 2890 , 0 , '-2'  )
-
 		oPrn:Line( 2430 , 50 , 2430 , 2930 , 0 , '01'  )
 
 	EndIf
@@ -1145,9 +1135,6 @@ Static Function Roddape(oPrn)
 Static Function CalcTotPag(nItens) //| Calcula o Numero de Paginas para atender o pedido
 *******************************************************************************
 
-//	Local nPagCo := 0  //| Paginas Completas
-//	Local nPagFi := 1	//| Numero de Paginas Finais
-//	Local nItPf  := 0	//| Numero de Itens que ficou para pagina final
 	Local nTotPg 	:= 0	//| Total de Paginas
 	Local lContinua := .T.
 
@@ -1164,37 +1151,11 @@ Static Function CalcTotPag(nItens) //| Calcula o Numero de Paginas para atender 
 		ElseIf  nItens <= ( ( nTotPg * _NIPCO_ ) + _NIPFI_ ) // Alcançou um Numero de Páginas que comporta o Pedido 
 			nTotPg += 1
 			lContinua 	:= .F.
+		
 		Else // Ainda não alcançou o Numero necessário de paginas... 
-
 			nTotPg += 1
 		EndIf	
 	
 	EndDo
 		
-/*		
-
-
-	If nItens <= _NIPFI_
-		nTotPg := 1
-	Else
-
-		nPagCo := NoRound( nItens  /_NIPCO_, 0 )
-		If nPagCo == 0
-			nPagCo := 1 //| Minimo 1 pagina
-		EndIf
-
-		nItPf := nItens - ( nPagCo * _NIPCO_ )
-		If nItPf < 0
-			nItPf := 0
-		EndIf
-
-		//If nItPf <= _NIPFI_ //| Verifica se os Itens restantes cabem na Pagina Final ...
-		nTotPg := nPagCo + 1
-		//Else
-		//	nTotPg := nPagCo + 2
-		//EndIf
-	Endif
-
-	//Alert('Total de Paginas : ' + cValToChar(nTotPg))
-*/
 Return nTotPg
