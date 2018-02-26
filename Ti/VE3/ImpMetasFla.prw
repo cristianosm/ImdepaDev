@@ -26,21 +26,21 @@
 17 - "consensus" 		= 0,07			;
 */
 
-//| CAMPOS ARQUIVO CSV
-#Define F_DATA		 1
-#Define F_VEND	 	 2
-#Define F_FILIAL   	 3
-#Define F_GRPSEG     4
-#Define F_CLIENTE	 6
-#Define F_LOJACLI	 7
-#Define F_PRODUTO	 8  //11
-#Define F_QUANT	 	 11 //12
-#Define F_VALOR	 	 12 //13
+//| CAMPOS ARQUIVO CSV  // 2017
+#Define F_DATA		 9  //  1
+#Define F_VEND	 	 5  //  2
+#Define F_FILIAL   	 0  //  3
+#Define F_GRPSEG     6  //  4
+#Define F_CLIENTE	 8  //  6
+#Define F_LOJACLI	 8  //  7
+#Define F_PRODUTO	 4  //  8
+#Define F_QUANT	 	 10 // 11
+#Define F_VALOR	 	 12 // 12
 
 // Parametros de Data
-#Define CPERINI      '20171001'
-#Define CPERFIM      '20171231'
-#Define CANO         '2017'
+#Define CPERINI      '20181001'
+#Define CPERFIM      '20181231'
+#Define CANO         '2018'
 
 //| CAMPOS TABELA SCT010 INSERT
 #Define TCT_FILIAL   1
@@ -86,7 +86,7 @@ Static Function TelaPar(aFiles) // Tela com Diretorio dos arquivos para carga do
 	Private oSay		:= Nil
 	Private oDircsv		:= Nil
 
-	cDircsv 			:= "C:\protheus\metas2017\"+Space(100)
+	cDircsv 			:= "C:\protheus\metas2018\"+Space(100)
 
 	cDircsv := Alltrim(cDircsv)
 
@@ -141,7 +141,15 @@ Static Function ImpFile(nHdl, cFile, nTamFile)
 	Private cRELAUTO	:= '9'
 	Private cFilAtu		:= ''
 	Private nNewRec		:= 0
-
+	
+	Private oHashFG     := HMNew() // Hash Table que Armazena Filial de Acordo com Gerente 
+	
+	Private cFilGer     := ""
+	Private cDataMeta	:= ""
+	Private cCliente    := ""
+	Private cLojaCli    := ""
+	
+	
 	FT_FGOTOP();FT_FSKIP() // Pula Cabecalho
 
 	cBuffer := StrTran(FT_FREADLN(),'"',"") //| Retira as aspas duplas da String
@@ -158,18 +166,44 @@ Static Function ImpFile(nHdl, cFile, nTamFile)
 
 	While !FT_FEOF()
 
-
-		//|Tratamento para StrTokArr
+		//|Salva o Buffer de Linha em Array
 		cBuffer := StrTran(FT_FREADLN(),'"',"") //| Retira as aspas duplas da String
-
 		aLin 	:= StrTokArr(cBuffer,";") 	//| Converte a Linha para Array
 
-		ContDocSeq(aLin) //| Controla a Numeracao do DOC e SEQUEN
+		//| Controla a Numeracao do DOC e SEQUEN
+		ContDocSeq(aLin) 
 
-		InsereReg(@aLin)
+		//| Tratamento de Formato de Data
+		cDataMeta := StrTran(aLin[F_DATA],'-','') // 2017-01-01 
 
+		//| Prepara Codigo e Loja Cliente 
+		cCliente := Substr(aLin[F_CLIENTE],1,6)
+		cLojaCli := Substr(aLin[F_CLIENTE],7,2)
+		
+
+		/// Tratamento Para Encontrar Filial do Gerente a ser utilizada na Meta
+		lAchou := HMGet( oHashFG, aLin[F_VEND], @cFilGer )
+		If !lAchou
+			cFilGer := Posicione("SA3",1,xFilial("SA3")+aLin[F_VEND],"A3_CODFIL")
+			HMSet( oHashFG, aLin[F_VEND], cFilGer )
+		
+		EndIf
+		
+		
+		//| Validacoes Diversas para Efetuar o Salto de Linha
+		// Valida ANO Metas	
+		If CANO <> Substr(cDataMeta,1,4) .Or. Val(StrTran(aLin[F_QUANT],',','.')) == 0
+		 /// Estes Casos Deve Desconsiderar o Registro 
+		Else
+		    // Caso não tenha  nehuma Validacao 
+			// Efetua o Inserte do Registro ... na SCT
+			InsereReg(@aLin)
+		Endif
+		// Atualiza o Numero de Linhas
 		nL += 1
 
+
+		//| Emite Mensagens do Status e posicao do Processamento
 		If( nNext == nL )
 			conout(" METAS - Linha: "+cValToChar(nL)+" de "+cValToCHar(nLin)+" File: "+cFile )
 			nNext += nShow
@@ -178,7 +212,9 @@ Static Function ImpFile(nHdl, cFile, nTamFile)
 			conout(" METAS - Linha: "+cValToChar(nL)+" de "+cValToCHar(nLin)+" File: "+cFile )
 		Endif
 
-		FT_FSKIP()//nBtLidos := fRead(nHdl,@cBuffer,nTamLin) // Leitura da proxima linha do arquivo texto
+		
+		// Salta para a Proxima Linha do Arquivo
+		FT_FSKIP()
 
 	EndDo
 
@@ -188,15 +224,16 @@ Return()
 *********************************************************************
 Static Function InsereReg(aLin) // Insere o Registro na SCT
 *********************************************************************
-
-
+	
+	
 
 	// Tratamento do Campo Quantidade, troca do decimal , por . para que o insert funcione
 	Local cQuant 	:= StrTran(aLin[F_QUANT],',','.') //
 	Local cValor 	:= StrTran(aLin[F_VALOR],',','.') //
 
+
 	Local InsertSql := "Insert into SCT010 (CT_FILIAL,CT_DOC,CT_SEQUEN,CT_DESCRI,CT_REGIAO,CT_CCUSTO,CT_ITEMCC,CT_VEND,CT_CIDADE,CT_MARCA,CT_SEGMEN,CT_DATA,CT_TIPO,CT_GRUPO,CT_PRODUTO,CT_QUANT,CT_VALOR,CT_MOEDA,CT_CLVL,CT_MARGEM,D_E_L_E_T_,R_E_C_N_O_,CT_CLIENTE,CT_LOJACLI,CT_GRPSEGT,CT_MARCA3,CT_CATEGO,R_E_C_D_E_L_,CT_ORIGER,CT_RELAUTO,CT_MARGVLR) "
-	Local cValues   := "values ('"+aLin[F_FILIAL]+"','"+cDoc+"','"+cSequen+"','"+Mdescri(aLin[F_FILIAL])+"','   ','         ','         ','"+aLin[F_VEND]+"','      ','                    ','      ','"+dtos(ctod(aLin[F_DATA]))+"','  ','    ','"+aLin[F_PRODUTO]+"',"+cQuant+","+cValor+",'1','         ','0',' ',"+toc(nNewRec)+",'"+aLin[F_CLIENTE]+"','"+aLin[F_LOJACLI]+"','"+aLin[F_GRPSEG]+"','          ','      ','0','          ','9',0)"
+	Local cValues   := "values ('"+cFilGer+"','"+cDoc+"','"+cSequen+"','"+Mdescri(aLin[F_FILIAL])+"','   ','         ','         ','"+aLin[F_VEND]+"','      ','                    ','      ','" + cDataMeta + "','  ','    ','"+aLin[F_PRODUTO]+"',"+cQuant+","+cValor+",'1','         ','0',' ',"+toc(nNewRec)+",'"+aLin[F_CLIENTE]+"','"+aLin[F_LOJACLI]+"','"+aLin[F_GRPSEG]+"','          ','      ','0','          ','9',0)"
 
 
 	Local cExecCmd := InsertSql + cValues
