@@ -38,7 +38,7 @@
 #Define F_VALOR	 	 12 // 12
 
 // Parametros de Data
-#Define CPERINI      '20181001'
+#Define CPERINI      '20180101'
 #Define CPERFIM      '20181231'
 #Define CANO         '2018'
 
@@ -150,7 +150,7 @@ Static Function ImpFile(nHdl, cFile, nTamFile)
 	Private cLojaCli    := ""
 	
 	
-	FT_FGOTOP();FT_FSKIP() // Pula Cabecalho
+	FT_FGOTOP()//;FT_FSKIP() // Pula Cabecalho
 
 	cBuffer := StrTran(FT_FREADLN(),'"',"") //| Retira as aspas duplas da String
 	nTaLin 	:= Len(cBuffer) + 2 			//| Tamanho da Linha em Bytes
@@ -169,10 +169,10 @@ Static Function ImpFile(nHdl, cFile, nTamFile)
 		//|Salva o Buffer de Linha em Array
 		cBuffer := StrTran(FT_FREADLN(),'"',"") //| Retira as aspas duplas da String
 		aLin 	:= StrTokArr(cBuffer,";") 	//| Converte a Linha para Array
-
-		//| Controla a Numeracao do DOC e SEQUEN
-		ContDocSeq(aLin) 
-
+		
+		////conout(VarInfo('',cBuffer))
+		////VarInfo('',aLin,,.F.,.T.)
+		
 		//| Tratamento de Formato de Data
 		cDataMeta := StrTran(aLin[F_DATA],'-','') // 2017-01-01 
 
@@ -186,7 +186,6 @@ Static Function ImpFile(nHdl, cFile, nTamFile)
 		If !lAchou
 			cFilGer := Posicione("SA3",1,xFilial("SA3")+aLin[F_VEND],"A3_CODFIL")
 			HMSet( oHashFG, aLin[F_VEND], cFilGer )
-		
 		EndIf
 		
 		
@@ -197,6 +196,9 @@ Static Function ImpFile(nHdl, cFile, nTamFile)
 		Else
 		    // Caso não tenha  nehuma Validacao 
 			// Efetua o Inserte do Registro ... na SCT
+			//| Controla a Numeracao do DOC e SEQUEN
+			ContDocSeq(aLin) 
+	
 			InsereReg(@aLin)
 		Endif
 		// Atualiza o Numero de Linhas
@@ -233,7 +235,7 @@ Static Function InsereReg(aLin) // Insere o Registro na SCT
 
 
 	Local InsertSql := "Insert into SCT010 (CT_FILIAL,CT_DOC,CT_SEQUEN,CT_DESCRI,CT_REGIAO,CT_CCUSTO,CT_ITEMCC,CT_VEND,CT_CIDADE,CT_MARCA,CT_SEGMEN,CT_DATA,CT_TIPO,CT_GRUPO,CT_PRODUTO,CT_QUANT,CT_VALOR,CT_MOEDA,CT_CLVL,CT_MARGEM,D_E_L_E_T_,R_E_C_N_O_,CT_CLIENTE,CT_LOJACLI,CT_GRPSEGT,CT_MARCA3,CT_CATEGO,R_E_C_D_E_L_,CT_ORIGER,CT_RELAUTO,CT_MARGVLR) "
-	Local cValues   := "values ('"+cFilGer+"','"+cDoc+"','"+cSequen+"','"+Mdescri(aLin[F_FILIAL])+"','   ','         ','         ','"+aLin[F_VEND]+"','      ','                    ','      ','" + cDataMeta + "','  ','    ','"+aLin[F_PRODUTO]+"',"+cQuant+","+cValor+",'1','         ','0',' ',"+toc(nNewRec)+",'"+aLin[F_CLIENTE]+"','"+aLin[F_LOJACLI]+"','"+aLin[F_GRPSEG]+"','          ','      ','0','          ','9',0)"
+	Local cValues   := "values ('"+cFilGer+"','"+cDoc+"','"+cSequen+"','"+Mdescri(cFilGer)+"','   ','         ','         ','"+aLin[F_VEND]+"','      ','                    ','      ','" + cDataMeta + "','  ','    ','"+aLin[F_PRODUTO]+"',"+cQuant+","+cValor+",'1','         ','0',' ',"+toc(nNewRec)+",'"+cCliente+"','"+cLojaCli+"','"+aLin[F_GRPSEG]+"','          ','      ','0','          ','9',0)"
 
 
 	Local cExecCmd := InsertSql + cValues
@@ -314,9 +316,9 @@ Static Function ContDocSeq(aLin)
 	EndIf
 
 	//| Troca de Filial...
-	If aLin[F_FILIAL] <> cFilAtu
+	If cFilGer <> cFilAtu //aLin[F_FILIAL] <> cFilAtu
 
-		cFilAtu := aLin[F_FILIAL]
+		cFilAtu := cFilGer //aLin[F_FILIAL]
 		cDoc	:= HowDoc(cFilAtu)
 
 		If Empty(cDoc)
