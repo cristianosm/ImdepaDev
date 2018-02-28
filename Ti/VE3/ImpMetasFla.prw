@@ -307,12 +307,12 @@ Static Function ContDocSeq(aLin)
 
 //	cDOC		:= '' // Numero do DOC
 //	cSEQUEN
-
+	
 	//| Incrementa a Sequencia por padrao...
 	if cSequen == 'ZZZ'
 		cSequen := '001'
 	Else
-		cSequen := soma1(cSequen)
+		cSequen := soma1(cSequen,3,.F.,.F.)
 	EndIf
 
 	//| Troca de Filial...
@@ -328,14 +328,14 @@ Static Function ContDocSeq(aLin)
 			cSequen	:= HowSequenc(cDoc)
 		EndIf
 
-		cSequen := soma1(cSequen)
+		cSequen := soma1(cSequen,3,.F.,.F.)
 
 		If cSequen == '001'
-			cDoc := soma1(cDoc)
+			cDoc := soma1(cDoc,9,.F.,.F.)
 		EndIf
 
 	ElseIf cSequen == '001'  //| Estouro de Sequencia... Incrementa o DOC
-		cDoc := soma1(cDoc)
+		cDoc := soma1(cDoc,9,.F.,.F.)
 	EndIf
 
 
