@@ -1,6 +1,5 @@
-#Include 'protheus.ch'
-#Include 'parmtype.ch'
 
+#Include 'Totvs.ch'
 
 
 #Define _PRI 1
@@ -65,7 +64,7 @@
 *******************************************************************************
 User function MetasMargem()
 *******************************************************************************
-	Private dDataRef := cToD("13/02/2017")
+	Private dDataRef := cToD("28/02/2018")
 
 	//| Prepara Variaveis
 	PrepVar()
@@ -78,7 +77,6 @@ User function MetasMargem()
 
 	//| Prepara Estruturas
 	PrepEst()
-
 	
 	//| Faturamento
 	Faturamento()
@@ -102,8 +100,10 @@ User function MetasMargem()
 	
 	
 	aList := {}
-	HMList( oHaPri, aList)
+	HMList( oHaPri , aList )
 	U_CaixaTExto(VarInfo( "", aList, Nil, lHtml := .T., lEcho := .F.))
+	
+	
 	
 Return()
 *******************************************************************************
