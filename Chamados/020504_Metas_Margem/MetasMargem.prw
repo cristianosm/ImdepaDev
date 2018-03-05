@@ -1,10 +1,9 @@
 
 #Include 'Totvs.ch'
+#Include "Tbiconn.ch"
 
-
-#Define _PRI 1
+#Define _PRI 1 
 #Define _ULT 0
-
 
 //| Hash Table Principal
 #Define P_NGE 'N' //| Nome Gerente 
@@ -15,100 +14,101 @@
 #Define P_VAL 'V' //| Valor
 #Define P_PER 'P' //| Percentual
 
-//| Estrutura Base do Metas Margem 
-//|------------------------------------------------------------
-//| Tipo    Grupo                   Descricao
-//|------------------------------------------------------------
-//| 01		Faturamento s/ IPI		Meta Mês
-//| 02		Faturamento s/ IPI		Realizado Total Dia
-//| 03		Faturamento s/ IPI		Realizado Total Mês
-//| 04		Faturamento s/ IPI		Diferença Mês
-//| 05		Faturamento s/ IPI		Diferença Meta Ano Acum.
-//| 06		Margem					Meta Mês
-//| 07		Margem Realizado 		Total Dia
-//| 08		Margem Realizado 		Total Mês
-//| 09		Margem Reposicao		Meta Mês
-//| 10		Margem Reposicao		Realizado Total Dia
-//| 11		Margem Reposicao		Realizado Total Mês
-//| 12		% Indice MC				Meta Mês
-//| 13		% Indice MC	Realizado 	Total Dia
-//| 14		% Indice MC	Realizado 	Total Mês
-//| 15		% Indice MCR			Meta Mês
-//| 16		% Indice MCR Realizado 	Total Dia
-//| 17		% Indice MCR Realizado 	Total Mês
-//|------------------------------------------------------------
-
+//| Estrutura Base Metas Margem 
 /// Definicao Tipos ....Alias => Grupo..............Alias => Descricao  
-#Define FAT_MET "01" // FAT => Faturamento s/ IPI	MET =>	Meta Mês
+#Define FAT_MET "01" // FAT => Faturamento s/ IPI	MET => Meta Mês
 #Define FAT_TOD "02" //	FAT => Faturamento s/ IPI	TOD => Realizado Total Dia
 #Define FAT_TOM "03" //	FAT => Faturamento s/ IPI	TOM => Realizado Total Mês
 #Define FAT_DIM "04" //	FAT => Faturamento s/ IPI	DIM => Diferença Mês
 #Define FAT_DMA "05" //	FAT => Faturamento s/ IPI	DMA => Diferença Meta Ano Acum.
 #Define MAR_MET "06" //	MAR => Margem				MET => Meta Mês
 #Define MAR_TOD "07" //	MAR => Margem Realizado 	TOD => Total Dia
-#Define MAR_TOM "08" //	MAR => Margem Realizado 	TOM =>Total Mês
+#Define MAR_TOM "08" //	MAR => Margem Realizado 	TOM => Total Mês
 #Define MRE_MET "09" //	MRE => Margem Reposicao		MET => Meta Mês
 #Define MRE_TOD "10" //	MRE => Margem Reposicao		TOD => Realizado Total Dia
 #Define MRE_TOM "11" //	MRE => Margem Reposicao		TOM => Realizado Total Mês
 #Define IMC_MET "12" //	IMC => % Indice MC			MET => Meta Mês
 #Define IMC_TOD "13" //	IMC => % Indice MC	 		TOD => RealizadoTotal Dia
-#Define IMC_TOM "14" //	IMC => % Indice MC	 		TOM =>RealizadoTotal Mês
+#Define IMC_TOM "14" //	IMC => % Indice MC	 		TOM => RealizadoTotal Mês
 #Define IMR_MET "15" //	IMR => % Indice MCR			MET => Meta Mês
 #Define IMR_TOD "16" //	IMR => % Indice MCR  		TOD => RealizadoTotal Dia
-#Define IMR_TOM "17" //	IMR => % Indice MCR  		TOM =>RealizadoTotal Mês
+#Define IMR_TOM "17" //	IMR => % Indice MCR  		TOM => RealizadoTotal Mês
 
 #Define TTIPOS 17 //|  Numero total de Tipos  
 
-
-
+/*****************************************************************************\
+**---------------------------------------------------------------------------**
+** FUNÇÃO   : MetasMargem.prw | AUTOR : Cristiano Machado | DATA : 05/03/2018**
+**---------------------------------------------------------------------------**
+** DESCRIÇÃO:  ** Relatorio de envio das Metas / Faturamento e Margens       **
+**---------------------------------------------------------------------------**
+** USO : Especifico para Imdepa                                              **
+**---------------------------------------------------------------------------**
+**---------------------------------------------------------------------------**
+** ATUALIZACOES SOFRIDAS DESDE A CONSTRUCAO INICIAL.                         **
+**---------------------------------------------------------------------------**
+** PROGRAMADOR | DATA | MOTIVO DA ALTERACAO                                  **
+**---------------------------------------------------------------------------**
+**             |      |                                                      **
+**             |      |                                                      **
+\*---------------------------------------------------------------------------*/
 *******************************************************************************
 User function MetasMargem()
 *******************************************************************************
-	Private dDataRef := cToD("28/02/2018")
 
+	Private dDataRef
+	
+	PREPARE ENVIRONMENT EMPRESA "01" FILIAL "05" FUNNAME 'MetasMargem'  TABLES 'SM0'
+	
+	dDataRef := dDataBase 	//| Data Referencia Utilizada no Relatorio
+	
 	//| Prepara Variaveis
+	ConLog("Iniciando Relatorio...")
 	PrepVar()
 	
+	
 	//|Obtem Gerentes
+	ConLog("Obtendo Gerentes...")
 	Gerentes()
 
 	//| Dias Uteis
+	ConLog("Montando Dias Uteis...")
 	DiaUtil()
 
 	//| Prepara Estruturas
+	ConLog("Preparando Estruturas...")
 	PrepEst()
 	
 	//| Faturamento
+	ConLog("Obtendo Faturamento...")
 	Faturamento()
 	
 	//| Metas
+	ConLog("Obtendo Metas...")
 	Metas()
 	
 	//| Calcula Indices  
+	ConLog("Calculando Indices...")
 	Indices()
 	
-	/*
-	//| Margem Reposicao
-	MargemRep()
+	//| Monta o Html para Envio
+	ConLog("Montando o Html do eMail...")
+	MontaHtml()
 	
-	//| Indice Margem
-	IMargem()
+	//|Send e-mails
+	ConLog("Enviando eMails...")
+	SendMail() 
 	
-	//| Indice Margem Reposicao
-	IMargemRep()
-	*/
+	ConLog("Fim da Execucao do Relatorio...")
 	
-	
-	aList := {}
-	HMList( oHaPri , aList )
-	U_CaixaTExto(VarInfo( "", aList, Nil, lHtml := .T., lEcho := .F.))
-	
-	
+	RESET ENVIRONMENT
 	
 Return()
 *******************************************************************************
 Static Function PrepVar() // Prepara Variaveis
 *******************************************************************************
+	
+	
 	
 	_SetOwnerPrvt( 'cFiltraGer', Getmv("MV_FILGMOL") ) 	//| Nao mostra as movimentacoes de Clientes do Gerente informado nesse parametro, no Metas On-Line.
 
@@ -121,6 +121,8 @@ Static Function PrepVar() // Prepara Variaveis
 	
 	_SetOwnerPrvt( 'cGerImd' ,'999999'               )  //| Gerente que Representa a Imdepa
 
+	_SetOwnerPrvt( 'cHtmMail' ,''               )  //| Gerente que Representa a Imdepa
+	
 	
 Return
 *******************************************************************************
@@ -128,6 +130,8 @@ Static Function Gerentes() // Obtem Gerentes
 *******************************************************************************
 
 	Local cSql := ""
+
+	
 
 	cSql += "SELECT SA3.A3_COD CODGER, Upper(Trim(SA3.A3_DESCMOL)) NOMGER, SA3.A3_CODFIL FILGER, Lower(SA3.A3_EMAIL) MAIGER "
 	cSql += "FROM " + RetSqlName('SA3') + " SA3 "
@@ -142,7 +146,7 @@ Static Function Gerentes() // Obtem Gerentes
 	cSql += "AND SA3.A3_COD <= '999999' "
 	cSql += "AND SA3.D_E_L_E_T_ = ' ' " 
 	cSql += "GROUP BY SA3.A3_COD, SA3.A3_DESCMOL, SA3.A3_CODFIL,SA3.A3_EMAIL " 
-	cSql += "ORDER BY SA3.A3_DESCMOL " 
+	cSql += "ORDER BY SA3.A3_CODFIL " 
 
 	U_ExecMySql( cSql , cCursor := "GER" , cModo := "Q", lMostra := .F.,  lChange := .F.)
 
@@ -280,13 +284,13 @@ Static Function GTexto(cCol, cTipo) // Monta os Textos de acordo com as Colunas
 			Case cTipo == FAT_MET .Or. cTipo == FAT_TOD .Or. cTipo == FAT_TOM .Or. cTipo == FAT_DIM .Or. cTipo == FAT_DMA
 				cTexto := "Faturamento s/ IPI"
 			Case cTipo == MAR_MET  .Or. cTipo == MAR_TOD  .Or. cTipo == MAR_TOM 
-				cTexto := "Margem			 "
+				cTexto := "Margem"
 			Case cTipo == MRE_MET  .Or. cTipo == MRE_TOD  .Or. cTipo == MRE_TOM
-				cTexto := "Margem Reposicao  "
+				cTexto := "Margem Reposição"
 			Case cTipo == IMC_MET  .Or. cTipo == IMC_TOD  .Or. cTipo == IMC_TOM
-				cTexto := "% Indice MC	     "
+				cTexto := "% Indice MC"
 			Case cTipo == IMR_MET  .Or. cTipo == IMR_TOD  .Or. cTipo == IMR_TOM
-				cTexto := "% Indice MCR      "					
+				cTexto := "% Indice MCR "					
 			OtherWise
 				cTexto := ""	
 		End Case
@@ -303,7 +307,7 @@ Static Function GTexto(cCol, cTipo) // Monta os Textos de acordo com as Colunas
 			Case cTipo == FAT_DIM
 				cTexto := "Diferença Mês"
 			Case cTipo == FAT_DMA
-				cTexto := "Diferença Meta Ano Acum."
+				cTexto := "Dif. Meta Ano Acum."
 			OtherWise
 				cTexto := ""	
 		End Case
@@ -494,7 +498,7 @@ Static Function ConNotas(cQual, cPer )//| Consulta Nf's Emitidas,  com Parametro
 	cSql += " GROUP BY SC5.C5_VEND5  "
 	cSql += " ORDER BY SC5.C5_VEND5  "
 
-	U_ExecMySql( cSql , cCursor := "TAUX" , cModo := "Q", lMostra := .T., lChange := .F. )
+	U_ExecMySql( cSql , cCursor := "TAUX" , cModo := "Q", lMostra := .F., lChange := .F. )
 	
 Return
 *******************************************************************************
@@ -531,7 +535,7 @@ Static Function ConsMetas(cQual, cPer ) //| Consulta Metas,  com Parametro D-Dia
 		cSql += "   AND CT_DATA <= '"+ DToS(dDtMovF) +"'
 
 	EndIf
-
+	/*
 	cSql += "   AND CT_MARCA   = '"+Space(Len(SCT->CT_MARCA))+"'"
 	cSql += "   AND CT_REGIAO  = '"+Space(Len(SCT->CT_REGIAO))+"'"
 	cSql += "   AND CT_CCUSTO  = '"+Space(Len(SCT->CT_CCUSTO))+"'"
@@ -545,9 +549,11 @@ Static Function ConsMetas(cQual, cPer ) //| Consulta Metas,  com Parametro D-Dia
 	cSql += "   AND CT_GRPSEGT = '"+Space(Len(SCT->CT_GRPSEGT))+"'"
 	cSql += "   AND CT_CLIENTE = '"+Space(Len(SCT->CT_CLIENTE))+"'"
 	cSql += "   AND CT_MARCA3  = '"+Space(Len(SCT->CT_MARCA3))+"'"
+	*/
+	cSql += "   AND CT_RELAUTO  = '9'"
 	cSql += "   GROUP BY CT_VEND "
 
-	U_ExecMySql( cSql , cCursor := "TAUX" , cModo := "Q", lMostra := .T., lChange := .F. )
+	U_ExecMySql( cSql , cCursor := "TAUX" , cModo := "Q", lMostra := .F., lChange := .F. )
 	
 Return Nil
 *******************************************************************************
@@ -649,3 +655,196 @@ Static Function AjTpCpo(cQual, cPer, cTipo, cCampo ) // Ajuta o nome do Campo e 
 	EndIf
 
 Return Nil
+*******************************************************************************
+Static Function MontaHtml()
+*******************************************************************************
+	Local cBody 	:= ""		// Corpo da mensagem
+	Local lTotal	:= .T.
+	Local cGerente  := ''
+	
+	// Cores Utilizadas no CSS 
+	Static Cor_Border := '#646464' // Cinza Escuro 	//| Cor das Bordas da Tabela
+	Static Cor_TitTot := '#B4AABE' // Cinza 		//| Cor de Fundo do Titulo e Totais da Tabela
+	Static Cor_LinImp := '#EBEBEB' // Cinza Claro 	//| Cor Utilizada nas Linhas Impares para Zebra
+	Static Cor_FraCab := '#FF6E6E' // Vermelho		//| Cor Utilizada na Fresa Inicial e Cabecalho da Tabela
+	
+	StartBody(@cBody) //| Inicia
+	
+	ImpCab(@cBody ) 
+
+	DbSelectArea("GER");DbGotop()
+	While !EOF()
+	
+		If lTotal
+			cGerente := cGerImd
+		Else
+			cGerente := GER->CODGER
+		EndIf
+		
+			
+		For nTipo := 1 To TTIPOS
+
+			ImpItem(cGerente, @cBody, StrZero(nTipo,2),)
+	
+		Next
+		
+		If lTotal
+			lTotal := .F.
+		Else
+			DbSelectArea("GER")
+			DbSkip()
+		EndIf
+		
+	EndDo
+	
+	EndBody(@cBody)
+	
+	cHtmMail := cBody
+	
+	MemoWrite( "C:\mp11\metas_margem_" + Dtos(dDatabase) + "_" + StrTran(Time(),':',".") + ".html", cBody )
+	
+
+Return Nil
+*******************************************************************************
+Static Function StartBody(cBody) // Inicializa o Corpo do e-mail 
+*******************************************************************************
+
+	cBody += '<!DOCTYPE html>'
+	cBody += '<html>'
+	cBody += '<head><style></style></head>'
+	cBody += '<body>'
+	cBody += '<br><br><font color="' + Cor_FraCab + '" face="Arial" size="5"><strong>Analise de Metas Margem - Data/Hora Referencia: '+cValToChar(dDataBase)+' / '+Time()+'</strong></font><br><br>'
+
+Return Nil
+*******************************************************************************
+Static Function ImpCab(cBody ) //| Monta Html com Cabecalho dos itens 
+*******************************************************************************
+
+	cBody += '<table style="font-family:Lucida Grande,sans-serif;border-collapse:collapse;width:100%;background-color:white;border:2px solid ' + Cor_Border+ ';max-width:1000px;align: center; ">'
+
+	cBody += '<tr style="text-transform:uppercase;background-color:' + Cor_TitTot + ';color:white;border:2px solid' + Cor_Border+ ';height: 27px;">'
+	cBody +=    '<th>Nome Gerente</th>'
+	cBody +=    '<th>Codigo Gerente</th>'
+	cBody +=    '<th>Tipo</th>'
+	cBody +=    '<th>Grupo</th>'
+	cBody +=    '<th>Descrição</th>'
+	cBody +=    '<th>Valor</th>'    
+	cBody +=    '<th>Percentual</th>'
+	cBody += '</tr>'
+
+Return Nil
+*******************************************************************************
+Static Function ImpItem(cGerente, cBody, cTipo) //| Monta Html do Item 
+*******************************************************************************
+
+	Local lPar    := Mod( Val(cTipo) , 2 ) == 0 // Retorna ZERO se o Numero eh PAR 
+	Local cCssTrP := 'style="border:1px solid ' + Cor_Border+ ';background-color:' + Cor_LinImp + ';height:25px;' //| CSS para Linhas Pares 
+	Local cCssTrI := 'style="border:1px solid ' + Cor_Border+ ';height:25px;' //| CSS para Linhas Impares
+	Local cCssTdC := 'style="border:1px solid ' + Cor_Border+ ';padding:6px;text-align:' //| CSS cada Campo
+ 	
+	Local cNome 	:= ''
+	Local cCodigo 	:= ''
+	Local cGrupo 	:= ''
+	Local cDesc 	:= ''
+	Local nValor 	:= 0
+	Local nPerc 	:= 0
+	
+	cBody += '<tr ' + If(lPar,cCssTrP,cCssTrI) + If(cTipo==cValToChar(TTIPOS),'border-bottom:5px solid '+Cor_Border+'; "',' "') + '> '
+	
+	HMGet( oHaPri, cGerente + cTipo + P_NGE, @cNome   ) // 'N' //| Nome Gerente 
+	HMGet( oHaPri, cGerente + cTipo + P_CGE, @cCodigo ) // 'C' //| Codigo Gerente
+//  HMGet( oHaPri, TAUX->GERENTE + cTipo + P_TIP, @cTipo ) // 'T' //| Tipo 
+	HMGet( oHaPri, cGerente + cTipo + P_GRU, @cGrupo  ) // 'G' //| Grupo
+	HMGet( oHaPri, cGerente + cTipo + P_DES, @cDesc   ) // 'D' //| Descricao
+	HMGet( oHaPri, cGerente + cTipo + P_VAL, @nValor  ) // 'V' //| Valor
+	HMGet( oHaPri, cGerente + cTipo + P_PER, @nPerc   ) // 'P' //| Percentual
+	
+
+	cBody += '<td ' + cCssTdC + 'Left";>' 	+ Alltrim(cNome) 						+ '</td>'
+	cBody += '<td ' + cCssTdC + 'center";>' + Alltrim(cCodigo) 						+ '</td>'
+	cBody += '<td ' + cCssTdC + 'center";>' + Alltrim(cTipo) 						+ '</td>'
+	cBody += '<td ' + cCssTdC + 'Left";>'  	+ Alltrim(cGrupo) 						+ '</td>'
+	cBody += '<td ' + cCssTdC + 'Left";>'  	+ Alltrim(cDesc) 						+ '</td>'
+	cBody += '<td ' + cCssTdC + 'right";>'  + Transform(nValor,"@E 99,999,999.99")	+ '</td>'
+	cBody += '<td ' + cCssTdC + 'center";>' + Transform(nPerc ,"@E 999.99 %") 		+ '</td>'
+	cBody += '</tr>'
+	
+
+Return Nil
+*******************************************************************************
+Static Function EndBody(cBody) // Finaliza o Corpo do e-mail 
+*******************************************************************************
+
+cBody += '</table>'
+cBody += '</body>'
+cBody += '<br><br><br><br><br><br>'
+cBody += '</html>'
+
+Return Nil 
+*******************************************************************************
+Static Function SendMail() //| Envia os email aos envolvidos ...
+*******************************************************************************
+	Local cSubject 	:= "Metas Margem" // Assunto da Mensagem 
+	Local cTo		:= ""		// Destinatario da Mensagem
+	Local cCo		:= ""		// Copia da Mensagem 
+	Local lSend		:= .T.		// Se deve ou nao enviar o email
+	
+	Local cMailRTI	:= SuperGetMv( "MV_ECONTTI", .F., "", "" ) //| E-mail de controle dos relatorios usado pela TI : mp10.relatorios@imdepa.com.br 
+	Local cMailAss	:= "" //| E-mail da Assistente de Vendas de cada Filial. Este Parametro Utiliza o Codigo da Filial ...  
+	Local cMailGer  := "" //| Email dos Gerentes 	
+	Local cMailURM  := "" //| E-mail dos Usuarios que receberao o Metas   // "MV_EMMOL01" "MV_EMMOL02" "MV_EMMOL03" "MV_EMMOL04"
+	
+	Local aAreaSX6  := SX6->( GetArea() )
+	Local cRetPos   := "" // Guarda o Retorno do Posicione()
+	 
+	 
+	If lSend 
+		
+		//| Envia para Gerente e Assistentes ... 
+		cTo := cCo := ""
+		DbSelectArea("GER");DbGotop()
+		While !EOF()
+		
+			cTo := GER->MAIGER
+			cCo := Alltrim( Posicione( "SX6", 1, GER->FILGER + "MV_EASSV" , "X6_CONTEUDO" ) ) //| E-mail da Assistente de Vendas de cada Filial. Este Parametro Utiliza o Codigo da Filial ...			
+			cCo += "," + cMailRTI
+			
+			ConLog("Enviando eMail para:" + cTo )
+			U_EnvMyMail( Nil , Lower('cristiano.machado@imdepa.com.br') , '' ,cSubject, 'Gerente: ' + cTo + ' Assistente:' + cCo + '     ' + cHtmMail , '' , .F.,.F.,.F.,.F.,.F.,.F.)
+
+			DbSelectArea("GER")
+			DbSkip()
+
+		EndDo
+		
+		
+		//| Envia para Usuarios que tambem recebem o Relatorio 
+		cTo := cCo := ""
+		For nP := 1 To 99
+		
+			cRetPos := Posicione( "SX6", 1, Space(02) + "MV_EMMOL" + StrZero(nP,2), "X6_CONTEUDO" ) //| E-mail dos Usuarios que receberao o Metas   // "MV_EMMOL01" "MV_EMMOL02" "MV_EMMOL03" "MV_EMMOL04"
+			ConOut('METAS_MARGEM : cRetPos -> ' +  cRetPos )
+			If !Empty(cRetPos)
+				cTo := Alltrim(cRetPos)
+				cCo := Alltrim(cMailRTI)
+			
+				ConLog("Enviando eMail para:" + cTo )
+				U_EnvMyMail( Nil , Lower('cristiano.machado@imdepa.com.br') , '' ,cSubject, 'cTo: ' + cTo + ' cCo:' + cCo + '     ' + cHtmMail , '' , .F.,.F.,.F.,.F.,.F.,.F.)
+
+				cTo := cCo := ""
+			Else
+				nP := 99
+			EndIf
+
+		Next 
+
+	EndIf
+
+Return Nil 
+*******************************************************************************
+Static Function ConLog(cTxt)
+*******************************************************************************
+
+ConOut("METAS_MARGEM - > " + PadR( cTxt , 100 ) + dToc(dDataRef) + " - " + Time() )
+
+Return Nil 

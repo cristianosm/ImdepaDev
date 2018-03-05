@@ -62,7 +62,7 @@
 #Define TAMSEQ 3 // Tamanho do Campos CT_SEQUEN
 
 #Define TLININS 3 // Numero de Linhas a ser inseridas por Lote
-#Define NLPSHOW 1000 // Numero de Linhas para Apresentar no LOG
+#Define NLPSHOW 30000 // Numero de Linhas para Apresentar no LOG
 
 // Arquivo Grupo de Marcas 3
 #Define GER 1
@@ -80,7 +80,7 @@ User Function ImpMetasFla()
 	
 	SetVar() 	//| Define as Variaveis Privadas 
 
-	CleanPeriodo() //| Limpa o Periodo a ser Importado
+	//CleanPeriodo() //| Limpa o Periodo a ser Importado
 
 	MntDocSeq()	//| Monta a Sequencia de Doc e Seq por Filial
 	
