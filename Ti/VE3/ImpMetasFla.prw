@@ -62,7 +62,7 @@
 #Define TAMSEQ 3 // Tamanho do Campos CT_SEQUEN
 
 #Define TLININS 3 // Numero de Linhas a ser inseridas por Lote
-#Define NLPSHOW 30000 // Numero de Linhas para Apresentar no LOG
+#Define NLPSHOW 15000 // Numero de Linhas para Apresentar no LOG
 
 // Arquivo Grupo de Marcas 3
 #Define GER 1
@@ -362,13 +362,13 @@ Static Function ImpFile(cFile, nTamFile) // Importa Arquivo
 		//| Apresenta Mensagens do Status e posicao do Processamento
 		If( nNext == nLPerc )
 	
-			Conout('IMPMETAS : ' + PadR("Linha: "+ToC(nLPerc)+" de "+ToC(TLFile)+" File: "+cNomeF, 100 ) + Dtoc(ddatabase) + " " + time() )
+			Conout('IMPMETAS : ' + PadR("Linha: "+ToC(nLPerc)+" de "+ToC(TLFile)+" File: "+cNomeF  + ' U.Recno: ' + ToC(nRecno-1), 100 ) + Dtoc(ddatabase) + " " + time() )
 	
 			nNext += nShow
 
 		elseIf( TLFile == nLPerc )
 	
-			Conout('IMPMETAS : ' + PadR("Linha: "+ToC(nLPerc)+" de "+ToC(TLFile)+" File: "+cNomeF, 100 ) + Dtoc(ddatabase) + " " + time() )
+			Conout('IMPMETAS : ' + PadR("Linha: "+ToC(nLPerc)+" de "+ToC(TLFile)+" File: "+cNomeF + ' U.Recno: ' + ToC(nRecno-1), 100 ) + Dtoc(ddatabase) + " " + time() )
 	
 		Endif
 
@@ -385,7 +385,7 @@ Static Function ImpFile(cFile, nTamFile) // Importa Arquivo
 		cInsLin := ""	
 	EndIf
 	
-	Conout('IMPMETAS : ' + PadR("Finalizado  : "+cNomeF+" - Linhas: "+ToC(nLPerc) + '  Recno: ' + ToC(nRecno-1), 100 ) + Dtoc(ddatabase) + " " + time() )
+	Conout('IMPMETAS : ' + PadR("Finalizado Arquivo : "+cNomeF+" - Total Linhas: "+ToC(nLPerc) + ' U.Recno: ' + ToC(nRecno-1), 100 ) + Dtoc(ddatabase) + " " + time() )
 	
 
 	FT_FUSE()// O arquivo texto deve ser fechado, bem como o dialogo criado na funcao anterior.
