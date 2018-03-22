@@ -384,16 +384,14 @@ Return Nil
 Static Function Devolucao() //| Consulta Metas
 *******************************************************************************
 
-// Consulta Notas Mes
+	// Devolucao Mes
 	ConDev(cQual := DVEN, cPer := 'M');SlvDados(cQual, cPer)
-	
-	ConDev(cQual := DMAR, cPer := 'M');SlvDados(cQual, cPer)
+	//ConDev(cQual := DMAR, cPer := 'M');SlvDados(cQual, cPer)
 	
 
-	// Consulta Notas Dia
+	// Devolucao Dia
 	ConDev(cQual := DVEN, cPer := 'D');SlvDados(cQual, cPer)
-	
-	ConDev(cQual := DMAR, cPer := 'D');SlvDados(cQual, cPer)
+	//ConDev(cQual := DMAR, cPer := 'D');SlvDados(cQual, cPer)
 	
 	// Devolucao Ano
 	ConDev(cQual := DVEN, cPer := 'A');SlvDados(cQual, cPer)
