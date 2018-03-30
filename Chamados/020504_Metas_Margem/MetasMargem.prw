@@ -69,7 +69,7 @@ User function MetasMargem()
 	
 	PREPARE ENVIRONMENT EMPRESA "01" FILIAL "05" FUNNAME 'MetasMargem'  TABLES 'SM0'
 	
-	dDataRef := CToD('16/03/2018') //dDataBase 	//| Data Referencia Utilizada no Relatorio
+	dDataRef := CToD('28/03/2018') //dDataBase 	//| Data Referencia Utilizada no Relatorio
 	
 	//| Prepara Variaveis
 	ConLog("Iniciando Relatorio...")
@@ -150,7 +150,7 @@ Static Function Gerentes() // Obtem Gerentes
 	cSql += "						WHERE UA_GERVEN <> '      ' "
 	cSql += "						AND UA_GERVEN NOT IN (" + cFiltraGer + ") "  
 	cSql += "						AND UA_EMISSAO >= '" + DToS(dDtMovI) + "' "
-	cSql += "						AND UA_EMISSAO <= '" + DToS(dDtMovF) + "' "
+	cSql += "						AND UA_EMISSAO <= '" + DToS(dDataRef) + "' "
 	cSql += "						AND D_E_L_E_T_ = ' ' ) " 
 	cSql += "AND SA3.A3_COD >= '      ' "
 	cSql += "AND SA3.A3_COD <= '999999' "
@@ -279,7 +279,7 @@ Static Function PrepEst() // Prepara a Estrutura Hash Principal para Receber os 
 		 	
 		cTipo := StrZero(nS,2)
 		 		
-	 	HMSet( oHaPri, cGerImd + cTipo + P_NGE, "GerVen Imdepa" 	) // 'N' //| Nome Gerente 
+	 	HMSet( oHaPri, cGerImd + cTipo + P_NGE, "TOTAL" 	) // 'N' //| Nome Gerente 
 	 	HMSet( oHaPri, cGerImd + cTipo + P_CGE, cGerImd 			) // 'C' //| Codigo Gerente
 	 	HMSet( oHaPri, cGerImd + cTipo + P_TIP, cTipo        		) // 'S' //| Tipo 
 	 	HMSet( oHaPri, cGerImd + cTipo + P_GRU, GTexto("G",cTipo)	) // 'G' //| Grupo
@@ -327,13 +327,13 @@ Static Function GTexto(cCol, cTipo) // Monta os Textos de acordo com as Colunas
 
 		Do Case
 			Case cTipo == FAT_MET .Or. cTipo == MAR_MET /*.Or. cTipo == MRE_MET */ .Or. cTipo == IMC_MET //.Or. cTipo == IMR_MET
-				cTexto := "Meta Mês"
+				cTexto := "Meta M&ecirc;s"
 			Case cTipo == FAT_TOD .Or. cTipo == MAR_TOD /*.Or. cTipo == MRE_TOD */ .Or. cTipo == IMC_TOD //.Or. cTipo == IMR_TOD
 				cTexto := "Realizado Total Dia"
 			Case cTipo == FAT_TOM .Or. cTipo == MAR_TOM /*.Or. cTipo == MRE_TOM */ .Or. cTipo == IMC_TOM //.Or. cTipo == IMR_TOM
-				cTexto := "Realizado Total Mês" 
+				cTexto := "Realizado Total M&ecirc;s" 
 			Case cTipo == FAT_DIM
-				cTexto := "Diferença Mês"
+				cTexto := "Diferen&ccedil;a M&ecirc;s"
 			Case cTipo == FAT_DMA
 				cTexto := "Dif. Meta Ano Acum."
 			OtherWise
@@ -420,6 +420,19 @@ Static Function Indices() // Calcula os Indices
 	Local lFirst  := .T.
 	Local cCpoGer := ""
 	
+	// 
+	Local nMDFatRea := 0 // Faturamento Realizado Médio por Dia Util Gerente
+	Local nMDFatMet := 0 // Faturamento Meta Médio por Dia Util Gerente
+	
+	Local nMDMarRea := 0 // Margem Realizado Médio por Dia Util Gerente
+	Local nMDMarMet := 0 // Margem Meta Médio por Dia Util Gerente
+	
+	Local nMAFatRea := 0 // Faturamento Acumulado Realizado Médio por Dia Util Imdepa
+	Local nMAFatMet := 0 // Faturamento Acumulado Meta Médio por Dia Util Imdepa
+	
+	Local nMAMarRea := 0 // Margem Acumulado Realizado Médio por Dia Util Imdepa
+	Local nMAMarMet := 0 // Margem Acumulado Meta Médio por Dia Util Imdepa
+	
 	DbSelectArea("GER");DbGoTop()
 	While !EOF()
 		
@@ -433,37 +446,29 @@ Static Function Indices() // Calcula os Indices
 		HMGet( oHaPri, &cCpoGer.+FAT_MET+P_VAL, @nFatMet  ) 	// Faturamento s/ IPI	| Meta Mês
 		HMGet( oHaPri, &cCpoGer.+MAR_MET+P_VAL, @nMarMet  ) 	// Margem               | Meta Mês
 		nImcMet := Round( nMarMet / nFatMet  * 100, 4 ) 
-		HMSet( oHaPri, &cCpoGer.+IMC_MET+P_VAL, nImcMet ) 		// % Indice MC			| Meta Mês		
+		HMSet( oHaPri, &cCpoGer.+IMC_MET+P_PER, nImcMet ) 		// % Indice MC			| Meta Mês		
 		
-		///Conout('Gerente : ' + &cCpoGer. + ', nFatMet: ' + cValToChar(nFatMet) + ', nMarMet: ' + cValToChar(nMarMet) ) 
-
-		//| Calcula Indice MCR Meta Mes (IMR)(MET)
-		HMGet( oHaPri, &cCpoGer.+FAT_MET+P_VAL, @nFatMet  ) 	// Faturamento s/ IPI	| Meta Mês
-
 
 		//| Calcula Indice MC Total Dia (IMC)(TOD)
 		HMGet( oHaPri, &cCpoGer.+FAT_TOD+P_VAL, @nFatTod  ) 	// Faturamento s/ IPI	| Realizado Total Dia
 		HMGet( oHaPri, &cCpoGer.+MAR_TOD+P_VAL, @nMarTod  ) 	// Margem               | Realizado Total Dia
 		nImcTod := Round( nMarTod / nFatTod * 100, 4 ) 
-		HMSet( oHaPri, &cCpoGer.+IMC_TOD+P_VAL, nImcTod   ) 	// % Indice MC			| Realizado Total Dia	
+		HMSet( oHaPri, &cCpoGer.+IMC_TOD+P_PER, nImcTod   ) 	// % Indice MC			| Realizado Total Dia	
 		
 		
-		//| Calcula Indice MCR Total Dia (IMR)(TOD)
-		HMGet( oHaPri, &cCpoGer.+FAT_TOD+P_VAL, @nFatTod  ) 	// Faturamento s/ IPI	| Realizado Total Dia	
-		
-
 		//| Calcula Indice Margem Total Mes (IMC)(TOM)
 		HMGet( oHaPri, &cCpoGer.+FAT_TOM+P_VAL, @nFatTom  ) 	// Faturamento s/ IPI	| Realizado Total Mes	
 		HMGet( oHaPri, &cCpoGer.+MAR_TOM+P_VAL, @nMarTom  ) 	// Margem     			| Realizado Total Mes	
 		nImcTom := Round( nMarTom / nFatTom * 100, 4 ) 
-		HMSet( oHaPri, &cCpoGer.+IMC_TOM+P_VAL, nImcTom   ) 	// % Indice MC			| Realizado Total Mes	
+		HMSet( oHaPri, &cCpoGer.+IMC_TOM+P_PER, nImcTom   ) 	// % Indice MC			| Realizado Total Mes	
 
 
-		//| Calcula Indice MCR Total Mes (IMR)(TOM)
+		//| Calculo TIPO 03 FAT => Faturamento s/ IPI	TOM => Realizado Total Mês
 		HMGet( oHaPri, &cCpoGer.+FAT_TOM+P_VAL, @nFatTom  ) 	// Faturamento s/ IPI	| Realizado Total Mes	
 		
 		//| Calcula TIPO 04 - Faturamento Diferença Mês
 		HMSet( oHaPri, &cCpoGer.+FAT_DIM+P_VAL, (nFatMet - nFatTom) ) 
+
 
 		//| Calula TIPO 05 -  Diferença Meta Ano Acum.
 		HMGet( oHaPri, &cCpoGer.+FAT_DMA+"F"+P_VAL, @nFatDmaF ) 
@@ -473,6 +478,37 @@ Static Function Indices() // Calcula os Indices
 		HMSet( oHaPri, &cCpoGer. + FAT_DMA + P_VAL, nFatDma ) 
 		
 		
+		//| Calculo Percecntual das Metas Mes
+		nDiaUT := nDiaUP := 0 // Dias Uteis e Dias Passados
+		HMGet( oHaDias, GER->FILGER+'U', nDiaUT ) // Total dias Uteis
+		HMGet( oHaDias, GER->FILGER+'P', nDiaUP ) // Total Dias Passados
+		//HMSet( oHaDias, GER->FILGER+'R', nDiaR ) // Total Dias Restantes
+		
+	
+		nMDFatRea := ( nFatTom / nDiaUP )  // Faturamento Realizado Médio por Dia Util Gerente
+		nMDFatMet := ( nFatMet / nDiaUT ) // Faturamento Meta Médio por Dia Util Gerente
+	
+		nMDMarRea := ( nMarTom / nDiaUP ) // Margem Realizado Médio por Dia Util Gerente
+		nMDMarMet := ( nMarMet / nDiaUT ) // Margem Meta Médio por Dia Util Gerente
+		
+		//ConLog("Calculo Realizados / Meta Gerente: " + &cCpoGer.)
+		//ConLog("nMDFatRea["+cValToChar( nMDFatRea )+"] := ( nFatTom["+cValToChar( nFatTom )+"] / nDiaUP["+cValToChar( nDiaUP )+"] )")
+		//ConLog("nMDFatMet["+cValToChar( nMDFatMet )+"] := ( nFatMet["+cValToChar( nFatMet )+"] / nDiaUT["+cValToChar( nDiaUT )+"] )")
+		//ConLog("nMDMarRea["+cValToChar( nMDMarRea )+"] := ( nMarTom["+cValToChar( nMarTom )+"] / nDiaUP["+cValToChar( nDiaUP )+"] )")
+		//ConLog("nMDMarMet["+cValToChar( nMDMarMet )+"] := ( nMarMet["+cValToChar( nMarMet )+"] / nDiaUT["+cValToChar( nDiaUT )+"] )")
+	
+		HMSet( oHaPri, &cCpoGer.+FAT_MET+P_PER, Round( nMDFatRea / nMDFatMet * 100, 4 )   )  // 'P' //| Percentual
+		
+		HMSet( oHaPri, &cCpoGer.+MAR_MET+P_PER, Round( nMDMarRea / nMDMarMet * 100, 4 )   )  // 'P' //| Percentual
+		
+		//| HMSet( oHaPri, &cCpoGer.+IMC_MET+P_PER, Round( ( nImcTom / nDiaUP ) / ( nImcMet / nDiaUT ) * 100, 4 )   )  // 'P' //| Percentual
+
+		nMAFatRea += nMDFatRea // Faturamento Acumulado Realizado Médio por Dia Util Imdepa
+		nMAFatMet += nMDFatMet // Faturamento Acumulado Meta Médio por Dia Util Imdepa
+	
+		nMAMarRea += nMDMarRea // Margem Acumulado Realizado Médio por Dia Util Imdepa
+		nMAMarMet += nMDMarMet // Margem Acumulado Meta Médio por Dia Util Imdepa
+	
 		DbSelectArea("GER")
 		If lFirst
 			lFirst := .F.
@@ -480,7 +516,13 @@ Static Function Indices() // Calcula os Indices
 			DbSkip()
 		EndIF
 	EndDo
-
+	
+	// Deve Atualizar o Valor Percentual Atingido para o TOTAL Imdepa... 
+	HMSet( oHaPri, cGerImd+FAT_MET+P_PER, Round( nMAFatRea / nMAFatMet * 100, 4 )   )  // 'P' //| Percentual
+	HMSet( oHaPri, cGerImd+MAR_MET+P_PER, Round( nMAMarRea / nMAMarMet * 100, 4 )   )  // 'P' //| Percentual
+		
+	
+	
 Return Nil 
 *******************************************************************************
 Static Function ConNotas(cQual, cPer )//| Consulta Nf's Emitidas,  com Parametro D-Dia, M-Mes ou T-Trimestre
@@ -505,15 +547,15 @@ Static Function ConNotas(cQual, cPer )//| Consulta Nf's Emitidas,  com Parametro
 
 	ElseIf 	cPer == "M" // Mes
 		cSql += "   AND SD2.D2_EMISSAO >= '"+ DToS(dDtMovI) +"'
-		cSql += "   AND SD2.D2_EMISSAO <= '"+ DToS(dDtMovF) +"'
+		cSql += "   AND SD2.D2_EMISSAO <= '"+ DToS(dDataRef) +"'
 
 	ElseIf 	cPer == "T" // Trimestre
 		cSql += "   AND SD2.D2_EMISSAO >= '"+ DToS(dDtMovI) +"'
-		cSql += "   AND SD2.D2_EMISSAO <= '"+ DToS(dDtMovF) +"'
+		cSql += "   AND SD2.D2_EMISSAO <= '"+ DToS(dDataRef) +"'
 
 	ElseIf 	cPer == "A" // Ano
 		cSql += "   AND SD2.D2_EMISSAO >= '"+ DToS(dDtMoAI) +"'
-		cSql += "   AND SD2.D2_EMISSAO <= '"+ DToS(dDtMovF) +"'
+		cSql += "   AND SD2.D2_EMISSAO <= '"+ DToS(dDataRef) +"'
 
 	EndIf
 
@@ -615,17 +657,17 @@ Static Function ConDev(cQual, cPer )//| Consulta Nf's Emitidas,  com Parametro D
 
 	ElseIf 	cPer == "M" // Mes
 		cSql += "   AND D1_DTDIGIT >= '"+ DToS(dDtMovI) +"' "
-		cSql += "   AND D1_DTDIGIT <= '"+ DToS(dDtMovF) +"' "
+		cSql += "   AND D1_DTDIGIT <= '"+ DToS(dDataRef) +"' "
 
 	ElseIf 	cPer == "T" // Trimestre
 
 		cSql += "   AND D1_DTDIGIT >= '"+ DToS(dDtMovI) +"' "
-		cSql += "   AND D1_DTDIGIT <= '"+ DToS(dDtMovF) +"' "
+		cSql += "   AND D1_DTDIGIT <= '"+ DToS(dDataRef) +"' "
 
 	ElseIf 	cPer == "A" // Ano
 	
 		cSql += "   AND D1_DTDIGIT >= '"+ DToS(dDtMoAI) +"' "
-		cSql += "   AND D1_DTDIGIT <= '"+ DToS(dDtMovF) +"' "
+		cSql += "   AND D1_DTDIGIT <= '"+ DToS(dDataRef) +"' "
 		
 	EndIf
 
@@ -686,27 +728,10 @@ Static Function SlvDados( cQual, cPer) // Salva os Dados das Notas/Metas no Hash
 			// Alimenta Gerente
 			nValor := &cCampo.
 			HMSet( oHaPri, TAUX->GERENTE + cTipo + P_VAL, nValAtu + nValor )
-			
-			//ConLog("Slv->Achou: " + TAUX->GERENTE + cTipo + P_VAL + " Val: " + cValToChar(nValAtu + nValor) )
-			
+						
 			// Alimenta Gerente Totais 
 			HMGet( oHaPri, cGerImd + cTipo + P_VAL, @nValTot 		)
 			HMSet( oHaPri, cGerImd + cTipo + P_VAL, nValTot +  nValor )
-			
-			//ConLog("Slv->Achou: " + cGerImd + cTipo + P_VAL + " Val: " + cValToChar(nValTot + nValor) )
-		
-		//ElseIf HMGet( oHaPri, TAUX->GERENTE + SubStr(cTipo,1,3) + P_VAL, @nValAtu )
-			
-		//	nValor := &cCampo.
-		//	HMSet( oHaPri, TAUX->GERENTE + cTipo + P_VAL, nValor )
-			
-			//ConLog("Slv->N Achou: " + TAUX->GERENTE + cTipo + P_VAL + " Val: " + cValToChar(nValor) )
-			
-				// Alimenta Gerente Totais 
-		//	HMGet( oHaPri, cGerImd + cTipo + P_VAL, @nValTot 		)
-		//	HMSet( oHaPri, cGerImd + cTipo + P_VAL, nValTot +  nValor )
-			
-			//ConLog("Slv->N Achou: " + cGerImd + cTipo + P_VAL + " Val: " + cValToChar(nValTot + nValor) )
 			
 		EndIf
 	
@@ -853,7 +878,7 @@ Static Function StartBody(cBody) // Inicializa o Corpo do e-mail
 	cBody += '<html>'
 	cBody += '<head><style></style></head>'
 	cBody += '<body>'
-	cBody += '<br><br><font color="' + Cor_FraCab + '" face="Arial" size="5"><strong>Analise de Metas Margem - Data Referência: '+cValToChar(dDataRef)+' - '+Time()+'</strong></font><br><br>'
+	cBody += '<br><br><font color="' + Cor_FraCab + '" face="Arial" size="5"><strong>An&aacute;lise de Metas Margem - Data Refer&ecirc;ncia: '+cValToChar(dDataRef)+' - '+Time()+'</strong></font><br><br>'
 
 Return Nil
 *******************************************************************************
@@ -864,10 +889,10 @@ Static Function ImpCab(cBody ) //| Monta Html com Cabecalho dos itens
 
 	cBody += '<tr style="text-transform:uppercase;background-color:' + Cor_TitTot + ';color:white;border:2px solid' + Cor_Border+ ';height: 27px;">'
 	cBody +=    '<th>Nome Gerente</th>'
-	cBody +=    '<th>Codigo Gerente</th>'
+	cBody +=    '<th>C&oacute;digo Gerente</th>'
 	cBody +=    '<th>Tipo</th>'
 	cBody +=    '<th>Grupo</th>'
-	cBody +=    '<th>Descrição</th>'
+	cBody +=    '<th>Descri&ccedil;&atilde;o</th>'
 	cBody +=    '<th>Valor</th>'    
 	cBody +=    '<th>Percentual</th>'
 	cBody += '</tr>'
