@@ -198,17 +198,34 @@ EndClass
 	DbSeek(xFilial("SA1")+::cCliente,.F. ) 
 
 	// Ajusta os Parametros...
-	Pergunte("AFI410",.F.)
+	// Pergunte("AFI410",.F.)
 
-	Mv_Par01 := 2 			//|Refaz Dados de ? [ 1-Ambos, 2-Clientes, 3-Fornecedor ]
-	Mv_Par02 := 1 			//|Recalcular Dados Historicos ? [ 1-Sim, 2-Nao ]
-	Mv_Par03 := ::cCliente 	//|Do Cliente ?
-	Mv_Par04 := ::cCliente 	//|Ate Cliente ?
-	Mv_Par05 := Replicate(' ',6) 	//|Do Fornecedor ?
-	Mv_Par06 := Replicate('Z',6) 	//|Ate Fornecedor ?
+	Mv_Par01 	:= cValToChar(2) 			//|Refaz Dados de ? [ 1-Ambos, 2-Clientes, 3-Fornecedor ]
+	Mv_Par02 	:= cValToChar(1)  			//|Recalcular Dados Historicos ? [ 1-Sim, 2-Nao ]
+	Mv_Par03 	:= ::cCliente 	//|Do Cliente ?
+	Mv_Par04 	:= ::cCliente 	//|Ate Cliente ?
+	Mv_Par05 	:= Replicate(' ',6) 	//|Do Fornecedor ?
+	Mv_Par06 	:= Replicate('Z',6) 	//|Ate Fornecedor ?
+	Mv_MCUSTO 	:= '1'
+	Mv_DATABASE :=  DToS(dDataBase)
+	Mv_TIPOCR 	:= '/RA /NCC/AB-|FB-|FC-|FU-|IR-|IN-|IS-|PI-|CF-|CS-|FE-|IV-/IR-/FU-/IN-/IS-/PI-/CF-'
+	Mv_TIPOCR1 	:= '/RA /NCC'
+	Mv_TIPOCP 	:= '/PA /NDF/AB-|FB-|FC-|FU-|IR-|IN-|IS-|PI-|CF-|CS-|FE-|IV-'
+	Mv_TIPOLC 	:= '/PR /'
+	Mv_CLIDE 	:= ::cCliente
+	Mv_CLIATE 	:= ::cCliente
+	Mv_FORDE 	:= Mv_FORATE := Mv_AFIL1 := Mv_AFIL2 := Mv_AFIL3 := Mv_AFIL4 := Mv_AFIL5 := Mv_AFIL6 := Mv_AFIL7 := Mv_AFIL8 := Mv_AFIL9 := ' '
+	Mv_TAMFIL 	:= 2
+	Mv_MODULO 	:= 6 
+	Mv_CLIPAD 	:= '000001'
+	Mv_LOJPAD 	:= '01'
 
-	Fa410Processa(lDireto)
-	//Fina410(lDireto) //|
+   ConOut("Chamada da Procedure FIN003_09_01" )
+   TCSPEXEC("FIN003_09_01", Mv_Par01,Mv_Par02,Mv_MCUSTO,Mv_DATABASE,Mv_TIPOCR,Mv_TIPOCR1,Mv_TIPOCP,Mv_TIPOLC,Mv_CLIDE,Mv_CLIATE,Mv_FORDE,Mv_FORATE,Mv_AFIL1,Mv_AFIL2,Mv_AFIL3,Mv_AFIL4,Mv_AFIL5,Mv_AFIL6,Mv_AFIL7,Mv_AFIL8,Mv_AFIL9,2,6,'000001','01') 
+   ConOut("Fim da Procedure FIN003_09_01" )
+  
+	// Fa410Processa(lDireto)
+	// Fina410(lDireto) //|
 
 	RestArea(_aAreaSA1)
 	RestArea(_aAreaATU)
@@ -229,6 +246,7 @@ User Function PvSldFin(cCodigo, cLoja, cFilAtu, cEmpresa )
 
 	oPvSldFin := PvSldFin():Novo( cCodigo , cLoja )
 	oPvSldFin:AtuCliente()
+	oPvSldFin:RefazCLI()
 
 	If lViaThread
 		Reset Environment
