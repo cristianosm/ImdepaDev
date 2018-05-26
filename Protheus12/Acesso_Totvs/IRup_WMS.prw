@@ -5,7 +5,7 @@
 Função de compatibilização do release incremental.
 Ser„o chamadas todas as funcoes compiladas referentes aos mÛdulos cadastrados do Protheus
 Ser· sempre considerado prefixo "RUP_" acrescido do nome padr„o do mÛdulo sem o prefixo SIGA.
-Ex: para o mÛdulo SIGACTB criar a função RUP_CTB
+Ex: para o Módulo SIGACTB criar a função RUP_CTB
 
 @param  cVersion   - Versão do Protheus
 @param  cMode      - Modo de execução. 1=Por grupo de empresas / 2=Por grupo de empresas + filial (filial completa)
@@ -19,7 +19,7 @@ Ex: para o mÛdulo SIGACTB criar a função RUP_CTB
 */
 //-------------------------------------------------------------------
 Static __cEmpWms := ""
-Function RUP_WMS( cVersion, cMode, cRelStart, cRelFinish, cLocaliz )
+User Function IRUP_WMS( cVersion, cMode, cRelStart, cRelFinish, cLocaliz )
 Local aArea  := GetArea()
 
 	// Os conouts est„o colocados com objetivo de facilitar a identificação de quais comandos foram executados.

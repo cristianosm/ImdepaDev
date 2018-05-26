@@ -15,7 +15,7 @@ User Function Teste_Debug()
 	
 	conout("Entrou -> RUP_WMS")
 	
-	RUP_WMS( cVersion, cMode, cRelStart, cRelFinish, cLocaliz )
+	U_IRUP_WMS( cVersion, cMode, cRelStart, cRelFinish, cLocaliz )
 	
 	
 	conout("Saiu ->  RUP_WMS")
