@@ -25,14 +25,15 @@ User Function MrpOImd()
 	
 	Private lMostra := .F.
 	
+	If Iw_MsgBox("Deseja Executar Manualmente a Otimização MRP Imdepa","Atenção","YESNO")
 	
-	// Execucoes Diarias
-	ExecDiario()
+		// Execucoes Diarias
+		ExecDiario()
 	
-	// Execucoes Mensais
-	ExecMensal()
+		// Execucoes Mensais
+		ExecMensal()
 	
-
+	EndIf
 
 Return()
 *******************************************************************************
@@ -69,6 +70,7 @@ Static function za7ppcomp()	// 1.1 ZA7_PPCOMP => Produtos com Pedidos Abertos
 	Local nIntPro 	:= 0 // Intervalo IncProc
 	
 	ProcRegua(0)
+	IncProc()
 	
 	// Consulta Pedidos de Compras e Solicitacoes de Compras  
 	cSql += "SELECT PRODUTO FROM ( " 
@@ -134,6 +136,7 @@ Static function ZA7PGRAMA()	// 1.2 ZA7_PGRAMA => SIM - Produto com Programa (Con
 	Local nIntPro 	:= 0 // Intervalo IncProc
 
 	ProcRegua(0)
+	IncProc()
 
 	// Consulta Contratos
 	cSql += "SELECT ADB.ADB_CODPRO PRODUTO "
@@ -214,6 +217,11 @@ Static Function  ExecMensal()// Execucoes Mensais
 	cTitulo   	:= "Calculando Media COV"
 	Processa( bAction, @cTitulo, @cMsg, @lAbort )
 
+	//2.2  Calcular Média do COV
+	bAction 	:= {|| SomaMCOV() }
+	cTitulo   	:= "Calculando Soma Media COV"
+	Processa( bAction, @cTitulo, @cMsg, @lAbort )
+
 Return Nil
 ******************************************************************************
 Static Function PreRecMes()
@@ -230,6 +238,7 @@ Static Function B1PRONOVO() // 1.3 B1_PRONOVO => Produto NOVO
 	Local nIntPro 	:= 0 // Intervalo IncProc
 
 	ProcRegua(0)
+	IncProc()
 
 	// Consulta Produtos Novos
 	cSql += "SELECT B1_COD PRODUTO "
@@ -288,6 +297,7 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	Local aValHT	:= Nil		// Auxiliar para Obter Valor nas Hash Tables 
 	
 	ProcRegua(0)
+	IncProc()
 
 	//*************************************************************************
 	// Consulta Produtos Ativos COV
@@ -441,7 +451,7 @@ Static Function B1MSBLOQ()//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados
 	Local aValHT	:= Nil		// Auxiliar para Obter Valor nas Hash Tables 
 	
 	ProcRegua(0)
-
+	IncProc()
 	//*************************************************************************
 	// Consulta Produtos com Movimento COV
 	//*************************************************************************
@@ -517,6 +527,7 @@ Static Function MediaCOV()//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados
 
 
 	ProcRegua(0)
+	IncProc()
 	//*************************************************************************
 	// Montando Media do COV  
 	//*************************************************************************
@@ -549,6 +560,7 @@ Static Function MediaCOV()//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados
 	cSql += "WHERE SF2.F2_EMISSAO BETWEEN '" + cSDataI + "' AND '" + cSDataF + "' "
 	cSql += "AND   SF4.F4_ESTOQUE = 'S' "
 	cSql += "AND   SF4.F4_DUPLIC = 'S' "
+	cSql += "AND   SF2.F2_CLIENT <> 'N00000' "
 	cSql += "AND   SD2.D_E_L_E_T_ = ' ' "
 	cSql += "AND   SF2.D_E_L_E_T_ = ' ' "
 	cSql += "AND   SF4.D_E_L_E_T_ = ' ' "
@@ -574,10 +586,15 @@ Static Function MediaCOV()//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados
 	While !EOF()
 		
 			// Atualiza os Produtos para SIM
-			cSql := "UPDATE ZA7010 SET ZA7_M12CP = "+cValToChar(TAUX->MCONS)+", ZA7_M12OP  = "+cValToChar(TAUX->MCONS)+", ZA7_M12VP  = "+cValToChar(TAUX->MCONS)+", ZA7_M12VRP  = "+cValToChar(TAUX->MCONS)+" WHERE ZA7_FILIAL = "+Alltrim(TAUX->FILIAL)+" AND ZA7_CODPRO = '" + Alltrim(TAUX->PRODUTO) + "' "
+			cSql := "UPDATE ZA7010 SET "
+			cSql += "ZA7_M12CP 	= "+cValToChar(TAUX->MCONS)+", " // Média 12 Meses Consultado.
+			cSql += "ZA7_M12OP  = "+cValToChar(TAUX->MOFER)+", " // Média 12 Meses Ofertado.
+			cSql += "ZA7_M12VP  = "+cValToChar(TAUX->MFATU)+", " // Média 12 Meses Vendido.
+			cSql += "ZA7_M12VRP = "+cValToChar(TAUX->MVREV)+"  " // Média 12 Meses Venda Revisada.
+			cSql += "WHERE ZA7_FILIAL = "+Alltrim(TAUX->FILIAL)+" AND ZA7_CODPRO = '" + Alltrim(TAUX->PRODUTO) + "' "
 	
 			If nIntPro == 100
-				IncProc("Atualizando as Medias da Filial + Produto " + Alltrim(TAUX->FILIAL) +" - "+Alltrim(TAUX->PRODUTO) + "..." )
+				IncProc("Atualizando as Medias da [Filial-Produto] " + Alltrim(TAUX->FILIAL) +"-"+Alltrim(TAUX->PRODUTO) + "..." )
 				nIntPro := 0
 			Else
 				nIntPro += 1
@@ -593,6 +610,121 @@ Static Function MediaCOV()//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados
 	DbSelectArea("TAUX");DbCloseArea()
 	
 	MsgInfo ("Foram Atualizados " + Alltrim( Transform(nPAtu,"@E 99,999,999")) + " Produtos... ","Campos [ZA7_M12CP,ZA7_M12OP,ZA7_M12VP,ZA7_M12VRP]...")
+
+Return Nil
+******************************************************************************
+Static Function SomaMCOV()//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados 
+******************************************************************************
+	Local cSql 		:= ""
+	Local cSDataI 	:= dToS(DataRef(nMeses := 12))
+	Local cSDataF 	:= dToS(DataRef(nMeses := 0 ))  
+	Local nPAtu 	:= 0 // Total de Produtos Atualizados 
+	Local nIntPro 	:= 0 // Intervalo IncProc
+	Local oHTCov	:= HMNew()	// Tabela Hash COV
+	Local aValHT	:= Nil		// Auxiliar para Obter Valor nas Hash Tables 
+
+
+	ProcRegua(0)
+	IncProc()
+	//*************************************************************************
+	// Montando Media do COV  
+	//*************************************************************************
+
+	cSql := "SELECT SB1.B1_CODITE CODITE,  SUM(MCONS) SMCONS, SUM(MOFER) SMOFER, SUM(MVREV) SMVREV, SUM(MFATU) SMFATU "
+	cSql += "FROM (	 "
+	cSql += "SELECT FILIAL, PRODUTO, SUM(MCONS) MCONS, SUM(MOFER) MOFER, SUM(MVREV) MVREV, SUM(MFATU) MFATU "
+	cSql += "FROM ( "
+	cSql += "SELECT ZA0.ZA0_FILIAL FILIAL, ZA0.ZA0_PRODUT PRODUTO, " 
+	cSql += "Round( Sum(ZA0.ZA0_QUANTD) / COUNT(ZA0.ZA0_QUANTD),2) MCONS, " 
+	cSql += "Round( Sum(ZA0.ZA0_QOFERT) / COUNT(ZA0.ZA0_QUANTD),2) MOFER, "
+	cSql += "Round( Sum(ZA0.ZA0_VENDRE) / COUNT(ZA0.ZA0_QUANTD),2) MVREV, "
+	cSql += "Round( Sum(0) ,2) MFATU  "
+	cSql += "FROM ZA0010 ZA0 INNER JOIN SB1010 SB1 "
+	cSql += "ON ZA0.ZA0_FILIAL = SB1.B1_FILIAL "
+	cSql += "AND ZA0.ZA0_PRODUT = SB1.B1_COD  "
+	cSql += "WHERE ZA0.ZA0_DTNECL BETWEEN '20170101' AND '20180101' "
+	cSql += "AND   SB1.B1_PROATIV = 'S' "
+	cSql += "AND   ZA0.D_E_L_E_T_ = ' ' "
+	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
+	cSql += "GROUP BY ZA0.ZA0_FILIAL, ZA0.ZA0_PRODUT "
+	cSql += "UNION    "
+	cSql += "SELECT  SD2.D2_FILIAL FILIAL, SD2.D2_COD PRODUTO, "
+	cSql += "Round( Sum(0) ,2) MCONS,  "
+	cSql += "Round( Sum(0) ,2) MOFER,  "
+	cSql += "Round( Sum(0) ,2) MVREV, "
+	cSql += "Round( Sum(SD2.D2_QUANT) / COUNT(SD2.D2_QUANT),2) MFATU "
+	cSql += "FROM SD2010 SD2 INNER JOIN SF2010 SF2 "
+	cSql += "ON   SD2.D2_FILIAL = SF2.F2_FILIAL "
+	cSql += "AND  SD2.D2_DOC    = SF2.F2_DOC "
+	cSql += "AND  SD2.D2_SERIE  = SF2.F2_SERIE "
+	cSql += "AND  SD2.D2_CLIENTE= SF2.F2_CLIENT "
+	cSql += "AND  SD2.D2_LOJA   = SF2.F2_LOJA "
+	cSql += "		INNER JOIN SF4010 SF4 "
+	cSql += "ON  SD2.D2_FILIAL = SF4.F4_FILIAL "
+	cSql += "		INNER JOIN SB1010 SB1 "
+	cSql += "ON   SD2.D2_FILIAL = SB1.B1_FILIAL "
+	cSql += "AND  SD2.D2_COD    = SB1.B1_COD "
+	cSql += "AND SD2.D2_TES    = SF4.F4_CODIGO "
+	cSql += "WHERE SF2.F2_EMISSAO BETWEEN '20170101' AND '20180101' "
+	cSql += "AND   SF4.F4_ESTOQUE = 'S' "
+	cSql += "AND   SF4.F4_DUPLIC = 'S' "
+	cSql += "AND   SB1.B1_PROATIV = 'S' "
+	cSql += "AND   SF2.F2_CLIENT <> 'N00000' " 
+	cSql += "AND   SD2.D_E_L_E_T_ = ' ' "
+	cSql += "AND   SF2.D_E_L_E_T_ = ' ' "
+	cSql += "AND   SF4.D_E_L_E_T_ = ' ' "
+	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
+	cSql += "GROUP BY SD2.D2_FILIAL, SD2.D2_COD "
+	cSql += ")  "
+	cSql += "GROUP BY FILIAL, PRODUTO "
+	cSql += "ORDER BY PRODUTO, FILIAL "
+	cSql += ") MED, "
+	cSql += "SB1010 SB1 "
+	cSql += "WHERE SB1.B1_FILIAL = '05' "
+	cSql += "AND   SB1.B1_COD = MED.PRODUTO "
+	cSql += "GROUP BY SB1.B1_CODITE "
+
+	IncProc("Montando Soma Media do COV por CODITE Periodo: ["+SToC(cSDataI)+" ate "+SToC(cSDataF)+"] " )
+	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
+
+	
+	//*************************************************************************
+	// Zerando Todos as Medias do COV
+	//*************************************************************************
+	
+	cSql := "UPDATE ZA7010 SET ZA7_M12CPI = 0, ZA7_M12OPI  = 0, ZA7_M12VPI  = 0, ZA7_M12VRI  = 0 "
+	IncProc("Zerando Todas as Somas de Médias [ZA7_M12CPI,ZA7_M12OPI,ZA7_M12VPI,ZA7_M12VRI]") 
+	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
+
+
+	DbSelectArea("TAUX");DbGoTop()
+	While !EOF()
+		
+			// Atualiza os CODITE 
+			cSql := "UPDATE ZA7010 SET "
+			cSql += "ZA7_M12CPI  = " + cValToChar(TAUX->SMCONS) + ", " // Soma da Média do Consultado.
+			cSql += "ZA7_M12OPI  = " + cValToChar(TAUX->SMOFER) + ", " // Soma da Média do Ofertado.
+			cSql += "ZA7_M12VPI  = " + cValToChar(TAUX->SMFATU) + ", " // Soma da Média do Vendido.
+			cSql += "ZA7_M12VRI  = " + cValToChar(TAUX->SMVREV) + ", " // Soma da Média do Venda Revisada.
+			cSql += "WHERE ZA7_CODITE = '" + Alltrim(TAUX->SMFATU) + "' "
+			
+			If nIntPro == 100
+				IncProc("Atualizando as Somas Media do CodItem " + Alltrim(TAUX->SMFATU) + "..." )
+				nIntPro := 0
+			Else
+				nIntPro += 1
+			EndIf 
+		
+			U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
+		
+			nPAtu += 1
+			
+
+		DbSkip()
+	EndDo
+	DbSelectArea("TAUX");DbCloseArea()
+	
+	MsgInfo ("Foram Atualizados " + Alltrim( Transform(nPAtu,"@E 99,999,999")) + " CodItens em Cada Filial ... ","Campos [ZA7_M12CPI,ZA7_M12OPI,ZA7_M12VPI,ZA7_M12VRI]...")
 
 Return Nil
 *******************************************************************************
