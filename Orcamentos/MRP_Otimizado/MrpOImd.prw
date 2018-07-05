@@ -24,8 +24,16 @@ User Function MrpOImd()
 
 	
 	Private lMostra := .F.
+	Private lStatusP:= .F.
+	Private lMedias := .F.
+	
+	
 	
 	If Iw_MsgBox("Deseja Executar Manualmente a Otimização MRP Imdepa","Atenção","YESNO")
+	
+		lStatusP := Iw_MsgBox("Deseja Atualizar o Status dos Produtos ?","Atenção","YESNO")
+		lMedias  := Iw_MsgBox("Deseja Calcular as Médias dos Produtos?","Atenção","YESNO")
+		
 	
 		// Execucoes Diarias
 		ExecDiario()
@@ -45,19 +53,22 @@ Static Function  ExecDiario()// Execucoes Diarias
 	Local bAction 	:= {}
 	Local cTitulo   := ""
 
-	
-	// 1.1 ZA7_PPCOMP => Produtos com Pedidos Abertos 
-	bAction 	:= {|| za7ppcomp() }
-	cTitulo   	:= "Atualizando (ZA7_PPCOMP) - Produtos com Pedidos"
-	Processa( bAction, @cTitulo, @cMsg, @lAbort )
-	
-	
-	// 1.2 ZA7_PGRAMA => SIM - Produto com Programa (Contrato) 
-	bAction 	:= {|| ZA7PGRAMA() }
-	cTitulo   := "Atualizando (ZA7_PGRAMA) - Produtos com Programa"
-	Processa( bAction, @cTitulo, @cMsg, @lAbort )
 
+	If lStatusP
+	
+		// 1.1 ZA7_PPCOMP => Produtos com Pedidos Abertos 
+		bAction 	:= {|| za7ppcomp() }
+		cTitulo   	:= "Atualizando (ZA7_PPCOMP) - Produtos com Pedidos"
+		Processa( bAction, @cTitulo, @cMsg, @lAbort )
+	
+	
+		// 1.2 ZA7_PGRAMA => SIM - Produto com Programa (Contrato) 
+		bAction 	:= {|| ZA7PGRAMA() }
+		cTitulo   := "Atualizando (ZA7_PGRAMA) - Produtos com Programa"
+		Processa( bAction, @cTitulo, @cMsg, @lAbort )
 
+	EndIf
+	
 
 Return Nil
 *******************************************************************************
@@ -194,34 +205,38 @@ Static Function  ExecMensal()// Execucoes Mensais
 	// Executa Consultas como Pré-Requisito Mensal
 	//PreRecMes()
 
+	If lStatusP
+		// 1.3 B1_PRONOVO => Produto NOVO
+		bAction 	:= {|| B1PRONOVO() }
+		cTitulo   	:= "Atualizando B1_PRONOVO"
+		Processa( bAction, @cTitulo, @cMsg, @lAbort )
 
-	// 1.3 B1_PRONOVO => Produto NOVO
-	bAction 	:= {|| B1PRONOVO() }
-	cTitulo   	:= "Atualizando B1_PRONOVO"
-	Processa( bAction, @cTitulo, @cMsg, @lAbort )
 
-
-	//1.4 B1_PROATIV => SIM - Produtos Ativos 
-	bAction 	:= {|| B1PROATIV() }
-	cTitulo   	:= "Atualizando B1_PROATIV"
-	Processa( bAction, @cTitulo, @cMsg, @lAbort )
+		//1.4 B1_PROATIV => SIM - Produtos Ativos 
+		bAction 	:= {|| B1PROATIV() }
+		cTitulo   	:= "Atualizando B1_PROATIV"
+		Processa( bAction, @cTitulo, @cMsg, @lAbort )
 	
 	
-	//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados 
-	bAction 	:= {|| B1MSBLOQ() }
-	cTitulo   	:= "Atualizando B1_MSBLOQ"
-	Processa( bAction, @cTitulo, @cMsg, @lAbort )
+		//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados 
+		bAction 	:= {|| B1MSBLOQ() }
+		cTitulo   	:= "Atualizando B1_MSBLOQ"
+		Processa( bAction, @cTitulo, @cMsg, @lAbort )
 
-	//2.1  Calcular Média do COV
-	bAction 	:= {|| MediaCOV() }
-	cTitulo   	:= "Calculando Media COV"
-	Processa( bAction, @cTitulo, @cMsg, @lAbort )
+	Endif
 
-	//2.2  Calcular Média do COV
-	bAction 	:= {|| SomaMCOV() }
-	cTitulo   	:= "Calculando Soma Media COV"
-	Processa( bAction, @cTitulo, @cMsg, @lAbort )
+	If lMedias 
+		//2.1  Calcular Média do COV
+		bAction 	:= {|| MediaCOV() }
+		cTitulo   	:= "Calculando Media COV"
+		Processa( bAction, @cTitulo, @cMsg, @lAbort )
 
+		//2.2  Calcular Média do COV
+		bAction 	:= {|| SomaMCOV() }
+		cTitulo   	:= "Calculando Soma Media COV"
+		Processa( bAction, @cTitulo, @cMsg, @lAbort )
+	EndIf
+	
 Return Nil
 ******************************************************************************
 Static Function PreRecMes()
