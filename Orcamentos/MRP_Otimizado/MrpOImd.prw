@@ -26,14 +26,17 @@ User Function MrpOImd()
 	Private lMostra := .F.
 	Private lStatusP:= .F.
 	Private lMedias := .F.
+	Private lCoefVar:= .F.
 	
+	Private lAbort 	
+	Private bAbort	:= { || IIf ( lAbort == .T., Alert("Não vá neste momento"), "" ) }
 	
 	
 	If Iw_MsgBox("Deseja Executar Manualmente a Otimização MRP Imdepa","Atenção","YESNO")
 	
 		lStatusP := Iw_MsgBox("Deseja Atualizar o Status dos Produtos ?","Atenção","YESNO")
 		lMedias  := Iw_MsgBox("Deseja Calcular as Médias dos Produtos?","Atenção","YESNO")
-		
+		lCoefVar := Iw_MsgBox("Deseja Calcular o Coeficiente de Variabilidade ?","Atenção","YESNO")
 	
 		// Execucoes Diarias
 		ExecDiario()
@@ -47,7 +50,7 @@ Return()
 *******************************************************************************
 Static Function  ExecDiario()// Execucoes Diarias
 *******************************************************************************
-	Local lAbort 	:= .F.
+	
 	Local cMsg   	:= "Aguarde o Inicio" 
 
 	Local bAction 	:= {}
@@ -107,7 +110,7 @@ Static function za7ppcomp()	// 1.1 ZA7_PPCOMP => Produtos com Pedidos Abertos
 	
 	// Atualiza Todos os Produtos para NAO
 	cSql := "UPDATE ZA7010 SET ZA7_PPCOMP = 'N' WHERE ZA7_PPCOMP <> 'N' "
-	IncProc("Definido Todos os Produtos como N-Nao...") 
+	IncProc("Definido Todos os Produtos como N-Nao") 
 	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
 	
 	// Inicia a Atualizacao 
@@ -118,7 +121,7 @@ Static function za7ppcomp()	// 1.1 ZA7_PPCOMP => Produtos com Pedidos Abertos
 		cSql := "Update ZA7010 Set ZA7_PPCOMP = 'S' WHERE ZA7_CODPRO = '" + Alltrim(TAUX->PRODUTO) + "' " 
 		
 		If nIntPro == 100
-			IncProc("Atualizando o Produto " +  Alltrim(TAUX->PRODUTO) + " para SIM ..." )
+			IncProc("Atualizando o Produto " +  Alltrim(TAUX->PRODUTO) + " para SIM " )
 			nIntPro := 0
 		Else
 			nIntPro += 1
@@ -132,7 +135,7 @@ Static function za7ppcomp()	// 1.1 ZA7_PPCOMP => Produtos com Pedidos Abertos
 	EndDo
 	DbSelectArea("TAUX");DbCloseArea()
 	
-	MsgInfo ("Foram Atualizados " + Alltrim( Transform(nPAtu,"@E 99,999,999")) + " Produtos em cada Filial... ","Campo ZA7_PPCOMP...")
+	MsgInfo ("Foram Atualizados " + Alltrim( Transform(nPAtu,"@E 99,999,999")) + " Produtos em cada Filial ","Campo ZA7_PPCOMP")
 	
 	
 	
@@ -166,7 +169,7 @@ Static function ZA7PGRAMA()	// 1.2 ZA7_PGRAMA => SIM - Produto com Programa (Con
 	
 	// Atualiza Todos os Produtos para NAO
 	cSql := "UPDATE ZA7010 SET ZA7_PGRAMA = 'N' WHERE ZA7_PGRAMA <> 'N' "
-	IncProc("Definido Todos os Produtos como N-Nao...") 
+	IncProc("Definido Todos os Produtos como N-Nao") 
 	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
 	
 	// Inicia a Atualizacao 
@@ -177,7 +180,7 @@ Static function ZA7PGRAMA()	// 1.2 ZA7_PGRAMA => SIM - Produto com Programa (Con
 		cSql := "Update ZA7010 Set ZA7_PGRAMA = 'S' WHERE ZA7_CODPRO = '" + Alltrim(TAUX->PRODUTO) + "' " 
 		
 		If nIntPro == 100
-			IncProc("Atualizando o Produto " +  Alltrim(TAUX->PRODUTO) + " para SIM..." )
+			IncProc("Atualizando o Produto " +  Alltrim(TAUX->PRODUTO) + " para SIM" )
 			nIntPro := 0
 		Else
 			nIntPro += 1
@@ -192,7 +195,7 @@ Static function ZA7PGRAMA()	// 1.2 ZA7_PGRAMA => SIM - Produto com Programa (Con
 	EndDo
 	DbSelectArea("TAUX");DbCloseArea()
 	
-	MsgInfo ("Foram Atualizados " + Alltrim( Transform(nPAtu,"@E 99,999,999")) + " Produtos em cada Filial... ","Campo ZA7_CODPRO...")
+	MsgInfo ("Foram Atualizados " + Alltrim( Transform(nPAtu,"@E 99,999,999")) + " Produtos em cada Filial ","Campo ZA7_CODPRO")
 	
 
 Return Nil
@@ -226,16 +229,27 @@ Static Function  ExecMensal()// Execucoes Mensais
 	Endif
 
 	If lMedias 
-		//2.1  Calcular Média do COV
+		//2.1.1  Calcular Média do COV
 		bAction 	:= {|| MediaCOV() }
 		cTitulo   	:= "Calculando Media COV"
 		Processa( bAction, @cTitulo, @cMsg, @lAbort )
 
-		//2.2  Calcular Média do COV
+		//2.1.2  Calcular Média do COV
 		bAction 	:= {|| SomaMCOV() }
 		cTitulo   	:= "Calculando Soma Media COV"
 		Processa( bAction, @cTitulo, @cMsg, @lAbort )
 	EndIf
+	
+	If lCoefVar 
+
+		//2.2  Calculo do Coeficiente de Variabilidade 
+		bAction 	:= {|| CoefVar() }
+		cTitulo   	:= "Calculando o Coeficiente de Variabilidade"
+		Processa( bAction, @cTitulo, @cMsg, @lAbort )
+	
+	Endif 
+	
+	
 	
 Return Nil
 ******************************************************************************
@@ -269,7 +283,7 @@ Static Function B1PRONOVO() // 1.3 B1_PRONOVO => Produto NOVO
 	
 	// Atualiza Todos os Produtos para NAO
 	cSql := "UPDATE SB1010 SET B1_PRONOVO = 'N' WHERE B1_PRONOVO <> 'N' "
-	IncProc("Definido Todos os Produtos como Novo N-Nao...") 
+	IncProc("Definido Todos os Produtos como Novo N-Nao") 
 	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
 	
 	// Inicia a Atualizacao 
@@ -280,7 +294,7 @@ Static Function B1PRONOVO() // 1.3 B1_PRONOVO => Produto NOVO
 		cSql := "UPDATE SB1010 SET B1_PRONOVO = 'S' WHERE B1_COD = '" + Alltrim(TAUX->PRODUTO) + "' " 
 		
 		If nIntPro == 100
-			IncProc("Atualizando o Produto " +  Alltrim(TAUX->PRODUTO) + " para SIM..." )
+			IncProc("Atualizando o Produto " +  Alltrim(TAUX->PRODUTO) + " para SIM" )
 			nIntPro := 0
 		Else
 			nIntPro += 1
@@ -295,7 +309,7 @@ Static Function B1PRONOVO() // 1.3 B1_PRONOVO => Produto NOVO
 	EndDo
 	DbSelectArea("TAUX");DbCloseArea()
 	
-	MsgInfo ("Foram Atualizados " + Alltrim( Transform(nPAtu,"@E 99,999,999")) + " Produtos em cada Filial... ","Campo B1_PRONOVO...")
+	MsgInfo ("Foram Atualizados " + Alltrim( Transform(nPAtu,"@E 99,999,999")) + " Produtos em cada Filial ","Campo B1_PRONOVO")
 
 Return Nil
 ******************************************************************************
@@ -409,7 +423,7 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	//*************************************************************************
 	
 	cSql := "UPDATE SB1010 SET B1_PROATIV = 'N' WHERE B1_PROATIV <> 'N' "
-	IncProc("Definido Todos os Produtos como Ativo N-Nao...") 
+	IncProc("Definido Todos os Produtos como Ativo N-Nao") 
 	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
 	
 	// Inicia a Atualizacao 
@@ -434,7 +448,7 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 			cSql := "UPDATE SB1010 SET B1_PROATIV = 'S' WHERE B1_COD = '" + Alltrim(TAUX->PRODUTO) + "' "
 		
 			If nIntPro == 100
-				IncProc("Atualizando o Produto " +  Alltrim(TAUX->PRODUTO) + " para SIM..." )
+				IncProc("Atualizando o Produto " +  Alltrim(TAUX->PRODUTO) + " para SIM" )
 				nIntPro := 0
 			Else
 				nIntPro += 1
@@ -452,7 +466,7 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	EndDo
 	DbSelectArea("TAUX");DbCloseArea()
 	
-	MsgInfo ("Foram Atualizados " + Alltrim( Transform(nPAtu,"@E 99,999,999")) + " Produtos em cada Filial... ","Campo B1_PROATIV...")
+	MsgInfo ("Foram Atualizados " + Alltrim( Transform(nPAtu,"@E 99,999,999")) + " Produtos em cada Filial ","Campo B1_PROATIV")
 
 Return Nil
 ******************************************************************************
@@ -510,7 +524,7 @@ Static Function B1MSBLOQ()//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados
 			cSql := "UPDATE SB1010 SET B1_MSBLQL = '1' WHERE B1_COD = '" + Alltrim(TAUX->PRODUTO) + "' "
 	
 			If nIntPro == 100
-				IncProc("Atualizando o Produto " +  Alltrim(TAUX->PRODUTO) + " para BLOQUEADO..." )
+				IncProc("Atualizando o Produto " +  Alltrim(TAUX->PRODUTO) + " para BLOQUEADO" )
 				nIntPro := 0
 			Else
 				nIntPro += 1
@@ -522,11 +536,13 @@ Static Function B1MSBLOQ()//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados
 			
 		EndIf
 		
+		
+		
 		DbSkip()
 	EndDo
 	DbSelectArea("TAUX");DbCloseArea()
 	
-	MsgInfo ("Foram Bloqueados " + Alltrim( Transform(nPAtu,"@E 99,999,999")) + " Produtos em cada Filial... ","Campo B1_MSBLQL...")
+	MsgInfo ("Foram Bloqueados " + Alltrim( Transform(nPAtu,"@E 99,999,999")) + " Produtos em cada Filial ","Campo B1_MSBLQL")
 
 Return Nil 
 ******************************************************************************
@@ -609,7 +625,7 @@ Static Function MediaCOV()//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados
 			cSql += "WHERE ZA7_FILIAL = "+Alltrim(TAUX->FILIAL)+" AND ZA7_CODPRO = '" + Alltrim(TAUX->PRODUTO) + "' "
 	
 			If nIntPro == 100
-				IncProc("Atualizando as Medias da [Filial-Produto] " + Alltrim(TAUX->FILIAL) +"-"+Alltrim(TAUX->PRODUTO) + "..." )
+				IncProc("Atualizando as Medias da [Filial-Produto] " + Alltrim(TAUX->FILIAL) +"-"+Alltrim(TAUX->PRODUTO) + "" )
 				nIntPro := 0
 			Else
 				nIntPro += 1
@@ -619,12 +635,13 @@ Static Function MediaCOV()//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados
 		
 			nPAtu += 1
 			
-
+			eVal(bAbort)
+			
 		DbSkip()
 	EndDo
 	DbSelectArea("TAUX");DbCloseArea()
 	
-	MsgInfo ("Foram Atualizados " + Alltrim( Transform(nPAtu,"@E 99,999,999")) + " Produtos... ","Campos [ZA7_M12CP,ZA7_M12OP,ZA7_M12VP,ZA7_M12VRP]...")
+	MsgInfo ("Foram Atualizados " + Alltrim( Transform(nPAtu,"@E 99,999,999")) + " Produtos ","Campos [ZA7_M12CP,ZA7_M12OP,ZA7_M12VP,ZA7_M12VRP]")
 
 Return Nil
 ******************************************************************************
@@ -657,7 +674,7 @@ Static Function SomaMCOV()//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados
 	cSql += "FROM ZA0010 ZA0 INNER JOIN SB1010 SB1 "
 	cSql += "ON ZA0.ZA0_FILIAL = SB1.B1_FILIAL "
 	cSql += "AND ZA0.ZA0_PRODUT = SB1.B1_COD  "
-	cSql += "WHERE ZA0.ZA0_DTNECL BETWEEN '20170101' AND '20180101' "
+	cSql += "WHERE ZA0.ZA0_DTNECL BETWEEN '" + cSDataI + "' AND '" + cSDataF + "' "
 	cSql += "AND   SB1.B1_PROATIV = 'S' "
 	cSql += "AND   ZA0.D_E_L_E_T_ = ' ' "
 	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
@@ -680,7 +697,7 @@ Static Function SomaMCOV()//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados
 	cSql += "ON   SD2.D2_FILIAL = SB1.B1_FILIAL "
 	cSql += "AND  SD2.D2_COD    = SB1.B1_COD "
 	cSql += "AND SD2.D2_TES    = SF4.F4_CODIGO "
-	cSql += "WHERE SF2.F2_EMISSAO BETWEEN '20170101' AND '20180101' "
+	cSql += "WHERE SF2.F2_EMISSAO BETWEEN '" + cSDataI + "' AND '" + cSDataF + "' "
 	cSql += "AND   SF4.F4_ESTOQUE = 'S' "
 	cSql += "AND   SF4.F4_DUPLIC = 'S' "
 	cSql += "AND   SB1.B1_PROATIV = 'S' "
@@ -724,7 +741,7 @@ Static Function SomaMCOV()//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados
 			cSql += "WHERE ZA7_CODITE = '" + Alltrim(TAUX->SMFATU) + "' "
 			
 			If nIntPro == 100
-				IncProc("Atualizando as Somas Media do CodItem " + Alltrim(TAUX->SMFATU) + "..." )
+				IncProc("Atualizando as Somas Media do CodItem " + Alltrim(TAUX->SMFATU) + "" )
 				nIntPro := 0
 			Else
 				nIntPro += 1
@@ -734,14 +751,181 @@ Static Function SomaMCOV()//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados
 		
 			nPAtu += 1
 			
+			eVal(bAbort)
 
 		DbSkip()
 	EndDo
 	DbSelectArea("TAUX");DbCloseArea()
 	
-	MsgInfo ("Foram Atualizados " + Alltrim( Transform(nPAtu,"@E 99,999,999")) + " CodItens em Cada Filial ... ","Campos [ZA7_M12CPI,ZA7_M12OPI,ZA7_M12VPI,ZA7_M12VRI]...")
+	MsgInfo ("Foram Atualizados " + Alltrim( Transform(nPAtu,"@E 99,999,999")) + " CodItens em Cada Filial  ","Campos [ZA7_M12CPI,ZA7_M12OPI,ZA7_M12VPI,ZA7_M12VRI]")
 
 Return Nil
+*******************************************************************************
+Static Function CoefVar()
+*******************************************************************************
+
+	Local cSql := ""
+	Local cSDataI 	:= dToS(DataRef(nMeses := 36))
+	Local cSDataF 	:= dToS(DataRef(nMeses := 0 ))  
+	
+	Local cCoefMin 	:= Alltrim(cValToChar(0.25))
+	Local cCoefMax 	:= Alltrim(cValToChar(1.50))
+	
+	Local nPAtu 	:= 0 // Total de Produtos Atualizados 
+	Local nIntPro 	:= 0 // Intervalo IncProc
+	
+	
+	ProcRegua(0)
+	IncProc()
+
+	// Dropar Tabela Tamporaria COEFVAR
+	IncProc("Apagando Tabela Temporária" )
+	U_ExecMySql( cSql := "Drop Table COEFVAR" , cCursor := "", cModo := "E", lMostra, lChange := .F. )
+	
+	
+	//***************************************************************	
+	// Criando Tabela Atualizada Base para o Calculo do Coeficiente ja com SOMA VR 
+	IncProc("Criando Tabela Base Coeficiente Variavel [COEFVAR]" )
+	
+	cSql := "CREATE TABLE COEFVAR AS "
+	cSql += "SELECT SB1.B1_CODITE 				ITEM, " 
+	cSql += "		SUBSTR(ZA0.ZA0_DTNECL,1,6) 	MESANO, "
+	cSql += "ROUND( SUM(ZA0.ZA0_VENDRE) )		SOMAVR, "
+	cSql += "ROUND( SUM(0) )					MEDIAVR, "
+	cSql += "ROUND( SUM(0) ) 					VLABS, "
+	cSql += "ROUND( SUM(0) ) 					MEDIAABS, "
+	cSql += "ROUND( SUM(0) ) 					DESVPAD, "
+	cSql += "ROUND( SUM(0) ) 					COEFICIENTE "
+	cSql += "FROM ZA0010 ZA0 INNER JOIN SB1010 SB1 "
+	cSql += "ON   ZA0.ZA0_PRODUT = SB1.B1_COD "
+	cSql += "WHERE ZA0.ZA0_DTNECL BETWEEN '" + cSDataI + "' AND '" + cSDataF + "' "
+	cSql += "AND   ZA0.D_E_L_E_T_ = ' ' "
+	cSql += "AND   SB1.B1_FILIAL = '05' "
+	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
+	cSql += "GROUP BY SB1.B1_CODITE, SUBSTR(ZA0.ZA0_DTNECL,1,6) "
+
+	U_ExecMySql( cSql, cCursor := "", cModo := "E", lMostra, lChange := .F. )
+	
+	//***************************************************************
+	// Indexando Tabela  [COEFVAR] pelo Item para melhor performance  
+	IncProc("Indexando Tabela [COEFVAR] por Item " )
+	cSql := "CREATE INDEX SIGA.IDX_COEFVAR ON SIGA.COEFVAR(ITEM) TABLESPACE SIGA_INDEX"
+	U_ExecMySql( cSql, cCursor := "", cModo := "E", lMostra , lChange := .F. )
+	
+	
+	//***************************************************************
+	// Calculando Média VR por Item   
+	IncProc("Calculando Média VR por Item " )
+	
+	DropTAux() // Dropa a Tabela Temporaria Auxiliar do MRP
+	 
+	cSql := "CREATE TABLE TAUX_MRP AS "  
+	cSql += "SELECT 	SB1.B1_CODITE 				ITEM, " 
+	cSql += "ROUND( SUM(ZA0.ZA0_VENDRE) / COUNT(ZA0.ZA0_VENDRE) ,4 ) MEDIAVR "
+	cSql += "FROM ZA0010 ZA0 INNER JOIN SB1010 SB1 "
+	cSql += "ON   ZA0.ZA0_PRODUT = SB1.B1_COD "
+	cSql += "WHERE ZA0.ZA0_DTNECL BETWEEN  '" + cSDataI + "' AND '" + cSDataF + "' "
+	cSql += "AND   ZA0.D_E_L_E_T_ = ' ' "
+	cSql += "AND   SB1.B1_FILIAL = '05' "
+	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
+	cSql += "GROUP BY SB1.B1_CODITE "
+	
+	U_ExecMySql( cSql, cCursor := "", cModo := "E", lMostra, lChange := .F. )
+	
+	//***************************************************************
+	// Atualizando Média VR por Item   
+	IncProc("Atualizando Média VR na Tabela [COEFVAR]" )
+	
+	cSql := "UPDATE COEFVAR CV SET CV.MEDIAVR = ( SELECT AUX.MEDIAVR FROM TAUX_MRP AUX WHERE AUX.ITEM = CV.ITEM )"
+	cSql += "WHERE CV.ITEM IN ( SELECT AUX.ITEM FROM TAUX_MRP AUX WHERE AUX.ITEM = CV.ITEM )"
+	
+	U_ExecMySql( cSql, cCursor := "", cModo := "E", lMostra, lChange := .F. )
+	
+	//***************************************************************
+	// Calculando Valor Absoluto   
+	IncProc("Calculando Valor Absoluto e Aplicando na Tabela [COEFVAR]" )
+	cSql := "UPDATE COEFVAR CV SET CV.VLABS =  ROUND ( ABS(SOMAVR - MEDIAVR) , 2 )"
+	
+	U_ExecMySql( cSql, cCursor := "", cModo := "E", lMostra, lChange := .F. )
+	
+	//***************************************************************
+	// Calculando Média do Valor  Absoluto   
+	IncProc("Calculando Média do Valor  Absoluto" )
+	
+	DropTAux() // Dropa a Tabela Temporaria Auxiliar do MRP
+	
+	cSql := "CREATE TABLE TAUX_MRP AS "  
+	cSql += "SELECT CV.ITEM,  ROUND( SUM(CV.VLABS),4) SOMA, ROUND( COUNT(CV.VLABS),4) QTD, ROUND( SUM(CV.VLABS) / COUNT(CV.VLABS) ,4 ) MEDIAABS " 
+	cSql += "FROM COEFVAR CV GROUP BY CV.ITEM "
+	
+	U_ExecMySql( cSql, cCursor := "", cModo := "E", lMostra, lChange := .F. )
+	
+
+	//***************************************************************
+	// Atualizando Média do Valor Absoluto
+	IncProc("Atualizando Média do Valor Absoluto na Tabela [COEFVAR]" )
+	
+	cSql := "UPDATE COEFVAR CV SET CV.MEDIAABS = ( SELECT AUX.MEDIAABS FROM TAUX_MRP AUX WHERE AUX.ITEM = CV.ITEM )"
+	cSql += "WHERE CV.ITEM IN ( SELECT AUX.ITEM FROM TAUX_MRP AUX WHERE AUX.ITEM = CV.ITEM )"
+	
+	U_ExecMySql( cSql, cCursor := "", cModo := "E", lMostra, lChange := .F. )
+	
+
+	//***************************************************************
+	// Calculando Desvio Padrao 
+	IncProc("Calculando Desvio Padrao e Aplicando na Tabela [COEFVAR]" )
+	cSql := "UPDATE COEFVAR SET COEFVAR.DESVPAD = ROUND( ( COEFVAR.MEDIAABS / 36 ) ,4 )"
+	
+	U_ExecMySql( cSql, cCursor := "", cModo := "E", lMostra, lChange := .F. )
+	
+
+	//***************************************************************
+	// Calculando Coeficiente e Atualizando na Tabela 
+	IncProc( "Calculando Coeficiente e Atualizando na Tabela [COEFVAR]" )
+	cSql := "UPDATE COEFVAR SET COEFICIENTE = CASE " 
+	cSql += "WHEN ROUND( DESVPAD / DECODE(MEDIAVR,0,1,MEDIAVR) ,4) < "+cCoefMin+" THEN "+cCoefMin+" " 
+	cSql += "WHEN ROUND( DESVPAD / DECODE(MEDIAVR,0,1,MEDIAVR) ,4) > "+cCoefMax+" THEN "+cCoefMax+" "
+	cSql += "ELSE ROUND( DESVPAD / DECODE(MEDIAVR,0,1,MEDIAVR) ,4) "
+	cSql += "END "
+
+	U_ExecMySql( cSql, cCursor := "", cModo := "E", lMostra, lChange := .F. )
+	
+	//***************************************************************
+	// Preparando para Atualizar ZA7_CVVRIT
+	IncProc( "incianco atualizacao do Campo ZA7_CVVRIT " )
+	
+	cSql := "SELECT ITEM, MAX(COEFICIENTE) COEFICIENTE FROM COEFVAR GROUP BY ITEM"
+	U_ExecMySql( cSql, cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
+	
+
+	DbSelectArea("TAUX");DbGoTop()
+	While !EOF()
+		
+			// Atualizando ZA7_CVVRIT
+			cSql := "UPDATE ZA7010 SET "
+			cSql += "ZA7_CVVRIT  = " + cValToChar(TAUX->COEFICIENTE) + " " // Soma da Média do Consultado.
+			cSql += "WHERE ZA7_CODITE = '" + Alltrim(TAUX->ITEM) + "' "
+			
+			If nIntPro == 100
+				IncProc("Atualizando Coeficiente [ZA7_CVVRIT] do ITEM " + Alltrim(TAUX->ITEM) + "" )
+				nIntPro := 0
+			Else
+				nIntPro += 1
+			EndIf 
+		
+			U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
+		
+			nPAtu += 1
+			
+			eVal(bAbort)
+			
+		DbSkip()
+	EndDo
+	DbSelectArea("TAUX");DbCloseArea()
+	
+	MsgInfo ("Foram Atualizados " + Alltrim( Transform(nPAtu,"@E 99,999,999")) + " CODITE em Cada Filial  ","Campo [ZA7_CVVRIT]")	
+	
+Return Nil 
 *******************************************************************************
 Static Function DataRef(nMeses)//| Retorna a data dia 1 de nMeses atraz
 *******************************************************************************
@@ -766,3 +950,12 @@ Static Function SToC(sData) //| Converte Data Sistema para Data Caracter
 	Local cData := DToC(StoD(sData))
 
 Return cData
+
+*******************************************************************************
+Static Function DropTAux() // Dropa a Tabela Temporaria Auxiliar do MRP
+*******************************************************************************
+
+ 	cSql := "Drop Table TAUX_MRP"
+ 	U_ExecMySql( cSql, cCursor := "", cModo := "E", lMostra := .F., lChange := .F. )
+
+Return Nil
