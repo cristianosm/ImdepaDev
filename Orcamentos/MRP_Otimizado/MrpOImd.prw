@@ -1,6 +1,9 @@
 #include 'protheus.ch'
 #include 'parmtype.ch'
 
+#Define ENTER Chr(13)+Chr(10)
+
+
 /*****************************************************************************\
 **---------------------------------------------------------------------------**
 ** FUNÇÃO   : IMDC040     | AUTOR : Cristiano Machado  | DATA : 29/06/2018   **
@@ -27,6 +30,7 @@ User Function MrpOImd()
 	Private lStatusP:= .F.
 	Private lMedias := .F.
 	Private lCoefVar:= .F.
+	Private lRankVen:= .F.
 	
 	Private lAbort 	
 	Private bAbort	:= { || IIf ( lAbort == .T., Alert("Não vá neste momento"), "" ) }
@@ -37,6 +41,7 @@ User Function MrpOImd()
 		lStatusP := Iw_MsgBox("Deseja Atualizar o Status dos Produtos ?","Atenção","YESNO")
 		lMedias  := Iw_MsgBox("Deseja Calcular as Médias dos Produtos?","Atenção","YESNO")
 		lCoefVar := Iw_MsgBox("Deseja Calcular o Coeficiente de Variabilidade ?","Atenção","YESNO")
+		lRankVen := Iw_MsgBox("Deseja Calcular o Ranking de Vendas ?","Atenção","YESNO")
 	
 		// Execucoes Diarias
 		ExecDiario()
@@ -145,7 +150,7 @@ Static function ZA7PGRAMA()	// 1.2 ZA7_PGRAMA => SIM - Produto com Programa (Con
 *******************************************************************************
 
 	Local cSql 		:= ""
-	Local cSData 	:= dToS(DataRef(nMeses := 0)) // Retorna 6 meses
+	Local cSData 	:= dToS(DataRef(nMeses := 1,.T.)) // Retorna 6 meses
 	Local nPAtu 	:= 0 // Total de Produtos Atualizados 
 	Local nIntPro 	:= 0 // Intervalo IncProc
 
@@ -249,6 +254,14 @@ Static Function  ExecMensal()// Execucoes Mensais
 	
 	Endif 
 	
+	If lRankVen 
+
+		//2.3  Calculo do Ranking de Vendas  
+		bAction 	:= {|| RankVen() }
+		cTitulo   	:= "Calculando o Ranking de Vendas "
+		Processa( bAction, @cTitulo, @cMsg, @lAbort )
+	
+	Endif 
 	
 	
 Return Nil
@@ -550,7 +563,7 @@ Static Function MediaCOV()//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados
 ******************************************************************************
 	Local cSql 		:= ""
 	Local cSDataI 	:= dToS(DataRef(nMeses := 12))
-	Local cSDataF 	:= dToS(DataRef(nMeses := 0 ))  
+	Local cSDataF 	:= dToS(DataRef(nMeses := 1 ,.T.))  
 	Local nPAtu 	:= 0 // Total de Produtos Atualizados 
 	Local nIntPro 	:= 0 // Intervalo IncProc
 	Local oHTCov	:= HMNew()	// Tabela Hash COV
@@ -649,7 +662,7 @@ Static Function SomaMCOV()//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados
 ******************************************************************************
 	Local cSql 		:= ""
 	Local cSDataI 	:= dToS(DataRef(nMeses := 12))
-	Local cSDataF 	:= dToS(DataRef(nMeses := 0 ))  
+	Local cSDataF 	:= dToS(DataRef(nMeses := 1,.T. ))  
 	Local nPAtu 	:= 0 // Total de Produtos Atualizados 
 	Local nIntPro 	:= 0 // Intervalo IncProc
 	Local oHTCov	:= HMNew()	// Tabela Hash COV
@@ -761,12 +774,12 @@ Static Function SomaMCOV()//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados
 
 Return Nil
 *******************************************************************************
-Static Function CoefVar()
+Static Function CoefVar()//2.2  Calculo do Coeficiente de Variabilidade
 *******************************************************************************
 
 	Local cSql := ""
 	Local cSDataI 	:= dToS(DataRef(nMeses := 36))
-	Local cSDataF 	:= dToS(DataRef(nMeses := 0 ))  
+	Local cSDataF 	:= dToS(DataRef(nMeses := 1,.T. ))  
 	
 	Local cCoefMin 	:= Alltrim(cValToChar(0.25))
 	Local cCoefMax 	:= Alltrim(cValToChar(1.50))
@@ -927,20 +940,243 @@ Static Function CoefVar()
 	
 Return Nil 
 *******************************************************************************
-Static Function DataRef(nMeses)//| Retorna a data dia 1 de nMeses atraz
+Static Function RankVen()//2.3  Calculo do Ranking de Vendas  
+*******************************************************************************
+	Local cSql := ""
+	Local cSDataI 	:= dToS(DataRef(nMeses := 12))
+	Local cSDataF 	:= dToS(DataRef(nMeses := 1,.T. ))  
+	
+	Local nPAtuPV 	:= 0 // Total de Produtos Pecas vendas 
+	Local nPAtuVV 	:= 0 // Total de Produtos Valor Vendas 
+	Local nPAtuPR 	:= 0 // Total de Produtos Pecas Revisadas
+	Local nPAtuVR 	:= 0 // Total de Produtos Valor revisadas 
+	
+	Local nIntPro 	:= 0 // Intervalo IncProc
+	
+	ProcRegua(0)
+	IncProc()
+	
+	//***************************************************************
+	// Dropar Tabela Tamporaria RANKVEN
+	IncProc("Apagando Tabela Temporária [RANKVEN]" )
+	U_ExecMySql( cSql := "Drop Table RANKVEN" , cCursor := "", cModo := "E", lMostra, lChange := .F. )
+	
+	
+	//***************************************************************	
+	// Criando Tabela Atualizada Base para o Calculo do Coeficiente ja com SOMA VR 
+	IncProc("Criando Tabela Base Ranking de Vendas [RANKVEN]" )
+	
+	cSql := "CREATE TABLE RANKVEN AS "
+	cSql += "SELECT  'VE'				TIPO, " 
+	cSql += "SB1.B1_CODITE 				CODITE, "
+	cSql += "SUBSTR(SD2.D2_EMISSAO,1,6) MESANO, "
+	cSql += "ROUND( SUM(D2_QUANT),4) 	SOMAPC, "
+	cSql += "ROUND( SUM(D2_TOTAL),4) 	SOMAVL "
+
+	cSql += "FROM SD2010 SD2 INNER JOIN SF2010 SF2 "
+	cSql += "ON   SD2.D2_FILIAL = SF2.F2_FILIAL "
+	cSql += "AND  SD2.D2_DOC    = SF2.F2_DOC "
+	cSql += "AND  SD2.D2_SERIE  = SF2.F2_SERIE "
+	cSql += "AND  SD2.D2_CLIENTE= SF2.F2_CLIENT "
+	cSql += "AND  SD2.D2_LOJA   = SF2.F2_LOJA "
+	cSql += "		INNER JOIN SF4010 SF4 "
+	cSql += "ON  SD2.D2_FILIAL = SF4.F4_FILIAL "
+	cSql += "AND SD2.D2_TES    = SF4.F4_CODIGO "
+	cSql += "		INNER JOIN SB1010 SB1 "
+	cSql += "ON   SD2.D2_COD   = SB1.B1_COD "
+	cSql += "WHERE SF2.F2_EMISSAO BETWEEN  '" + cSDataI + "' AND '" + cSDataF + "' "
+	cSql += "AND   SF4.F4_ESTOQUE = 'S' "
+	cSql += "AND   SF4.F4_DUPLIC  = 'S' "
+	cSql += "AND   SD2.D_E_L_E_T_ = ' ' "
+	cSql += "AND   SF2.D_E_L_E_T_ = ' ' "
+	cSql += "AND   SF4.D_E_L_E_T_ = ' ' "
+	cSql += "AND   SB1.B1_FILIAL  = '05' "
+	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
+	cSql += "GROUP BY SB1.B1_CODITE, SUBSTR(SD2.D2_EMISSAO,1,6) " 
+	
+	cSql += "UNION ALL " 
+	 
+	cSql += "SELECT  'VR'							TIPO, "
+	cSql += "		SB1.B1_CODITE 					CODITE,  "
+	cSql += "SUBSTR(ZA0.ZA0_DTNECL,1,6)		MESANO, "
+	cSql += "Round( SUM(ZA0.ZA0_VENDRE),4)	SOMAPC, "
+	cSql += "Round( SUM(ZA0.ZA0_VENDRE * ZA0.ZA0_PRECO),4) 	SOMAVL "
+			 
+	cSql += "FROM ZA0010 ZA0 INNER JOIN SB1010 SB1 "
+	cSql += "ON   ZA0.ZA0_PRODUT = SB1.B1_COD " 
+		
+	cSql += "WHERE ZA0.ZA0_DTNECL BETWEEN '" + cSDataI + "' AND '" + cSDataF + "' "
+	cSql += "AND   ZA0.D_E_L_E_T_ = ' ' "
+	cSql += "AND   SB1.B1_FILIAL = '05' "
+	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
+	cSql += "GROUP BY SB1.B1_CODITE, SUBSTR(ZA0.ZA0_DTNECL,1,6) "	
+	
+	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra := .F., lChange := .F. )
+	
+	
+	//***************************************************************	
+	// Verificando Rankink de Vendas de Peças  
+	IncProc("Verificando Ranking Venda Peças na Tabela [RANKVEN]" )
+	cSql := "SELECT CODITE ITEM, MAX(SOMAPC) SOMAPC FROM RANKVEN WHERE TIPO = 'VE' GROUP BY CODITE" 
+	U_ExecMySql( cSql, cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
+	
+	DbSelectArea("TAUX");DbGoTop();nIntPro:=0
+	While !EOF()
+		
+			//***************************************************************
+			// Atualizando ZA7_RKVDIP - Venda em Peças.
+			cSql := "UPDATE ZA7010 SET "
+			cSql += "ZA7_RKVDIP  = " + cValToChar(TAUX->SOMAPC) + " " 
+			cSql += "WHERE ZA7_CODITE = '" + Alltrim(TAUX->ITEM) + "' "
+			
+			If nIntPro == 100
+				IncProc("Atualizando Ranking Venda em Peças [ZA7_RKVDIP] do ITEM " + Alltrim(TAUX->ITEM) + "" )
+				nIntPro := 0
+			Else
+				nIntPro += 1
+			EndIf 
+		
+			U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
+		
+			nPAtuPV += 1
+			
+			eVal(bAbort)
+			
+		DbSkip()
+	EndDo
+	DbSelectArea("TAUX");DbCloseArea()
+	
+	
+	//***************************************************************	
+	// Verificando Rankink Venda de Valor  
+	IncProc("Verificando Ranking Venda Valor na Tabela [RANKVEN]" )
+	cSql := "SELECT CODITE ITEM, MAX(SOMAVL) SOMAPC FROM RANKVEN WHERE TIPO = 'VE' GROUP BY CODITE"
+	U_ExecMySql( cSql, cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
+	
+	DbSelectArea("TAUX");DbGoTop();nIntPro:=0
+	While !EOF()
+		
+			//***************************************************************
+			// Atualizando ZA7_RKVDIV - Venda em Valor.
+			cSql := "UPDATE ZA7010 SET "
+			cSql += "ZA7_RKVDIV  = " + cValToChar(TAUX->SOMAPC) + " " 
+			cSql += "WHERE ZA7_CODITE = '" + Alltrim(TAUX->ITEM) + "' "
+			
+			If nIntPro == 100
+				IncProc("Atualizando Ranking de Venda em Valor [ZA7_RKVDIV] do ITEM " + Alltrim(TAUX->ITEM) + "" )
+				nIntPro := 0
+			Else
+				nIntPro += 1
+			EndIf 
+		
+			U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
+		
+			nPAtuVV += 1
+			
+			eVal(bAbort)
+			
+		DbSkip()
+	EndDo
+	DbSelectArea("TAUX");DbCloseArea()
+	
+	
+	//***************************************************************
+	// Verificando Rankink Venda Revisada de Peças  
+	IncProc("Verificando Ranking Venda Revisada Peças na Tabela [RANKVEN]" )
+	cSql := "SELECT CODITE ITEM, MAX(SOMAPC) SOMAPC FROM RANKVEN WHERE TIPO = 'VR' GROUP BY CODITE"
+	U_ExecMySql( cSql, cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
+	
+	DbSelectArea("TAUX");DbGoTop();nIntPro:=0
+	While !EOF()
+		
+			//***************************************************************
+			// Atualizando ZA7_RKVRIP - Venda Revisada em Peças. 
+			cSql := "UPDATE ZA7010 SET "
+			cSql += "ZA7_RKVRIP  = " + cValToChar(TAUX->SOMAPC) + " " // Soma da Média do Consultado.
+			cSql += "WHERE ZA7_CODITE = '" + Alltrim(TAUX->ITEM) + "' "
+			
+			If nIntPro == 100
+				IncProc("Atualizando Raking Venda Revisada em Peças [ZA7_RKVRIP] do ITEM " + Alltrim(TAUX->ITEM) + "" )
+				nIntPro := 0
+			Else
+				nIntPro += 1
+			EndIf 
+		
+			U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
+		
+			nPAtuPR += 1
+			
+			eVal(bAbort)
+			
+		DbSkip()
+	EndDo
+	DbSelectArea("TAUX");DbCloseArea()
+	
+	
+	//***************************************************************
+	// Verificando Ranking Venda Revisada de Valor  
+	IncProc("Verificando Ranking Venda Revisada Valor na Tabela [RANKVEN]" )
+	cSql := "SELECT CODITE ITEM, MAX(SOMAVL) SOMAPC FROM RANKVEN WHERE TIPO = 'VR' GROUP BY CODITE"
+	U_ExecMySql( cSql, cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
+	
+	DbSelectArea("TAUX");DbGoTop();nIntPro:=0
+	While !EOF()
+		
+			//***************************************************************
+			// Atualizando ZA7_RKVRIV - Venda Revisada em Valor
+			cSql := "UPDATE ZA7010 SET "
+			cSql += "ZA7_RKVRIV  = " + cValToChar(TAUX->SOMAPC) + " " 
+			cSql += "WHERE ZA7_CODITE = '" + Alltrim(TAUX->ITEM) + "' "
+			
+			If nIntPro == 100
+				IncProc("Atualizando Ranking Venda Revisada em Valor [ZA7_RKVRIV] do ITEM " + Alltrim(TAUX->ITEM) + "" )
+				nIntPro := 0
+			Else
+				nIntPro += 1
+			EndIf 
+		
+			U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
+		
+			nPAtuVR += 1
+			
+			eVal(bAbort)
+			
+		DbSkip()
+	EndDo
+	DbSelectArea("TAUX");DbCloseArea()
+
+	
+	
+	MsgInfo ("Foram Atualizados: " + ENTER + ;
+			 "Ranking Venda Peças "	+ Alltrim( Transform(nPAtuPV,"@E 99,999,999"))  + ENTER + ;
+			 "Ranking Venda Valor "	+ Alltrim( Transform(nPAtuVV,"@E 99,999,999"))  + ENTER + ;
+			 "Ranking Venda Revisada Peças " + Alltrim( Transform(nPAtuPR,"@E 99,999,999")) + ENTER + ;
+			 "Ranking Venda Revisada Valor " + Alltrim( Transform(nPAtuVR,"@E 99,999,999")) + ENTER + ENTER + ;
+			 " Em cada Filial por CODITE. ","Campos [ZA7_RKVDIP][ZA7_RKVDIV][ZA7_RKVRIP][ZA7_RKVRIV]")
+			 	
+	
+
+Return Nil
+*******************************************************************************
+Static Function DataRef(nMeses,lUlt)//| Retorna a data dia 1 de nMeses atraz
 *******************************************************************************
 
  	Local dDataAux := dDatabase
  	
  	Default nMeses := 1
- 
- 	For nI:=1 To nMeses
+ 	Default lUlt := .F.
+ 	
+ 	For nI := 1 To nMeses
  
  		dDataAux := LastDay(dDataAux,1) - 5
  
  	Next 
 
  	dDataAux := CToD( '01/' + Substr( dToC(dDataAux) , 4, 7 ))
+ 	
+ 	If lUlt
+ 		dDataAux := LastDay(dDataAux , 0)
+ 	EndIf 
  	
 Return dDataAux
 *******************************************************************************
@@ -957,5 +1193,6 @@ Static Function DropTAux() // Dropa a Tabela Temporaria Auxiliar do MRP
 
  	cSql := "Drop Table TAUX_MRP"
  	U_ExecMySql( cSql, cCursor := "", cModo := "E", lMostra := .F., lChange := .F. )
+
 
 Return Nil
