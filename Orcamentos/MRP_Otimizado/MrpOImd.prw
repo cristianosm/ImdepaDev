@@ -969,7 +969,7 @@ Static Function RankVen()//2.3  Calculo do Ranking de Vendas
 	cSql := "CREATE TABLE RANKVEN AS "
 	cSql += "SELECT  'VE'				TIPO, " 
 	cSql += "SB1.B1_CODITE 				CODITE, "
-	cSql += "SUBSTR(SD2.D2_EMISSAO,1,6) MESANO, "
+	//cSql += "SUBSTR(SD2.D2_EMISSAO,1,6) MESANO, "
 	cSql += "ROUND( SUM(D2_QUANT),4) 	SOMAPC, "
 	cSql += "ROUND( SUM(D2_TOTAL),4) 	SOMAVL "
 
@@ -992,13 +992,13 @@ Static Function RankVen()//2.3  Calculo do Ranking de Vendas
 	cSql += "AND   SF4.D_E_L_E_T_ = ' ' "
 	cSql += "AND   SB1.B1_FILIAL  = '05' "
 	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
-	cSql += "GROUP BY SB1.B1_CODITE, SUBSTR(SD2.D2_EMISSAO,1,6) " 
+	cSql += "GROUP BY SB1.B1_CODITE"//, SUBSTR(SD2.D2_EMISSAO,1,6) " 
 	
 	cSql += "UNION ALL " 
 	 
 	cSql += "SELECT  'VR'							TIPO, "
 	cSql += "		SB1.B1_CODITE 					CODITE,  "
-	cSql += "SUBSTR(ZA0.ZA0_DTNECL,1,6)		MESANO, "
+	//cSql += "SUBSTR(ZA0.ZA0_DTNECL,1,6)		MESANO, "
 	cSql += "Round( SUM(ZA0.ZA0_VENDRE),4)	SOMAPC, "
 	cSql += "Round( SUM(ZA0.ZA0_VENDRE * ZA0.ZA0_PRECO),4) 	SOMAVL "
 			 
@@ -1009,7 +1009,7 @@ Static Function RankVen()//2.3  Calculo do Ranking de Vendas
 	cSql += "AND   ZA0.D_E_L_E_T_ = ' ' "
 	cSql += "AND   SB1.B1_FILIAL = '05' "
 	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
-	cSql += "GROUP BY SB1.B1_CODITE, SUBSTR(ZA0.ZA0_DTNECL,1,6) "	
+	cSql += "GROUP BY SB1.B1_CODITE"//, SUBSTR(ZA0.ZA0_DTNECL,1,6) "	
 	
 	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra := .F., lChange := .F. )
 	
