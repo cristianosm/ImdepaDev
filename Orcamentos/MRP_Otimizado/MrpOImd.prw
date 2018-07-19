@@ -480,7 +480,7 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 		If HMGet(oHTCov , TAUX->PRODUTO , @aValHT) .Or. HMGet(oHTEst , TAUX->PRODUTO , @aValHT) //.Or. HMGet(oHTPor , TAUX->PRODUTO , @aValHT)
 			lUpd := .T.
 			
-		ElseIf TAUX->PRONOVO == "S" .Or.  TAUX->ITEMNOVO  == "S" .Or.  TAUX->PROGRAMA  == "S" .Or.  TAUX->PEDIDO == "S" .Or. ( B1_ESTFOR <> 'C04' .And. B1_ESTSEG >= 1 )
+		ElseIf TAUX->PRONOVO == "S" .Or.  TAUX->ITEMNOVO  == "S" .Or.  TAUX->PROGRAMA  == "S" .Or.  TAUX->PEDIDO == "S" .Or. ( TAUX->ESTFOR <> 'C04' .And. TAUX->ESTSEG >= 1 )
 			lUpd := .T.
 		EndIf
 		
@@ -1137,7 +1137,7 @@ Static Function RankVen()//2.3  Calculo do Ranking de Vendas
 	cSql += "	AND SB1.D_E_L_E_T_ = ' ' "
 	cSql += "	GROUP BY SB1.B1_CODITE " 				
 	
-	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra := .T. , lChange := .F. )
+	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra , lChange := .F. )
 	
 	//***************************************************************	
 	// Zerando Ranking de Vendas Peças, Valor e Venda Revisada Peças e Valor 
@@ -1148,13 +1148,13 @@ Static Function RankVen()//2.3  Calculo do Ranking de Vendas
 	cSql += "ZA7_RKVRIV  = 0 "
 	
 	IncProc("Zerando campos de Ranking [ZA7_RKVDIP][ZA7_RKVDIV][ZA7_RKVRIP][ZA7_RKVRIV]" )
-	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra := .F. , lChange := .F. )
+	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
 
 
 	// Verificando Ranking de Vendas  
 	IncProc("Consultando Tabela Auxiliar [RANKVEN]" )
 	cSql := "SELECT TIPO, CODITE, SOMA, POSICAO FROM RANKVEN ORDER BY TIPO,CODITE"  
-	U_ExecMySql( cSql, cCursor := "TAUX", cModo := "Q", lMostra := .F., lChange := .F. )
+	U_ExecMySql( cSql, cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
 	
 	DbSelectArea("TAUX");DbGoTop();nIntPro:=0
 	While !EOF()
@@ -1250,7 +1250,7 @@ Static Function CurvasABC() // 3  Curvas ABC
 	
 	DbSelectArea("TAUX");DbGoTop()
 	nSTotVEP := TAUX->TOTAL
-	ConOut("nSTotVEP : " + cValToChar(nSTotVEP) )
+	//ConOut("nSTotVEP : " + cValToChar(nSTotVEP) )
 	DbSelectArea("TAUX");DbCloseArea()
 	
 	//***********************************************************
@@ -1262,7 +1262,7 @@ Static Function CurvasABC() // 3  Curvas ABC
 	
 	DbSelectArea("TAUX");DbGoTop()
 	nSTotVEV := TAUX->TOTAL
-	ConOut("nSTotVEV : " + cValToChar(nSTotVEV) )
+	//ConOut("nSTotVEV : " + cValToChar(nSTotVEV) )
 	DbSelectArea("TAUX");DbCloseArea()
 
 	//***********************************************************
@@ -1274,7 +1274,7 @@ Static Function CurvasABC() // 3  Curvas ABC
 	
 	DbSelectArea("TAUX");DbGoTop()
 	nSTotVRP := TAUX->TOTAL
-	ConOut("nSTotVRP : " + cValToChar(nSTotVRP) )
+	//ConOut("nSTotVRP : " + cValToChar(nSTotVRP) )
 	DbSelectArea("TAUX");DbCloseArea()
 
 	//***********************************************************
@@ -1286,7 +1286,7 @@ Static Function CurvasABC() // 3  Curvas ABC
 	
 	DbSelectArea("TAUX");DbGoTop()
 	nSTotVRV := TAUX->TOTAL
-	ConOut("nSTotVRV : " + cValToChar(nSTotVRV) )
+	//ConOut("nSTotVRV : " + cValToChar(nSTotVRV) )
 	DbSelectArea("TAUX");DbCloseArea()
 
 
@@ -1353,7 +1353,7 @@ Static Function CurvasABC() // 3  Curvas ABC
 		EndIf
 		
 		If nIntPro == 100
-			ConOut("nPercent : " + cValToChar(nPercent) + " ITEM: " + Alltrim(TAUX->CODITE) )
+			//ConOut("nPercent : " + cValToChar(nPercent) + " ITEM: " + Alltrim(TAUX->CODITE) )
 			If 		Alltrim(TAUX->TIPO) == "VEP"
 				IncProc("Atualizando Curva ABV Venda Peças [B1_CURVAIT] ITEM " + Alltrim(TAUX->CODITE) + "" )
 			ElseIf 	Alltrim(TAUX->TIPO) == "VEV"		
