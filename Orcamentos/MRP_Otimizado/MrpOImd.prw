@@ -93,7 +93,8 @@ Static function za7ppcomp()	// 1.1 ZA7_PPCOMP => Produtos com Pedidos Abertos
 *******************************************************************************
 
 	Local cSql 		:= ""
-	Local cSData 	:= dToS(DataRef(nMeses := 6)) // Retorna 6 meses
+	Local cSDataPC 	:= dToS(DataRef(nMeses := 6)) // Retorna 6 meses
+	Local cSDataSC 	:= dToS(DataRef(nMeses := 0)) // Retorna 6 meses
 	Local nPAtu 	:= 0 // Total de Produtos Atualizados 
 	Local nIntPro 	:= 0 // Intervalo IncProc
 	
@@ -104,19 +105,19 @@ Static function za7ppcomp()	// 1.1 ZA7_PPCOMP => Produtos com Pedidos Abertos
 	cSql := "SELECT PRODUTO FROM ( " 
 	cSql += "SELECT C7_PRODUTO PRODUTO FROM SC7010 "
 	cSql += "WHERE D_E_L_E_T_ = ' ' "
-	cSql += "AND   C7_EMISSAO >= '"+cSData+"' "
-	cSql += "AND   C7_ENCER = ' ' " 
+	cSql += "AND   C7_EMISSAO >= '"+cSDataPC+"' "
+	cSql += "AND   C7_RESIDUO = ' ' " 
 	cSql += "GROUP BY C7_PRODUTO "
 	cSql += "UNION " 
 	cSql += "SELECT C1_PRODUTO PRODUTO  FROM SC1010 " 
 	cSql += "WHERE D_E_L_E_T_ = ' ' "
-	cSql += "AND   C1_EMISSAO >= '"+cSData+"' "
+	cSql += "AND   C1_EMISSAO >= '"+cSDataSC+"' "
 	cSql += "AND   C1_RESIDUO = ' ' "
 	cSql += "GROUP BY C1_PRODUTO "
 	cSql += ") ORDER BY PRODUTO "
 	
 	
-	IncProc("Consultando Pedidos de Compras apartir de "+SToC(cSData))
+	IncProc("Consultando Pedidos de Compras apartir de "+SToC(cSDataPC))
 	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
 	
 	
@@ -369,7 +370,8 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	cSql += "WHERE ZA0_DTNECL BETWEEN '" + cSDataI + "' AND '" + cSDataF + "' "
 	cSql += "AND   ZA0.D_E_L_E_T_ = ' ' "
 	cSql += "AND   SB1.B1_FILIAL = '05' "
-	cSql += "AND   SB1.B1_GRMAR1 IN ('000001','000002') AND SB1.B1_TIPO IN ('PA','PP','MP') "
+	cSql += "AND   SB1.B1_GRMAR1 IN ('000001','000002') AND SB1.B1_TIPO IN ('PA','PP','MP')"
+	cSql += "AND   SB1.B1_DESC NOT LIKE '%(N USAR)%' "
 	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
 	cSql += "GROUP BY ZA0_PRODUT "
 
@@ -394,6 +396,7 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	cSql += "AND   SB2.D_E_L_E_T_ = ' ' "
 	cSql += "AND   SB1.B1_FILIAL = '05' "
 	cSql += "AND   SB1.B1_GRMAR1 IN ('000001','000002') AND SB1.B1_TIPO IN ('PA','PP','MP') "
+	cSql += "AND   SB1.B1_DESC NOT LIKE '%(N USAR)%' "
 	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
 	cSql += "GROUP BY B2_COD "
 	
@@ -444,15 +447,16 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	// Consulta Status dos Produtos 
 	//*************************************************************************
 
-	cSql := "SELECT B1_COD PRODUTO, B1_PRONOVO PRONOVO, ZA7_ITEMNO ITEMNOVO, ZA7_PGRAMA PROGRAMA, ZA7_PPCOMP PEDIDO "
+	cSql := "SELECT B1_COD PRODUTO, B1_PRONOVO PRONOVO, ZA7_ITEMNO ITEMNOVO, ZA7_PGRAMA PROGRAMA, ZA7_PPCOMP PEDIDO, B1_ESTFOR ESTFOR, B1_ESTSEG ESTSEG "
 	cSql += "FROM SB1010 SB1 INNER JOIN ZA7010 ZA7 "
 	cSql += "ON SB1.B1_FILIAL = ZA7.ZA7_FILIAL "
 	cSql += "AND SB1.B1_COD = ZA7.ZA7_CODPRO "
 	cSql += "WHERE SB1.B1_FILIAL = '05' "
 	cSql += "AND   SB1.B1_GRMAR1 IN ('000001','000002') AND SB1.B1_TIPO IN ('PA','PP','MP') "
+	cSql += "AND   SB1.B1_DESC NOT LIKE '%(N USAR)%' "
 	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
 	cSql += "AND   ZA7.D_E_L_E_T_ = ' ' "
-	cSql += "GROUP BY B1_COD, B1_PRONOVO, ZA7_ITEMNO, ZA7_PGRAMA, ZA7_PPCOMP "
+	cSql += "GROUP BY B1_COD, B1_PRONOVO, ZA7_ITEMNO, ZA7_PGRAMA, ZA7_PPCOMP, B1_ESTFOR, B1_ESTSEG "
 
 	IncProc("Consulta Parametros dos Produtos ")
 	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
@@ -462,7 +466,7 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	// Atualiza Todos os Produtos para NAO
 	//*************************************************************************
 	
-	cSql := "UPDATE SB1010 SET B1_PROATIV = 'N' WHERE B1_PROATIV <> 'N' AND B1_GRMAR1 IN ('000001','000002') AND B1_TIPO IN ('PA','PP','MP') " 
+	cSql := "UPDATE SB1010 SET B1_PROATIV = 'N' WHERE B1_PROATIV <> 'N' AND B1_GRMAR1 IN ('000001','000002') AND B1_TIPO IN ('PA','PP','MP')" 
 	IncProc("Definido Todos os Produtos como Ativo N-Nao") 
 	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
 	
@@ -476,7 +480,7 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 		If HMGet(oHTCov , TAUX->PRODUTO , @aValHT) .Or. HMGet(oHTEst , TAUX->PRODUTO , @aValHT) //.Or. HMGet(oHTPor , TAUX->PRODUTO , @aValHT)
 			lUpd := .T.
 			
-		ElseIf TAUX->PRONOVO == "S" .Or.  TAUX->ITEMNOVO  == "S" .Or.  TAUX->PROGRAMA  == "S" .Or.  TAUX->PEDIDO == "S"
+		ElseIf TAUX->PRONOVO == "S" .Or.  TAUX->ITEMNOVO  == "S" .Or.  TAUX->PROGRAMA  == "S" .Or.  TAUX->PEDIDO == "S" .Or. ( B1_ESTFOR <> 'C04' .And. B1_ESTSEG >= 1 )
 			lUpd := .T.
 		EndIf
 		
