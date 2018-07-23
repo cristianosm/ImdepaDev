@@ -1231,6 +1231,22 @@ Static Function CurvasABC() // 3  Curvas ABC
 	
 	Local nIntPro 	:= 0 // Intervalo IncProc
 
+	// Salva os Acumulos  de Vendas
+	Local nSAcuVEP 	:= 0 // Acumulo de Venda Pecas 
+	Local nSAcuVEV 	:= 0 // Acumulo Total de Venda Valor
+	Local nSAcuVRP 	:= 0 // Acumulo Total de Venda Revisada Pecas
+	Local nSAcuVRV 	:= 0 // Acumulo Total de Venda Revisada Valor
+	
+	Local nSAcPVEP 	:= 0 // Acumulo de Venda Pecas 
+	Local nSAcPVEV 	:= 0 // Acumulo Total de Venda Valor
+	Local nSAcPVRP 	:= 0 // Acumulo Total de Venda Revisada Pecas
+	Local nSAcPVRV 	:= 0 // Acumulo Total de Venda Revisada Valor
+
+	Local nSVanVEP 	:= 0 // Valor Anteior de Venda Pecas 
+	Local nSVanVEV 	:= 0 // Valor Anteior de Venda Valor
+	Local nSVanVRP 	:= 0 // Valor Anteior de Venda Revisada Pecas
+	Local nSVanVRV 	:= 0 // Valor Anteior de Venda Revisada Valor
+
 	Local nPAtuPV 	:= 0 // Total de Produtos Pecas vendas 
 	Local nPAtuVV 	:= 0 // Total de Produtos Valor Vendas 
 	Local nPAtuPR 	:= 0 // Total de Produtos Pecas Revisadas
@@ -1250,7 +1266,7 @@ Static Function CurvasABC() // 3  Curvas ABC
 	
 	DbSelectArea("TAUX");DbGoTop()
 	nSTotVEP := TAUX->TOTAL
-	//ConOut("nSTotVEP : " + cValToChar(nSTotVEP) )
+	ConOut("nSTotVEP : " + cValToChar(nSTotVEP) )
 	DbSelectArea("TAUX");DbCloseArea()
 	
 	//***********************************************************
@@ -1262,7 +1278,7 @@ Static Function CurvasABC() // 3  Curvas ABC
 	
 	DbSelectArea("TAUX");DbGoTop()
 	nSTotVEV := TAUX->TOTAL
-	//ConOut("nSTotVEV : " + cValToChar(nSTotVEV) )
+	ConOut("nSTotVEV : " + cValToChar(nSTotVEV) )
 	DbSelectArea("TAUX");DbCloseArea()
 
 	//***********************************************************
@@ -1274,7 +1290,7 @@ Static Function CurvasABC() // 3  Curvas ABC
 	
 	DbSelectArea("TAUX");DbGoTop()
 	nSTotVRP := TAUX->TOTAL
-	//ConOut("nSTotVRP : " + cValToChar(nSTotVRP) )
+	ConOut("nSTotVRP : " + cValToChar(nSTotVRP) )
 	DbSelectArea("TAUX");DbCloseArea()
 
 	//***********************************************************
@@ -1286,7 +1302,7 @@ Static Function CurvasABC() // 3  Curvas ABC
 	
 	DbSelectArea("TAUX");DbGoTop()
 	nSTotVRV := TAUX->TOTAL
-	//ConOut("nSTotVRV : " + cValToChar(nSTotVRV) )
+	ConOut("nSTotVRV : " + cValToChar(nSTotVRV) )
 	DbSelectArea("TAUX");DbCloseArea()
 
 
@@ -1307,7 +1323,7 @@ Static Function CurvasABC() // 3  Curvas ABC
 	//********************************************************************
 	// Verificando Somas de Vendas  
 	IncProc("Consultando Tabela Auxiliar [RANKVEN]" )
-	cSql := "SELECT TIPO, CODITE, SOMA, POSICAO FROM RANKVEN ORDER BY TIPO,CODITE"  
+	cSql := "SELECT TIPO, CODITE, SOMA, POSICAO FROM RANKVEN ORDER BY POSICAO"  
 	U_ExecMySql( cSql, cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
 	
 	DbSelectArea("TAUX");DbGotop()
@@ -1315,45 +1331,41 @@ Static Function CurvasABC() // 3  Curvas ABC
 	
 		
 		If		Alltrim(TAUX->TIPO) == "VEP"	// Curva ABC - Venda em Peças.
-			nPAtuPV	+= 1
-			nPercent:= NoRound( 1 - ( TAUX->SOMA / nSTotVEP ), 2 )  
 			
-			cFaixa	:= VerFABC(nPercent, TAUX->CODITE , "VEP" ) // Verifica a Faixa ABC
+			// Avalia Faixa Curva ABC
+			cFaixa := AvalABC(@nPAtuPV, @nSAcuVEP, @nSVanVEP, @nSAcPVEP, @nSTotVEP, "VEP" )
 			
 			cTexto	:= "Atualizando Curva ABC Venda Peca ITEM " + Alltrim(TAUX->CODITE)
 			cSql	:= "UPDATE SB1010 SET B1_CURVAIT = SUBSTR(B1_CURVAIT,1,1)||'"+cFaixa+"' WHERE B1_CODITE = '" + Alltrim(TAUX->CODITE) + "' "
 			
 		ElseIf 	Alltrim(TAUX->TIPO) == "VEV"		//  Curva ABC - Venda em Valor.
-			nPAtuVV	+= 1
-			nPercent:= NoRound( 1 - ( TAUX->SOMA / nSTotVEV ), 2 )
-		
-			cFaixa	:= VerFABC(nPercent, TAUX->CODITE , "VEV" ) // Verifica a Faixa ABC
-
+			
+			// Avalia Faixa Curva ABC
+			cFaixa := AvalABC(@nPAtuVV, @nSAcuVEV, @nSVanVEV, @nSAcPVEV, @nSTotVEV, "VEV" )
+			
 			cTexto	:= "Atualizando Curva ABC Venda Valor ITEM " + Alltrim(TAUX->CODITE)
 			cSql	:= "UPDATE SB1010 SET B1_CURVAIT = '"+cFaixa+"'||SUBSTR(B1_CURVAIT,2,1) WHERE B1_CODITE = '" + Alltrim(TAUX->CODITE) + "' "
 			
 		ElseIf 	Alltrim(TAUX->TIPO) == "VRP"		//  Curva ABC - Venda Revisada em Peças. 
-			nPAtuPR	+= 1
-			nPercent:= NoRound( 1 - ( TAUX->SOMA / nSTotVRP ), 2 )
-
-			cFaixa 	:= VerFABC(nPercent, TAUX->CODITE , "VRP" ) // Verifica a Faixa ABC
-
+			
+			// Avalia Faixa Curva ABC 
+			cFaixa := AvalABC(@nPAtuPR, @nSAcuVRP, @nSVanVRP, @nSAcPVRP, @nSTotVRP, "VRP" )
+			
 			cTexto 	:= "Atualizando Curva ABC Venda Revisada Peca ITEM " + Alltrim(TAUX->CODITE)
 			cSql 	:= "UPDATE ZA7010 SET ZA7_ABCVRI = SUBSTR(ZA7_ABCVRI,1,1)||'"+cFaixa+"' WHERE ZA7_CODITE = '" + Alltrim(TAUX->CODITE) + "' "
 			
 		ElseIf 	Alltrim(TAUX->TIPO) == "VRV"		//  Curva ABC - Venda Revisada em Valor
-			nPAtuVR	+= 1
-			nPercent:= NoRound( 1 - ( TAUX->SOMA / nSTotVRV ), 2 )
-
-			cFaixa 	:= VerFABC(nPercent, TAUX->CODITE , "VRV" ) // Verifica a Faixa ABC			
-
+			
+			// Avalia Faixa Curva ABC
+			cFaixa := AvalABC(@nPAtuVR, @nSAcuVRV, @nSVanVRV, @nSAcPVRV, @nSTotVRV, "VRV" )
+			
 			cTexto 	:= "Atualizando Curva ABC Venda Revisada Valor ITEM " + Alltrim(TAUX->CODITE)
 			cSql 	:= "UPDATE ZA7010 SET ZA7_ABCVRI = '"+cFaixa+"'||SUBSTR(ZA7_ABCVRI,2,1) WHERE ZA7_CODITE = '" + Alltrim(TAUX->CODITE) + "' "
 			
 		EndIf
 		
 		If nIntPro == 100
-			//ConOut("nPercent : " + cValToChar(nPercent) + " ITEM: " + Alltrim(TAUX->CODITE) )
+			ConOut("nPercent : " + cValToChar(nPercent) + " ITEM: " + Alltrim(TAUX->CODITE) )
 			If 		Alltrim(TAUX->TIPO) == "VEP"
 				IncProc("Atualizando Curva ABV Venda Peças [B1_CURVAIT] ITEM " + Alltrim(TAUX->CODITE) + "" )
 			ElseIf 	Alltrim(TAUX->TIPO) == "VEV"		
@@ -1375,6 +1387,30 @@ Static Function CurvasABC() // 3  Curvas ABC
 	EndDo
 	DbSelectArea("TAUX");DbCloseArea()
 	
+	
+	cTexto 	:= "Sincronizando [ZA7_ABCMC - Curva ABC Margem] com [B1_CURVAIT - Curva ABC Item Vlr-Pcs] "
+	cSql 	:= "SELECT 'UPDATE ZA7010 SET ZA7_ABCMC = ''' || SUBSTR(B1_CURVAIT,1,2) || ''' WHERE ZA7_CODITE = ''' || TRIM(SB1.B1_CODITE) || '''' AS UPD 
+	cSql 	+= "FROM SB1010 SB1 WHERE B1_FILIAL = '05' AND   B1_CODITE > ' ' AND   D_E_L_E_T_ = ' '"
+	
+	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
+	DbSelectArea("TAUX");dbGotop();nIntPro := 0
+	While !EOF()
+		
+		
+		U_ExecMySql( TAUX->UPD , cCursor := "", cModo := "E", lMostra, lChange := .F. )
+		
+		If nIntPro == 100
+			IncProc("Sincronizando [ZA7_ABCMC - Curva ABC Margem] com [B1_CURVAIT - Curva ABC Item Vlr-Pcs] " )
+			nIntPro := 0
+		Else
+			nIntPro += 1
+		EndIf 
+	
+		DbSelectArea("TAUX")
+		DbSkip()
+	EndDO
+	DbSelectArea("TAUX");DbCloseArea()
+	
 	MntLog ("3  Montagem Curva ABC Venda e Venda Revisada " + ENTER + ; 
 			"Foram Atualizados: " + ENTER + ;
 			 "Curva ABC Venda Peças "	+ Alltrim( Transform(nPAtuPV,"@E 99,999,999"))  + ENTER + ;
@@ -1390,29 +1426,29 @@ Static Function VerFABC(nPercent, cItem, cTipo ) // Verifica a Faixa ABC do Item
 *******************************************************************************
 
 	// Faixa de Curvas ... 
-	Local nCurvaA	:= 50 / 100
-	Local nCurvaB	:= 35 / 100
-	Local nCurvaC	:= 13 / 100
-	Local nCurvaD	:= 2 / 100
+	Local nCurvaA	:= 50
+	Local nCurvaB	:= nCurvaA + 35
+	Local nCurvaC	:= nCurvaB + 13
+	Local nCurvaD	:= nCurvaC + 2 
 	
 	Local cSql 		:= ""
 	
 	Local cFaixa	:= ""
 	
 	Do Case 
-		Case nPercent >= nCurvaA
+		Case nPercent <= nCurvaA
 			cFaixa := "A"
-		Case nPercent >= nCurvaB
+		Case nPercent <= nCurvaB
 			cFaixa := "B"
-		Case nPercent >= nCurvaC
+		Case nPercent <= nCurvaC
 			cFaixa := "C"
-		Case nPercent >= nCurvaD
+		Case nPercent <= nCurvaD
 			cFaixa := "D"	
 	OtherWise
 			cFaixa := " "
 	End Case 
 
-	
+	/*
 	If Empty(cFaixa) .And. Substr(cTipo,1,2) == "VE"
 		
 		cSql := "SELECT COUNT(TIPO) NREG FROM RANKVEN WHERE SUBSTR(TIPO,1,2) = 'VR' AND CODITE = '" + Alltrim(cItem) + "' " 
@@ -1444,7 +1480,31 @@ Static Function VerFABC(nPercent, cItem, cTipo ) // Verifica a Faixa ABC do Item
 		DbSelectArea("TVER");DbCloseArea()
 	
 	EndIf
-	
+	*/
+Return cFaixa
+*******************************************************************************
+Static Function AvalABC(nPAtu, nSAcu, nSVan, nSAcP, nSTot ,cQuem )
+*******************************************************************************
+	Local cFaixa
+			
+	nPAtu	 += 1
+	nSAcu += TAUX->SOMA
+			
+	If  TAUX->SOMA == nSVan // Quando os Valores são Iguais, segue enviando o aCumulo Paralelo para nao mudar a Faixa
+				
+		nPercent := NoRound( ( nSAcP / nSTot * 100 ), 0 )  
+			
+	Else// Quando os Valores são diferentes, envia o aCumulo Normal ja pode ser alterado a Faixa
+		nPercent := NoRound( ( nSAcu / nSTot * 100 ), 0 )  
+				
+		nSAcP := nSAcu
+				
+	EndIf
+			
+	cFaixa	:= VerFABC(nPercent, TAUX->CODITE , cQuem ) // Verifica a Faixa ABC
+			
+	nSVan := TAUX->SOMA
+
 Return cFaixa 
 *******************************************************************************
 Static Function DataRef(nMeses,lUlt)//| Retorna a data dia 1 de nMeses atraz
