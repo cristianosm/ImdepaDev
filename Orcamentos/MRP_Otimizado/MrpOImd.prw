@@ -1135,9 +1135,11 @@ Static Function RankVen()//2.3  Calculo do Ranking de Vendas
 	cSql += "	AND SB1.B1_GRMAR1 IN ( '000001', '000002' ) "
 	cSql += "	AND SB1.B1_TIPO IN ( 'PA', 'PP', 'MP' ) "
 	cSql += "	AND SB1.D_E_L_E_T_ = ' ' "
-	cSql += "	GROUP BY SB1.B1_CODITE " 				
+	cSql += "	GROUP BY SB1.B1_CODITE "
 	
-	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra , lChange := .F. )
+	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra := .F., lChange := .F. )
+	
+	lMostra := .F.
 	
 	//***************************************************************	
 	// Zerando Ranking de Vendas Peças, Valor e Venda Revisada Peças e Valor 
