@@ -94,7 +94,7 @@ Static function za7ppcomp()	// 1.1 ZA7_PPCOMP => Produtos com Pedidos Abertos
 
 	Local cSql 		:= ""
 	Local cSDataPC 	:= dToS(DataRef(nMeses := 6)) // Retorna 6 meses
-	Local cSDataSC 	:= dToS(DataRef(nMeses := 0)) // Retorna 6 meses
+	Local cSDataSC 	:= dToS(DataRef(nMeses := 0)) // Retorna 0 meses
 	Local nPAtu 	:= 0 // Total de Produtos Atualizados 
 	Local nIntPro 	:= 0 // Intervalo IncProc
 	
@@ -111,7 +111,7 @@ Static function za7ppcomp()	// 1.1 ZA7_PPCOMP => Produtos com Pedidos Abertos
 	cSql += "UNION " 
 	cSql += "SELECT C1_PRODUTO PRODUTO  FROM SC1010 " 
 	cSql += "WHERE D_E_L_E_T_ = ' ' "
-	cSql += "AND   C1_EMISSAO >= '"+cSDataSC+"' "
+	cSql += "AND   C1_DATPRF >= '"+cSDataSC+"' "
 	cSql += "AND   C1_RESIDUO = ' ' "
 	cSql += "GROUP BY C1_PRODUTO "
 	cSql += ") ORDER BY PRODUTO "
