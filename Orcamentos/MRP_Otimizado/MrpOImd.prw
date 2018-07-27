@@ -1161,21 +1161,21 @@ Static Function RankVen()//2.3  Calculo do Ranking de Vendas
 	DbSelectArea("TAUX");DbGoTop();nIntPro:=0
 	While !EOF()
 		
-			cSql := "UPDATE ZA7010 SET "
+			cSql := "UPDATE SIGA.ZA7010 SET "
 			If 		Alltrim(TAUX->TIPO) == "VEP"	// Atualizando ZA7_RKVDIP - Venda em Peças.
-				cSql += "ZA7_RKVDIP  = " + cValToChar(TAUX->POSICAO) + " " 
+				cSql += "ZA7_RKVDIP = " + Alltrim(cValToChar(TAUX->POSICAO)) + " " 
 				nPAtuPV += 1
 			
 			ElseIf Alltrim(TAUX->TIPO) == "VEV"		// Atualizando ZA7_RKVDIV - Venda em Valor.
-				cSql += "ZA7_RKVDIV  = " + cValToChar(TAUX->POSICAO) + " " 
+				cSql += "ZA7_RKVDIV = " + Alltrim(cValToChar(TAUX->POSICAO)) + " " 
 				nPAtuVV += 1
 			
 			ElseIf Alltrim(TAUX->TIPO) == "VRP"		// Atualizando ZA7_RKVRIP - Venda Revisada em Peças. 
-				cSql += "ZA7_RKVRIP  = " + cValToChar(TAUX->POSICAO) + " " 
+				cSql += "ZA7_RKVRIP = " + Alltrim(cValToChar(TAUX->POSICAO)) + " " 
 				nPAtuPR += 1
 			
 			ElseIf Alltrim(TAUX->TIPO) == "VRV"		// Atualizando ZA7_RKVRIV - Venda Revisada em Valor
-				cSql += "ZA7_RKVRIV  = " + cValToChar(TAUX->POSICAO) + " " 
+				cSql += "ZA7_RKVRIV = " + Alltrim(cValToChar(TAUX->POSICAO)) + " " 
 				nPAtuVR += 1
 			
 			EndIf
@@ -1195,9 +1195,9 @@ Static Function RankVen()//2.3  Calculo do Ranking de Vendas
 			Else
 				nIntPro += 1
 			EndIf 
-		
-			U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
-		
+			
+				U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
+			
 			eVal(bAbort)
 		
 		DbSelectArea("TAUX")
