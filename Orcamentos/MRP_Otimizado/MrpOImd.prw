@@ -31,7 +31,8 @@ User Function MrpOImd()
 	Private lMedias := .F.
 	Private lCoefVar:= .F.
 	Private lRankVen:= .F.
-	Private lCuraABC:= .F.
+	Private lCurvABC:= .F.
+	Private lCurvPQR:= .F.
 	
 	Private lAbort 	
 	Private bAbort	:= { || IIf ( lAbort == .T., Alert("Não vá neste momento"), "" ) }
@@ -44,9 +45,11 @@ User Function MrpOImd()
 		lMedias  := Iw_MsgBox("Deseja Calcular as Médias dos Produtos?","Atenção","YESNO")
 		lCoefVar := Iw_MsgBox("Deseja Calcular o Coeficiente de Variabilidade ?","Atenção","YESNO")
 		lRankVen := Iw_MsgBox("Deseja Calcular o Ranking de Vendas ?","Atenção","YESNO")
-		lCuraABC := Iw_MsgBox("Deseja calcular a Curva ABC ?","Atenção","YESNO")
-		If lCuraABC
-			lRankVen := lCuraABC
+		lCurvABC := Iw_MsgBox("Deseja calcular a Curva ABC ?","Atenção","YESNO")
+		lCurvPQR := Iw_MsgBox("Deseja calcular a Curva PQR ?","Atenção","YESNO")
+		
+		If lCurvABC
+			lRankVen := lCurvABC
 		EndIf
 		
 		
@@ -131,7 +134,7 @@ Static function za7ppcomp()	// 1.1 ZA7_PPCOMP => Produtos com Pedidos Abertos
 	While !EOF()
 		
 		// Atualiza os Produtos para SIM
-		cSql := "Update ZA7010 Set ZA7_PPCOMP = 'S' WHERE ZA7_CODPRO = '" + Alltrim(TAUX->PRODUTO) + "' " 
+		cSql := "Update ZA7010 Set ZA7_PPCOMP = 'S' WHERE ZA7_CODPRO = '" + CV(TAUX->PRODUTO) + "' " 
 		
 		If nIntPro == 100
 			IncProc("Atualizando o Produto " +  Alltrim(TAUX->PRODUTO) + " para SIM " )
@@ -191,7 +194,7 @@ Static function ZA7PGRAMA()	// 1.2 ZA7_PGRAMA => SIM - Produto com Programa (Con
 	While !EOF()
 		
 		// Atualiza os Produtos para SIM
-		cSql := "Update ZA7010 Set ZA7_PGRAMA = 'S' WHERE ZA7_CODPRO = '" + Alltrim(TAUX->PRODUTO) + "' " 
+		cSql := "Update ZA7010 Set ZA7_PGRAMA = 'S' WHERE ZA7_CODPRO = '" + CV(TAUX->PRODUTO) + "' " 
 		
 		If nIntPro == 100
 			IncProc("Atualizando o Produto " +  Alltrim(TAUX->PRODUTO) + " para SIM" )
@@ -273,7 +276,7 @@ Static Function  ExecMensal()// Execucoes Mensais
 	
 	Endif 
 	
-	If lCuraABC
+	If lCurvABC
 
 		//3  Calculo das Curvas ABC  
 		bAction 	:= {|| CurvasABC() }
@@ -282,6 +285,13 @@ Static Function  ExecMensal()// Execucoes Mensais
 	
 	Endif 
 
+	If lCurvPQR
+		//3.2 Calculo das Curvas PQR Consultado e Cliente  
+		bAction 	:= {|| CurvasPQR() }
+		cTitulo   	:= "Calculando Curva PQR "
+		Processa( bAction, @cTitulo, @cMsg, @lAbort )
+	
+	Endif 
 Return Nil
 ******************************************************************************
 Static Function PreRecMes()
@@ -322,7 +332,7 @@ Static Function B1PRONOVO() // 1.3 B1_PRONOVO => Produto NOVO
 	While !EOF()
 		
 		// Atualiza os Produtos para SIM
-		cSql := "UPDATE SB1010 SET B1_PRONOVO = 'S' WHERE B1_COD = '" + Alltrim(TAUX->PRODUTO) + "' " 
+		cSql := "UPDATE SB1010 SET B1_PRONOVO = 'S' WHERE B1_COD = '" + CV(TAUX->PRODUTO) + "' " 
 		
 		If nIntPro == 100
 			IncProc("Atualizando o Produto " +  Alltrim(TAUX->PRODUTO) + " para SIM" )
@@ -488,7 +498,7 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 		If lUpd
 		
 			// Atualiza os Produtos para SIM
-			cSql := "UPDATE SB1010 SET B1_PROATIV = 'S' WHERE B1_COD = '" + Alltrim(TAUX->PRODUTO) + "' "
+			cSql := "UPDATE SB1010 SET B1_PROATIV = 'S' WHERE B1_COD = '" + CV(TAUX->PRODUTO) + "' "
 		
 			If nIntPro == 100
 				IncProc("Atualizando o Produto " +  Alltrim(TAUX->PRODUTO) + " para SIM" )
@@ -571,7 +581,7 @@ Static Function B1MSBLOQ()//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados
 		If !HMGet(oHTCov , TAUX->PRODUTO , @aValHT)
 		
 			// Atualiza os Produtos para SIM
-			cSql := "UPDATE SB1010 SET B1_MSBLQL = '1' WHERE B1_COD = '" + Alltrim(TAUX->PRODUTO) + "' "
+			cSql := "UPDATE SB1010 SET B1_MSBLQL = '1' WHERE B1_COD = '" + CV(TAUX->PRODUTO) + "' "
 	
 			If nIntPro == 100
 				IncProc("Atualizando o Produto " +  Alltrim(TAUX->PRODUTO) + " para BLOQUEADO" )
@@ -600,7 +610,8 @@ Return Nil
 Static Function MediaCOV()// 2.1.1 Calculo Média do COV
 ******************************************************************************
 	Local cSql 		:= ""
-	Local cSDataI 	:= dToS(DataRef(nMeses := 12))
+	Local nPeriodo  := 12 // Divisor para media Mes 
+	Local cSDataI 	:= dToS(DataRef(nMeses := nPeriodo))
 	Local cSDataF 	:= dToS(DataRef(nMeses := 1 ,.T.))  
 	Local nPAtu 	:= 0 // Total de Produtos Atualizados 
 	Local nIntPro 	:= 0 // Intervalo IncProc
@@ -610,16 +621,21 @@ Static Function MediaCOV()// 2.1.1 Calculo Média do COV
 
 	ProcRegua(0)
 	IncProc()
+	
+	IncProc("Apagando Tabela Temporária" )
+	U_ExecMySql( cSql := "Drop Table MEDCOV" , cCursor := "", cModo := "E", lMostra, lChange := .F. )
+	
+	
 	//*************************************************************************
 	// Montando Media do COV  
 	//*************************************************************************
-
-	cSql := "SELECT FILIAL, PRODUTO, SUM(MCONS) MCONS, SUM(MOFER) MOFER, SUM(MVREV) MVREV, SUM(MFATU) MFATU "
+	cSql := "CREATE TABLE MEDCOV AS "
+	cSql += "SELECT FILIAL, PRODUTO, SUM(MCONS) MCONS, SUM(MOFER) MOFER, SUM(MVREV) MVREV, SUM(MFATU) MFATU "
 	cSql += "FROM ( "
 	cSql += "SELECT ZA0.ZA0_FILIAL FILIAL, ZA0.ZA0_PRODUT PRODUTO, " 
-	cSql += "Round( Sum(ZA0.ZA0_QUANTD) / COUNT(ZA0.ZA0_QUANTD),2) MCONS, " 
-	cSql += "Round( Sum(ZA0.ZA0_QOFERT) / COUNT(ZA0.ZA0_QUANTD),2) MOFER, " 
-	cSql += "Round( Sum(ZA0.ZA0_VENDRE) / COUNT(ZA0.ZA0_QUANTD),2) MVREV, "
+	cSql += "Round( Sum(ZA0.ZA0_QUANTD) / "+cValToChar(nPeriodo)+",2) MCONS, " 
+	cSql += "Round( Sum(ZA0.ZA0_QOFERT) / "+cValToChar(nPeriodo)+",2) MOFER, " 
+	cSql += "Round( Sum(ZA0.ZA0_VENDRE) / "+cValToChar(nPeriodo)+",2) MVREV, "
 	cSql += "Round( Sum(0) ,2) MFATU " 
 	cSql += "FROM ZA0010 ZA0 INNER JOIN SB1010 SB1 "
 	cSql += "ON ZA0.ZA0_PRODUT = SB1.B1_COD "
@@ -636,7 +652,7 @@ Static Function MediaCOV()// 2.1.1 Calculo Média do COV
 	cSql += "Round( Sum(0) ,2) MCONS, " 
 	cSql += "Round( Sum(0) ,2) MOFER, " 
 	cSql += "Round( Sum(0) ,2) MVREV, "
-	cSql += "Round( Sum(SD2.D2_QUANT) / COUNT(SD2.D2_QUANT),2) MFATU "
+	cSql += "Round( Sum(SD2.D2_QUANT) / "+cValToChar(nPeriodo)+",2) MFATU "
 	cSql += "FROM SD2010 SD2 INNER JOIN SF2010 SF2 "
 	cSql += "ON   SD2.D2_FILIAL = SF2.F2_FILIAL "
 	cSql += "AND  SD2.D2_DOC    = SF2.F2_DOC "
@@ -663,9 +679,12 @@ Static Function MediaCOV()// 2.1.1 Calculo Média do COV
 	cSql += "GROUP BY FILIAL, PRODUTO "
 	cSql += "ORDER BY PRODUTO, FILIAL "
 
-	IncProc("Montando Media do COV Periodo: ["+SToC(cSDataI)+" ate "+SToC(cSDataF)+"] " )
-	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
+	IncProc("Criando Tabela Auxiliar Media do COV Periodo: ["+SToC(cSDataI)+" ate "+SToC(cSDataF)+"] " )
+	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
 
+	
+	cSql := "SELECT * FROM MEDCOV"
+	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
 	
 	//*************************************************************************
 	// Zerando Todos as Medias do COV
@@ -681,11 +700,11 @@ Static Function MediaCOV()// 2.1.1 Calculo Média do COV
 		
 			// Atualiza os Produtos para SIM
 			cSql := "UPDATE ZA7010 SET "
-			cSql += "ZA7_M12CP 	= "+cValToChar(TAUX->MCONS)+", " // Média 12 Meses Consultado.
-			cSql += "ZA7_M12OP  = "+cValToChar(TAUX->MOFER)+", " // Média 12 Meses Ofertado.
-			cSql += "ZA7_M12VP  = "+cValToChar(TAUX->MFATU)+", " // Média 12 Meses Vendido.
-			cSql += "ZA7_M12VRP = "+cValToChar(TAUX->MVREV)+"  " // Média 12 Meses Venda Revisada.
-			cSql += "WHERE ZA7_FILIAL = "+Alltrim(TAUX->FILIAL)+" AND ZA7_CODPRO = '" + Alltrim(TAUX->PRODUTO) + "' "
+			cSql += "ZA7_M12CP 	= "+CV(TAUX->MCONS)+", " // Média 12 Meses Consultado.
+			cSql += "ZA7_M12OP  = "+CV(TAUX->MOFER)+", " // Média 12 Meses Ofertado.
+			cSql += "ZA7_M12VP  = "+CV(TAUX->MFATU)+", " // Média 12 Meses Vendido.
+			cSql += "ZA7_M12VRP = "+CV(TAUX->MVREV)+"  " // Média 12 Meses Venda Revisada.
+			cSql += "WHERE ZA7_FILIAL = "+CV(TAUX->FILIAL)+" AND ZA7_CODPRO = '" + CV(TAUX->PRODUTO) + "' "
 	
 			If nIntPro == 100
 				IncProc("Atualizando as Medias da [Filial-Produto] " + Alltrim(TAUX->FILIAL) +"-"+Alltrim(TAUX->PRODUTO) + "" )
@@ -712,6 +731,7 @@ Return Nil
 Static Function SomaMCOV()// 2.1.2 - Soma Media do COV  
 ******************************************************************************
 	Local cSql 		:= ""
+	
 	Local cSDataI 	:= dToS(DataRef(nMeses := 12))
 	Local cSDataF 	:= dToS(DataRef(nMeses := 1,.T. ))  
 	Local nPAtu 	:= 0 // Total de Produtos Atualizados 
@@ -719,7 +739,7 @@ Static Function SomaMCOV()// 2.1.2 - Soma Media do COV
 	Local oHTCov	:= HMNew()	// Tabela Hash COV
 	Local aValHT	:= Nil		// Auxiliar para Obter Valor nas Hash Tables 
 
-
+	
 	ProcRegua(0)
 	IncProc()
 	//*************************************************************************
@@ -727,59 +747,7 @@ Static Function SomaMCOV()// 2.1.2 - Soma Media do COV
 	//*************************************************************************
 
 	cSql := "SELECT SB1.B1_CODITE CODITE,  SUM(MCONS) SMCONS, SUM(MOFER) SMOFER, SUM(MVREV) SMVREV, SUM(MFATU) SMFATU "
-	cSql += "FROM (	 "
-	cSql += "SELECT FILIAL, PRODUTO, SUM(MCONS) MCONS, SUM(MOFER) MOFER, SUM(MVREV) MVREV, SUM(MFATU) MFATU "
-	cSql += "FROM ( "
-	cSql += "SELECT ZA0.ZA0_FILIAL FILIAL, ZA0.ZA0_PRODUT PRODUTO, " 
-	cSql += "Round( Sum(ZA0.ZA0_QUANTD) / COUNT(ZA0.ZA0_QUANTD),2) MCONS, " 
-	cSql += "Round( Sum(ZA0.ZA0_QOFERT) / COUNT(ZA0.ZA0_QUANTD),2) MOFER, "
-	cSql += "Round( Sum(ZA0.ZA0_VENDRE) / COUNT(ZA0.ZA0_QUANTD),2) MVREV, "
-	cSql += "Round( Sum(0) ,2) MFATU  "
-	cSql += "FROM ZA0010 ZA0 INNER JOIN SB1010 SB1 "
-	cSql += "ON ZA0.ZA0_FILIAL = SB1.B1_FILIAL "
-	cSql += "AND ZA0.ZA0_PRODUT = SB1.B1_COD  "
-	cSql += "WHERE ZA0.ZA0_DTNECL BETWEEN '" + cSDataI + "' AND '" + cSDataF + "' "
-	cSql += "AND   ZA0.D_E_L_E_T_ = ' ' "
-	cSql += "AND   SB1.B1_PROATIV = 'S' "
-	cSql += "AND   SB1.B1_GRMAR1 IN ('000001','000002') AND SB1.B1_TIPO IN ('PA','PP','MP') "
-	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
-	cSql += "GROUP BY ZA0.ZA0_FILIAL, ZA0.ZA0_PRODUT "
-	
-	cSql += "UNION "
-	
-	cSql += "SELECT  SD2.D2_FILIAL FILIAL, SD2.D2_COD PRODUTO, "
-	cSql += "Round( Sum(0) ,2) MCONS,  "
-	cSql += "Round( Sum(0) ,2) MOFER,  "
-	cSql += "Round( Sum(0) ,2) MVREV, "
-	cSql += "Round( Sum(SD2.D2_QUANT) / COUNT(SD2.D2_QUANT),2) MFATU "
-	cSql += "FROM SD2010 SD2 INNER JOIN SF2010 SF2 "
-	cSql += "ON   SD2.D2_FILIAL = SF2.F2_FILIAL "
-	cSql += "AND  SD2.D2_DOC    = SF2.F2_DOC "
-	cSql += "AND  SD2.D2_SERIE  = SF2.F2_SERIE "
-	cSql += "AND  SD2.D2_CLIENTE= SF2.F2_CLIENT "
-	cSql += "AND  SD2.D2_LOJA   = SF2.F2_LOJA "
-	cSql += "		INNER JOIN SF4010 SF4 "
-	cSql += "ON  SD2.D2_FILIAL = SF4.F4_FILIAL "
-	cSql += "		INNER JOIN SB1010 SB1 "
-	cSql += "ON   SD2.D2_FILIAL = SB1.B1_FILIAL "
-	cSql += "AND  SD2.D2_COD    = SB1.B1_COD "
-	cSql += "AND SD2.D2_TES    = SF4.F4_CODIGO "
-	cSql += "WHERE SF2.F2_EMISSAO BETWEEN '" + cSDataI + "' AND '" + cSDataF + "' "
-	cSql += "AND   SF4.F4_ESTOQUE = 'S' "
-	cSql += "AND   SF4.F4_DUPLIC = 'S' "
-	cSql += "AND   SF2.F2_CLIENT <> 'N00000' " 
-	cSql += "AND   SD2.D_E_L_E_T_ = ' ' "
-	cSql += "AND   SF2.D_E_L_E_T_ = ' ' "
-	cSql += "AND   SF4.D_E_L_E_T_ = ' ' "
-	cSql += "AND   SB1.B1_PROATIV = 'S' "
-	cSql += "AND   SB1.B1_GRMAR1 IN ('000001','000002') AND SB1.B1_TIPO IN ('PA','PP','MP') "
-	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
-	
-	cSql += "GROUP BY SD2.D2_FILIAL, SD2.D2_COD "
-	cSql += ")  "
-	cSql += "GROUP BY FILIAL, PRODUTO "
-	cSql += "ORDER BY PRODUTO, FILIAL "
-	cSql += ") MED, "
+	cSql += "FROM MEDCOV MED, "
 	cSql += "SB1010 SB1 "
 	cSql += "WHERE SB1.B1_FILIAL = '05' "
 	cSql += "AND   SB1.B1_COD = MED.PRODUTO "
@@ -803,25 +771,26 @@ Static Function SomaMCOV()// 2.1.2 - Soma Media do COV
 		
 			// Atualiza os CODITE 
 			cSql := "UPDATE ZA7010 SET "
-			cSql += "ZA7_M12CPI  = " + cValToChar(TAUX->SMCONS) + ", " // Soma da Média do Consultado.
-			cSql += "ZA7_M12OPI  = " + cValToChar(TAUX->SMOFER) + ", " // Soma da Média do Ofertado.
-			cSql += "ZA7_M12VPI  = " + cValToChar(TAUX->SMFATU) + ", " // Soma da Média do Vendido.
-			cSql += "ZA7_M12VRI  = " + cValToChar(TAUX->SMVREV) + ", " // Soma da Média do Venda Revisada.
-			cSql += "WHERE ZA7_CODITE = '" + Alltrim(TAUX->SMFATU) + "' "
+			cSql += "ZA7_M12CPI = " + CV(TAUX->SMCONS) + ", " // Soma da Média do Consultado.
+			cSql += "ZA7_M12OPI = " + CV(TAUX->SMOFER) + ", " // Soma da Média do Ofertado.
+			cSql += "ZA7_M12VPI = " + CV(TAUX->SMFATU) + ", " // Soma da Média do Vendido.
+			cSql += "ZA7_M12VRI = " + CV(TAUX->SMVREV) + "  "  // Soma da Média do Venda Revisada.
+			cSql += "WHERE ZA7_CODITE = '" + CV(TAUX->CODITE) + "' "
 			
 			If nIntPro == 100
-				IncProc("Atualizando as Somas Media do CodItem " + Alltrim(TAUX->SMFATU) + "" )
+				IncProc("Atualizando as Somas Media do CodItem " + Alltrim(TAUX->CODITE) + "" )
 				nIntPro := 0
 			Else
 				nIntPro += 1
 			EndIf 
-		
+			
 			U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
 		
 			nPAtu += 1
 			
 			eVal(bAbort)
-
+		
+		DbSelectArea("TAUX")
 		DbSkip()
 	EndDo
 	DbSelectArea("TAUX");DbCloseArea()
@@ -835,7 +804,8 @@ Static Function CoefVar()// 2.2  Calculo do Coeficiente de Variabilidade
 *******************************************************************************
 
 	Local cSql := ""
-	Local cSDataI 	:= dToS(DataRef(nMeses := 36))
+	Local nPeriodo  := 36 // numero de meses para divisor 
+	Local cSDataI 	:= dToS(DataRef(nMeses := nPeriodo))
 	Local cSDataF 	:= dToS(DataRef(nMeses := 1,.T. ))  
 	
 	Local cCoefMin 	:= Alltrim(cValToChar(0.25))
@@ -892,7 +862,7 @@ Static Function CoefVar()// 2.2  Calculo do Coeficiente de Variabilidade
 	 
 	cSql := "CREATE TABLE TAUX_MRP AS "  
 	cSql += "SELECT 	SB1.B1_CODITE 				ITEM, " 
-	cSql += "ROUND( SUM(ZA0.ZA0_VENDRE) / COUNT(ZA0.ZA0_VENDRE) ,4 ) MEDIAVR "
+	cSql += "ROUND( SUM(ZA0.ZA0_VENDRE) / "+CV(nPeriodo)+" ,4 ) MEDIAVR "
 	cSql += "FROM ZA0010 ZA0 INNER JOIN SB1010 SB1 "
 	cSql += "ON   ZA0.ZA0_PRODUT = SB1.B1_COD "
 	cSql += "WHERE ZA0.ZA0_DTNECL BETWEEN  '" + cSDataI + "' AND '" + cSDataF + "' "
@@ -927,7 +897,7 @@ Static Function CoefVar()// 2.2  Calculo do Coeficiente de Variabilidade
 	DropTAux() // Dropa a Tabela Temporaria Auxiliar do MRP
 	
 	cSql := "CREATE TABLE TAUX_MRP AS "  
-	cSql += "SELECT CV.ITEM,  ROUND( SUM(CV.VLABS),4) SOMA, ROUND( COUNT(CV.VLABS),4) QTD, ROUND( SUM(CV.VLABS) / COUNT(CV.VLABS) ,4 ) MEDIAABS " 
+	cSql += "SELECT CV.ITEM,  ROUND( SUM(CV.VLABS),4) SOMA, ROUND( "+CV(nPeriodo)+",4) QTD, ROUND( SUM(CV.VLABS) / "+CV(nPeriodo)+" ,4 ) MEDIAABS " 
 	cSql += "FROM COEFVAR CV GROUP BY CV.ITEM "
 	
 	U_ExecMySql( cSql, cCursor := "", cModo := "E", lMostra, lChange := .F. )
@@ -946,7 +916,7 @@ Static Function CoefVar()// 2.2  Calculo do Coeficiente de Variabilidade
 	//***************************************************************
 	// Calculando Desvio Padrao 
 	IncProc("Calculando Desvio Padrao e Aplicando na Tabela [COEFVAR]" )
-	cSql := "UPDATE COEFVAR SET COEFVAR.DESVPAD = ROUND( ( COEFVAR.MEDIAABS / 36 ) ,4 )"
+	cSql := "UPDATE COEFVAR SET COEFVAR.DESVPAD = ROUND( ( COEFVAR.MEDIAABS / "+CV(nPeriodo)+" ) ,4 )"
 	
 	U_ExecMySql( cSql, cCursor := "", cModo := "E", lMostra, lChange := .F. )
 	
@@ -955,8 +925,8 @@ Static Function CoefVar()// 2.2  Calculo do Coeficiente de Variabilidade
 	// Calculando Coeficiente e Atualizando na Tabela 
 	IncProc( "Calculando Coeficiente e Atualizando na Tabela [COEFVAR]" )
 	cSql := "UPDATE COEFVAR SET COEFICIENTE = CASE " 
-	cSql += "WHEN ROUND( DESVPAD / DECODE(MEDIAVR,0,1,MEDIAVR) ,4) < "+cCoefMin+" THEN "+cCoefMin+" " 
-	cSql += "WHEN ROUND( DESVPAD / DECODE(MEDIAVR,0,1,MEDIAVR) ,4) > "+cCoefMax+" THEN "+cCoefMax+" "
+	cSql += "WHEN ROUND( DESVPAD / DECODE(MEDIAVR,0,1,MEDIAVR) ,4) < "+CV(cCoefMin)+" THEN "+CV(cCoefMin)+" " 
+	cSql += "WHEN ROUND( DESVPAD / DECODE(MEDIAVR,0,1,MEDIAVR) ,4) > "+CV(cCoefMax)+" THEN "+CV(cCoefMax)+" "
 	cSql += "ELSE ROUND( DESVPAD / DECODE(MEDIAVR,0,1,MEDIAVR) ,4) "
 	cSql += "END "
 
@@ -975,8 +945,8 @@ Static Function CoefVar()// 2.2  Calculo do Coeficiente de Variabilidade
 		
 			// Atualizando ZA7_CVVRIT
 			cSql := "UPDATE ZA7010 SET "
-			cSql += "ZA7_CVVRIT  = " + cValToChar(TAUX->COEFICIENTE) + " " // Soma da Média do Consultado.
-			cSql += "WHERE ZA7_CODITE = '" + Alltrim(TAUX->ITEM) + "' "
+			cSql += "ZA7_CVVRIT  = " + CV(TAUX->COEFICIENTE) + " " // Soma da Média do Consultado.
+			cSql += "WHERE ZA7_CODITE = '" + CV(TAUX->ITEM) + "' "
 			
 			If nIntPro == 100
 				IncProc("Atualizando Coeficiente [ZA7_CVVRIT] do ITEM " + Alltrim(TAUX->ITEM) + "" )
@@ -1163,23 +1133,23 @@ Static Function RankVen()//2.3  Calculo do Ranking de Vendas
 		
 			cSql := "UPDATE SIGA.ZA7010 SET "
 			If 		Alltrim(TAUX->TIPO) == "VEP"	// Atualizando ZA7_RKVDIP - Venda em Peças.
-				cSql += "ZA7_RKVDIP = " + Alltrim(cValToChar(TAUX->POSICAO)) + " " 
+				cSql += "ZA7_RKVDIP = " + CV(TAUX->POSICAO) + " " 
 				nPAtuPV += 1
 			
 			ElseIf Alltrim(TAUX->TIPO) == "VEV"		// Atualizando ZA7_RKVDIV - Venda em Valor.
-				cSql += "ZA7_RKVDIV = " + Alltrim(cValToChar(TAUX->POSICAO)) + " " 
+				cSql += "ZA7_RKVDIV = " + CV(TAUX->POSICAO) + " " 
 				nPAtuVV += 1
 			
 			ElseIf Alltrim(TAUX->TIPO) == "VRP"		// Atualizando ZA7_RKVRIP - Venda Revisada em Peças. 
-				cSql += "ZA7_RKVRIP = " + Alltrim(cValToChar(TAUX->POSICAO)) + " " 
+				cSql += "ZA7_RKVRIP = " + CV(TAUX->POSICAO) + " " 
 				nPAtuPR += 1
 			
 			ElseIf Alltrim(TAUX->TIPO) == "VRV"		// Atualizando ZA7_RKVRIV - Venda Revisada em Valor
-				cSql += "ZA7_RKVRIV = " + Alltrim(cValToChar(TAUX->POSICAO)) + " " 
+				cSql += "ZA7_RKVRIV = " + CV(TAUX->POSICAO) + " " 
 				nPAtuVR += 1
 			
 			EndIf
-			cSql += "WHERE ZA7_CODITE = '" + Alltrim(TAUX->CODITE) + "' "
+			cSql += "WHERE ZA7_CODITE = '" + CV(TAUX->CODITE) + "' "
 			
 			If nIntPro == 100
 				If 		Alltrim(TAUX->TIPO) == "VEP"
@@ -1219,8 +1189,6 @@ Static Function CurvasABC() // 3  Curvas ABC
 *******************************************************************************
 
 	Local cSql := ""
-	Local cSDataI 	:= dToS(DataRef(nMeses := 12))
-	Local cSDataF 	:= dToS(DataRef(nMeses := 1,.T. ))  
 	Local cFaixa    := "" // Armazena a Faixa na Qual se enquadrou o ITEM
 	
 	// Salva os Totais de Vendas
@@ -1330,7 +1298,6 @@ Static Function CurvasABC() // 3  Curvas ABC
 	
 	DbSelectArea("TAUX");DbGotop()
 	While !EOF()
-	
 		
 		If		Alltrim(TAUX->TIPO) == "VEP"	// Curva ABC - Venda em Peças.
 			
@@ -1338,7 +1305,7 @@ Static Function CurvasABC() // 3  Curvas ABC
 			cFaixa := AvalABC(@nPAtuPV, @nSAcuVEP, @nSVanVEP, @nSAcPVEP, @nSTotVEP, "VEP" )
 			
 			cTexto	:= "Atualizando Curva ABC Venda Peca ITEM " + Alltrim(TAUX->CODITE)
-			cSql	:= "UPDATE SB1010 SET B1_CURVAIT = SUBSTR(B1_CURVAIT,1,1)||'"+cFaixa+"' WHERE B1_CODITE = '" + Alltrim(TAUX->CODITE) + "' "
+			cSql	:= "UPDATE SB1010 SET B1_CURVAIT = SUBSTR(B1_CURVAIT,1,1)||'"+cFaixa+"' WHERE B1_CODITE = '" + CV(TAUX->CODITE) + "' "
 			
 		ElseIf 	Alltrim(TAUX->TIPO) == "VEV"		//  Curva ABC - Venda em Valor.
 			
@@ -1346,7 +1313,7 @@ Static Function CurvasABC() // 3  Curvas ABC
 			cFaixa := AvalABC(@nPAtuVV, @nSAcuVEV, @nSVanVEV, @nSAcPVEV, @nSTotVEV, "VEV" )
 			
 			cTexto	:= "Atualizando Curva ABC Venda Valor ITEM " + Alltrim(TAUX->CODITE)
-			cSql	:= "UPDATE SB1010 SET B1_CURVAIT = '"+cFaixa+"'||SUBSTR(B1_CURVAIT,2,1) WHERE B1_CODITE = '" + Alltrim(TAUX->CODITE) + "' "
+			cSql	:= "UPDATE SB1010 SET B1_CURVAIT = '"+cFaixa+"'||SUBSTR(B1_CURVAIT,2,1) WHERE B1_CODITE = '" + CV(TAUX->CODITE) + "' "
 			
 		ElseIf 	Alltrim(TAUX->TIPO) == "VRP"		//  Curva ABC - Venda Revisada em Peças. 
 			
@@ -1354,7 +1321,7 @@ Static Function CurvasABC() // 3  Curvas ABC
 			cFaixa := AvalABC(@nPAtuPR, @nSAcuVRP, @nSVanVRP, @nSAcPVRP, @nSTotVRP, "VRP" )
 			
 			cTexto 	:= "Atualizando Curva ABC Venda Revisada Peca ITEM " + Alltrim(TAUX->CODITE)
-			cSql 	:= "UPDATE ZA7010 SET ZA7_ABCVRI = SUBSTR(ZA7_ABCVRI,1,1)||'"+cFaixa+"' WHERE ZA7_CODITE = '" + Alltrim(TAUX->CODITE) + "' "
+			cSql 	:= "UPDATE ZA7010 SET ZA7_ABCVRI = SUBSTR(ZA7_ABCVRI,1,1)||'"+CV(cFaixa)+"' WHERE ZA7_CODITE = '" + CV(TAUX->CODITE) + "' "
 			
 		ElseIf 	Alltrim(TAUX->TIPO) == "VRV"		//  Curva ABC - Venda Revisada em Valor
 			
@@ -1362,20 +1329,20 @@ Static Function CurvasABC() // 3  Curvas ABC
 			cFaixa := AvalABC(@nPAtuVR, @nSAcuVRV, @nSVanVRV, @nSAcPVRV, @nSTotVRV, "VRV" )
 			
 			cTexto 	:= "Atualizando Curva ABC Venda Revisada Valor ITEM " + Alltrim(TAUX->CODITE)
-			cSql 	:= "UPDATE ZA7010 SET ZA7_ABCVRI = '"+cFaixa+"'||SUBSTR(ZA7_ABCVRI,2,1) WHERE ZA7_CODITE = '" + Alltrim(TAUX->CODITE) + "' "
+			cSql 	:= "UPDATE ZA7010 SET ZA7_ABCVRI = '"+CV(cFaixa)+"'||SUBSTR(ZA7_ABCVRI,2,1) WHERE ZA7_CODITE = '" + CV(TAUX->CODITE) + "' "
 			
 		EndIf
 		
 		If nIntPro == 100
 			ConOut("nPercent : " + cValToChar(nPercent) + " ITEM: " + Alltrim(TAUX->CODITE) )
 			If 		Alltrim(TAUX->TIPO) == "VEP"
-				IncProc("Atualizando Curva ABV Venda Peças [B1_CURVAIT] ITEM " + Alltrim(TAUX->CODITE) + "" )
+				IncProc("Atualizando Curva ABC Venda Peças [B1_CURVAIT] ITEM " + Alltrim(TAUX->CODITE) + "" )
 			ElseIf 	Alltrim(TAUX->TIPO) == "VEV"		
-				IncProc("Atualizando Curva ABV Venda Valor [B1_CURVAIT] ITEM " + Alltrim(TAUX->CODITE) + "" )
+				IncProc("Atualizando Curva ABC Venda Valor [B1_CURVAIT] ITEM " + Alltrim(TAUX->CODITE) + "" )
 			ElseIf 	Alltrim(TAUX->TIPO) == "VRP"	
-				IncProc("Atualizando Curva ABV Venda Revisada Peças [ZA7_ABCVRI] ITEM " + Alltrim(TAUX->CODITE) + "" )
+				IncProc("Atualizando Curva ABC Venda Revisada Peças [ZA7_ABCVRI] ITEM " + Alltrim(TAUX->CODITE) + "" )
 			ElseIf 	Alltrim(TAUX->TIPO) == "VRV"
-				IncProc("Atualizando Curva ABV Venda Revisada Valor [ZA7_ABCVRI] ITEM " + Alltrim(TAUX->CODITE) + "" )
+				IncProc("Atualizando Curva ABC Venda Revisada Valor [ZA7_ABCVRI] ITEM " + Alltrim(TAUX->CODITE) + "" )
 			EndIf
 			nIntPro := 0
 		Else
@@ -1389,20 +1356,58 @@ Static Function CurvasABC() // 3  Curvas ABC
 	EndDo
 	DbSelectArea("TAUX");DbCloseArea()
 	
+	/// Ajustando Curva E
+	cTexto 	:= "Ajustando Curva E - B1_CURVAIT - Curva ABC Item Vlr-Pcs "
+	cSql := "SELECT ZA7_CODITE CODITE, SUBSTR(B1_CURVAIT,1,1) VEP, SUBSTR(B1_CURVAIT,2,1) VEV, SUBSTR(ZA7_ABCVRI,1,1) VRP,SUBSTR(ZA7_ABCVRI,2,1) VRV "   
+	cSql += "FROM ZA7010 ZA7  INNER JOIN SB1010 SB1 ON ZA7.ZA7_FILIAL = SB1.B1_FILIAL AND ZA7.ZA7_CODPRO = SB1.B1_COD "
+	cSql += "WHERE 	( SUBSTR(ZA7_ABCVRI,1,1) != 'Z' OR SUBSTR(ZA7_ABCVRI,2,1) != 'Z') " 
+	cSql += "AND   	( SUBSTR(B1_CURVAIT,1,1)  = 'Z' OR SUBSTR(B1_CURVAIT,2,1)  = 'Z') "
+	cSql += "AND 	ZA7.D_E_L_E_T_ = ' ' "
+	cSql += "AND 	SB1.D_E_L_E_T_  = ' ' "
+	cSql += "GROUP BY ZA7_CODITE, ZA7_ABCVRI, B1_CURVAIT "
 	
-	cTexto 	:= "Sincronizando [ZA7_ABCMC - Curva ABC Margem] com [B1_CURVAIT - Curva ABC Item Vlr-Pcs] "
-	cSql 	:= "SELECT 'UPDATE ZA7010 SET ZA7_ABCMC = ''' || SUBSTR(B1_CURVAIT,1,2) || ''' WHERE ZA7_CODITE = ''' || TRIM(SB1.B1_CODITE) || '''' AS UPD 
-	cSql 	+= "FROM SB1010 SB1 WHERE B1_FILIAL = '05' AND   B1_CODITE > ' ' AND   D_E_L_E_T_ = ' '"
+	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
+	DbSelectArea("TAUX");dbGotop();nIntPro := 0; cFaixa := "E"
+	While !EOF()
+		
+		// Ajustando Faixa Pecas 
+		If TAUX->VRP <> "Z" .And.  TAUX->VEP == "Z" 
+			cSql := "UPDATE SB1010 SET B1_CURVAIT = '"+cFaixa+"'||SUBSTR(B1_CURVAIT,2,1) WHERE B1_CODITE = '" + CV(TAUX->CODITE) + "' "
+			U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
+		Endif 	
+		
+		// Ajustando Faixa Valor 
+		If TAUX->VRV <> "Z" .And.  TAUX->VEV == "Z" 
+			cSql := "UPDATE SB1010 SET B1_CURVAIT = SUBSTR(B1_CURVAIT,1,1) || '"+cFaixa+"' WHERE B1_CODITE = '" + CV(TAUX->CODITE) + "' "
+			U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
+		Endif 	
+		
+		If nIntPro == 100
+			IncProc("Ajustando Curva E [B1_CURVAIT] Item " + CV(TAUX->CODITE) )
+			nIntPro := 0
+		Else
+			nIntPro += 1
+		EndIf 
+	
+		DbSelectArea("TAUX")
+		DbSkip()
+	EndDO
+	DbSelectArea("TAUX");DbCloseArea()
+	
+	
+	/// Sincronizando 
+	cTexto 	:= "Sincronizando [ZA7_ABCMC - Curva ABC Margem] com [B1_CURVAIT - Curva ABC Item Valor] "
+	cSql :=	"SELECT 'UPDATE ZA7010 SET ZA7_ABCMC = SUBSTR(ZA7_ABCMC,1,1)|| ''' || SUBSTR(B1_CURVAIT,1,1) ||  ''' WHERE ZA7_CODITE = ''' || TRIM(SB1.B1_CODITE) || ''' ' AS UPD "
+	cSql +=	"FROM SB1010 SB1 WHERE B1_FILIAL = '05' AND   B1_CODITE > ' ' AND   SUBSTR(B1_CURVAIT,2,1) IN ('Z','E') AND D_E_L_E_T_ = ' ' "
 	
 	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
 	DbSelectArea("TAUX");dbGotop();nIntPro := 0
 	While !EOF()
 		
-		
 		U_ExecMySql( TAUX->UPD , cCursor := "", cModo := "E", lMostra, lChange := .F. )
 		
 		If nIntPro == 100
-			IncProc("Sincronizando [ZA7_ABCMC - Curva ABC Margem] com [B1_CURVAIT - Curva ABC Item Vlr-Pcs] " )
+			IncProc(cTexto )
 			nIntPro := 0
 		Else
 			nIntPro += 1
@@ -1450,39 +1455,7 @@ Static Function VerFABC(nPercent, cItem, cTipo ) // Verifica a Faixa ABC do Item
 			cFaixa := " "
 	End Case 
 
-	/*
-	If Empty(cFaixa) .And. Substr(cTipo,1,2) == "VE"
-		
-		cSql := "SELECT COUNT(TIPO) NREG FROM RANKVEN WHERE SUBSTR(TIPO,1,2) = 'VR' AND CODITE = '" + Alltrim(cItem) + "' " 
-		
-		U_ExecMySql( cSql , cCursor := "TVER", cModo := "Q", lMostra, lChange := .F. )
-	
-		DbSelectArea("TVER");DbGoTop()
-		
-		If TVER->NREG > 0
-			cFaixa := "E"
-		Else
-			cFaixa := "Z"
-		EndIf
-		
-		DbSelectArea("TVER");DbCloseArea()
-	
-	ElseIf Substr(cTipo,1,2) == "VR"
-		
-		cSql := "SELECT COUNT(TIPO) NREG FROM RANKVEN WHERE CODITE = '" + Alltrim(cItem) + "' " 
-		
-		U_ExecMySql( cSql , cCursor := "TVER", cModo := "Q", lMostra, lChange := .F. )
-	
-		DbSelectArea("TVER");DbGoTop()
-		
-		If TVER->NREG == 0
-			cFaixa := "Z"
-		EndIf
-		
-		DbSelectArea("TVER");DbCloseArea()
-	
-	EndIf
-	*/
+
 Return cFaixa
 *******************************************************************************
 Static Function AvalABC(nPAtu, nSAcu, nSVan, nSAcP, nSTot ,cQuem )
@@ -1496,7 +1469,7 @@ Static Function AvalABC(nPAtu, nSAcu, nSVan, nSAcP, nSTot ,cQuem )
 				
 		nPercent := NoRound( ( nSAcP / nSTot * 100 ), 0 )  
 			
-	Else// Quando os Valores são diferentes, envia o aCumulo Normal ja pode ser alterado a Faixa
+	Else// Quando os Valores são diferentes, envia o aCumulado Normal, ja pode ser alterado a Faixa
 		nPercent := NoRound( ( nSAcu / nSTot * 100 ), 0 )  
 				
 		nSAcP := nSAcu
@@ -1508,6 +1481,206 @@ Static Function AvalABC(nPAtu, nSAcu, nSVan, nSAcP, nSTot ,cQuem )
 	nSVan := TAUX->SOMA
 
 Return cFaixa 
+*******************************************************************************
+Static Function CurvasPQR() // 3.2.	Curvas PQR
+*******************************************************************************
+
+	Local cSql := ""
+	Local cSDataI 	:= dToS(DataRef(nMeses := 12))
+	Local cSDataF 	:= dToS(DataRef(nMeses := 1,.T. ))  
+	Local cFaixa    := "" // Armazena a Faixa na Qual se enquadrou o ITEM
+
+	Local nPercent  := 0 // Guarda o Resultado do Calculo de Percentual de Representação do Item
+	
+	Local nIntPro 	:= 0 // Intervalo IncProc
+
+	Local nSToCITE 	:= 0 // Soma Total de Consultas Item
+	Local nPAcuITE 	:= 0 // Percentual Acumulado de Consultas Item
+	Local nPAPaITE 	:= 0 // Percentual Acumulado Paralelo de Consultas Item
+	Local nPercITE 	:= 0 // Percentual do CodITe Sobre Total de Consultas Itens 
+	
+	Local nSToCCLI 	:= 0 // Soma Total de Consultas Cliente
+	Local nPAcuCLI 	:= 0 // Percentual Acumulado de Consultas Cliente
+	Local nPAPaCLI 	:= 0 // Percentual Acumulado Paralelo de Consultas Cliente
+	Local nPercCLI 	:= 0 // Percentual do CodITe Sobre Total de Consultas Clientes 
+
+	Local nTotIUpd 	:= 0 // Total de Itens Consulta Itens Atualizados  
+	Local nTotCUpd 	:= 0 // Total de Itens Consulta Clientes Atualizados 
+	
+	ProcRegua(0)
+	IncProc()
+	
+	IncProc("Resetando Consulta PQR..." )
+	U_ExecMySql( "UPDATE ZA7010 SET ZA7_PQR = 'ZZ' ", cCursor := "", cModo := "E", lMostra, lChange := .F. )
+	
+	IncProc("Excluindo Tabela Auxiliar [RANKPQR]" )
+	U_ExecMySql( "Drop Table RANKPQR" , cCursor := "", cModo := "E", lMostra, lChange := .F. )
+	
+	
+	// Consultando Curva PQR
+	cSql :="CREATE TABLE RANKPQR AS "
+	cSql +="SELECT TABA.CODITE, CONITE, POSITE, CONCLI, POSCLI "
+	cSql +="FROM  "
+	cSql +="	(   SELECT  SB1.B1_CODITE   	CODITE, "
+	cSql +="			SUM(ZA0_QUANTD) 		CONITE, " 
+	cSql +="			RANK() OVER (ORDER BY ROUND( SUM(ZA0_QUANTD) , 2 ) DESC  ) POSITE " 
+	cSql +="		FROM ZA0010 ZA0 INNER JOIN SB1010 SB1 " 
+	cSql +="		ON 	ZA0.ZA0_FILIAL = SB1.B1_FILIAL " 
+	cSql +="		AND ZA0.ZA0_PRODUT = SB1.B1_COD " 
+ 	cSql +="		WHERE ZA0_DTNECL BETWEEN  '" + cSDataI + "' AND '" + cSDataF + "' "
+ 	cSql +="		AND   ZA0.D_E_L_E_T_ = ' ' " 
+ 	cSql +="		AND   SB1.B1_GRMAR1 IN ( '000001', '000002' ) " 
+ 	cSql +="		AND   SB1.B1_TIPO IN ( 'PA', 'PP', 'MP' ) " 
+ 	cSql +="		AND   SB1.D_E_L_E_T_ = ' ' " 
+ 	cSql +="		GROUP BY SB1.B1_CODITE " 
+ 	cSql +="	 ) TABA, "  
+	
+ 	cSql +="	 ( 	SELECT 	CODITE, "
+	cSql +="			COUNT(CLIENTE) CONCLI, "
+	cSql +="			RANK() OVER (ORDER BY ROUND( COUNT(CLIENTE) , 2 ) DESC  ) POSCLI "
+	cSql +="		FROM ( "	
+	cSql +="				SELECT 	DISTINCT " 
+	cSql +="				SB1.B1_CODITE 	CODITE, "
+	cSql +="				ZA0.ZA0_CLIENT  CLIENTE "
+	cSql +="				FROM ZA0010 ZA0 INNER JOIN SB1010 SB1 " 
+	cSql +="				ON 	ZA0.ZA0_FILIAL = SB1.B1_FILIAL " 
+	cSql +="				AND ZA0.ZA0_PRODUT = SB1.B1_COD " 
+ 	cSql +="				WHERE ZA0_DTNECL BETWEEN  '" + cSDataI + "' AND '" + cSDataF + "' "
+ 	cSql +="				AND   ZA0.D_E_L_E_T_ = ' ' " 
+ 	cSql +="				AND   SB1.B1_GRMAR1 IN ( '000001', '000002' ) " 
+ 	cSql +="				AND   SB1.B1_TIPO IN ( 'PA', 'PP', 'MP' ) " 
+ 	cSql +="				AND   SB1.D_E_L_E_T_ = ' ' " 
+ 	cSql +="		) GROUP BY CODITE " 
+ 	cSql +="	  ) TABB "
+ 	
+ 	cSql +="	WHERE TABA.CODITE = TABB.CODITE "
+ 	cSql +="	ORDER BY TABA.CODITE "
+	
+	IncProc("Criando Tabela Auxiliar [RANKPQR]" )
+	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
+	
+	IncProc("Consultando Tabela Auxiliar [RANKPQR] Total Consultas" )
+	U_ExecMySql( "SELECT SUM(CONITE) TCONITE FROM RANKPQR"  , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
+	
+	DbSelectArea("TAUX");DbGoTop()
+	nSToCITE := TAUX->TCONITE
+	DbSelectArea("TAUX");DbCloseArea()
+	
+
+	IncProc("Consultando Tabela Auxiliar [RANKPQR] Consultas por Item" )
+	U_ExecMySql( "SELECT CODITE, CONITE, POSITE  FROM RANKPQR ORDER BY POSITE"  , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
+	
+	DbSelectArea("TAUX");dbGotop();nIntPro := 0
+	While !EOF()
+	
+		cFaixa := AvalFPQR(@nPercITE, @nPAcuITE, @nPAPaITE, nSToCITE, "TAUX->CONITE" )  
+		
+		If nIntPro == 100
+			IncProc("Atualizando Curva PQR Consulta Item " + CV(TAUX->CODITE)) 
+			nIntPro := 0
+		Else
+			nIntPro += 1
+		EndIf 
+
+		nTotIUpd += 1  
+	 	
+		cSql := "UPDATE ZA7010 SET ZA7_PQR = '"+cFaixa+"' || SUBSTR(ZA7_PQR,2,1) WHERE ZA7_CODITE = '" + CV(TAUX->CODITE) + "' "
+		U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
+		
+		DbSelectArea("TAUX")
+		DbSkip()
+	EndDo
+	DbSelectArea("TAUX");DbCloseArea()
+	
+	IncProc("Consultando Tabela Auxiliar [RANKPQR] Total Clientes" )
+	U_ExecMySql( "SELECT SUM(CONCLI) TCONCLI FROM RANKPQR"  , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
+
+	DbSelectArea("TAUX");DbGoTop()
+	nSToCCLI := TAUX->TCONCLI
+	DbSelectArea("TAUX");DbCloseArea()
+	
+
+	IncProc("Consultando Tabela Auxiliar [RANKPQR] Consultas por Cliente" )
+	U_ExecMySql( "SELECT CODITE, CONCLI, POSCLI FROM RANKPQR ORDER BY POSCLI"  , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
+
+	DbSelectArea("TAUX");dbGotop();nIntPro := 0
+	While !EOF()
+	
+		cFaixa := AvalFPQR(@nPercCLI, @nPAcuCLI, @nPAPaCLI, nSToCCLI, "TAUX->CONCLI" )  
+		
+		If nIntPro == 100
+			IncProc("Atualizando Curva PQR Consulta Cliente "  + CV(TAUX->CODITE)) 
+			nIntPro := 0
+		Else
+			nIntPro += 1
+		EndIf 
+
+		nTotCUpd+= 1
+			
+		cSql := "UPDATE ZA7010 SET ZA7_PQR =  SUBSTR(ZA7_PQR,1,1) || '"+cFaixa+"'  WHERE ZA7_CODITE = '" + CV(TAUX->CODITE) + "' "
+		U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
+		
+		DbSelectArea("TAUX")
+		DbSkip()
+	EndDo
+	DbSelectArea("TAUX");DbCloseArea()
+	
+	MntLog ("3.2  Montagem Curva PQR Consulta Item e Cliente " + ENTER + ; 
+			"Foram Atualizados: " + ENTER + ;
+			 "Curva PQR Consultas "	+ Alltrim( Transform(nTotIUpd,"@E 99,999,999"))  + ENTER + ;
+			 "Curva PQR Clientes "	+ Alltrim( Transform(nTotCUpd,"@E 99,999,999"))  + ENTER + ;
+			 " Em cada Filial por CODITE. ","Campo [ZA7_PQR]")
+
+
+Return Nil
+*******************************************************************************	
+Static Function AvalFPQR(nPerc, nPAcu, nPAPa, nSToC, CpoCon ) // Avalia Faixa do Item na Curva PQR [Consultas e Clientes ]
+*******************************************************************************		
+	// Faixas Consultas ITem
+	Local nFxPQRIP := 50 // Faixa PQR Consulta Itens P
+	Local nFxPQRIQ := nFxPQRIP + 35 // Faixa PQR Consulta Itens Q
+	Local nFxPQRIR := 100 - Round( 24 / nSToC * 100 , 20) // Faixa PQR Consulta Itens R [Nao e Percentual e sim 254 consultas ]
+	Local nFxPQRIS := 100 // Faixa PQR Consulta Itens S [ Menos de 24 Consultas]
+	
+	// Faixas Consultas Cliente	
+	Local nFxPQRCP := 50 // Faixa PQR Consulta Itens P
+	Local nFxPQRCQ := nFxPQRIP + 35 // Faixa PQR Consulta Itens Q
+	Local nFxPQRCR := nFxPQRCQ + 13 // Faixa PQR Consulta Itens R 
+	Local nFxPQRCS := nFxPQRCR + 02 // Faixa PQR Consulta Itens S
+		
+	If nPerc <>  ( &CpoCon / nSToC * 100 , 20) 
+		nPAcu := nPAPa
+		nPAcu += nPerc := Round( &CpoCon / nSToC * 100 , 20)
+		nPAPa := nPAcu
+	Else
+		nPAPa += nPerc := Round( &CpoCon / nSToC *100 , 20)
+	EndIf
+		
+	If AT("ITE",CpoCon) > 0
+		If nPAcu <= nFxPQRIP
+			cFaixa := "P"
+		ElseIf nPAcu <= nFxPQRIQ
+			cFaixa := "Q"
+		ElseIf nPAcu <= nFxPQRIR
+			cFaixa := "R"
+		ElseIf nPAcu <= nFxPQRIS
+			cFaixa := "S"
+		EndIf
+	
+	Elseif AT("CLI",CpoCon) > 0
+		If nPAcu <= nFxPQRCP
+			cFaixa := "P"
+		ElseIf nPAcu <= nFxPQRCQ
+			cFaixa := "Q"
+		ElseIf nPAcu <= nFxPQRCR
+			cFaixa := "R"
+		ElseIf nPAcu <= nFxPQRCS
+			cFaixa := "S"
+		EndIf
+	EndIf 
+	
+Return cFaixa
+
 *******************************************************************************
 Static Function DataRef(nMeses,lUlt)//| Retorna a data dia 1 de nMeses atraz
 *******************************************************************************
@@ -1564,3 +1737,11 @@ Static Function ShowLog()// Mostra o LOG
 	U_CaixaTexto(cLog)
 
 Return Nil
+*******************************************************************************
+Static Function CV(xValor)// Converte  Variaveis para Caracter sem espacos
+*******************************************************************************
+	cValor := ""
+
+	cValor := Alltrim(cValToChar(xValor))
+
+Return cValor
