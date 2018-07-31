@@ -377,12 +377,25 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	cSql := "SELECT ZA0_PRODUT PRODUTO "
 	cSql += "FROM ZA0010 ZA0 INNER JOIN SB1010 SB1 "
 	cSql += "ON SB1.B1_COD = ZA0.ZA0_PRODUT "
+	
+	cSql += " 				 INNER JOIN SUA010 SUA "
+	cSql += "ON  ZA0.ZA0_FILIAL    =     SUA.UA_FILIAL "
+	cSql += "AND ZA0.ZA0_NUMORC    =     SUA.UA_NUM "
+	cSql += "AND ZA0.ZA0_CLIENT    =	 SUA.UA_CLIENTE "
+	cSql += "AND ZA0.ZA0_LOJACL    =	 SUA.UA_LOJA "
+	
 	cSql += "WHERE ZA0_DTNECL BETWEEN '" + cSDataI + "' AND '" + cSDataF + "' "
 	cSql += "AND   ZA0.D_E_L_E_T_ = ' ' "
 	cSql += "AND   SB1.B1_FILIAL = '05' "
 	cSql += "AND   SB1.B1_GRMAR1 IN ('000001','000002') AND SB1.B1_TIPO IN ('PA','PP','MP')"
 	cSql += "AND   SB1.B1_DESC NOT LIKE '%(N USAR)%' "
 	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
+	
+	cSql += "AND SUA.D_E_L_E_T_ = ' ' "
+	cSql += "AND SUA.UA_STATUS  !=  'CAN' "
+	cSql += "AND SUA.UA_CANC    !=  'S' "
+	
+
 	cSql += "GROUP BY ZA0_PRODUT "
 
 	IncProc("Consultando COV apartir entre " + SToC(cSDataI) + " e "+ SToC(cSDataF) )
@@ -541,11 +554,23 @@ Static Function B1MSBLOQ()//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados
 	//*************************************************************************
 	cSql := "SELECT ZA0_PRODUT PRODUTO FROM ZA0010 ZA0 INNER JOIN SB1010 SB1 "
 	cSql += "ON ZA0.ZA0_PRODUT = SB1.B1_COD "
+	
+	cSql += " 				 INNER JOIN SUA010 SUA "
+	cSql += "ON  ZA0.ZA0_FILIAL    =     SUA.UA_FILIAL "
+	cSql += "AND ZA0.ZA0_NUMORC    =     SUA.UA_NUM "
+	cSql += "AND ZA0.ZA0_CLIENT    =	 SUA.UA_CLIENTE "
+	cSql += "AND ZA0.ZA0_LOJACL    =	 SUA.UA_LOJA "
+
 	cSql += "WHERE ZA0_DTNECL >= '" + cSData + "' "
 	cSql += "AND   ZA0.D_E_L_E_T_ = ' ' "
 	cSql += "AND   SB1.B1_FILIAL = '05' " 
 	cSql += "AND   SB1.B1_GRMAR1 IN ('000001','000002') AND SB1.B1_TIPO IN ('PA','PP','MP') "
 	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
+	
+	cSql += "AND SUA.D_E_L_E_T_ = ' ' "
+	cSql += "AND SUA.UA_STATUS  !=  'CAN' "
+	cSql += "AND SUA.UA_CANC    !=  'S' "
+
 	cSql += "GROUP BY ZA0_PRODUT "
 
 	IncProc("Consultando COV apartir de  " + SToC(cSData) )
@@ -639,11 +664,23 @@ Static Function MediaCOV()// 2.1.1 Calculo Média do COV
 	cSql += "Round( Sum(0) ,2) MFATU " 
 	cSql += "FROM ZA0010 ZA0 INNER JOIN SB1010 SB1 "
 	cSql += "ON ZA0.ZA0_PRODUT = SB1.B1_COD "
+	
+	cSql += " 				 INNER JOIN SUA010 SUA "
+	cSql += "ON  ZA0.ZA0_FILIAL    =     SUA.UA_FILIAL "
+	cSql += "AND ZA0.ZA0_NUMORC    =     SUA.UA_NUM "
+	cSql += "AND ZA0.ZA0_CLIENT    =	 SUA.UA_CLIENTE "
+	cSql += "AND ZA0.ZA0_LOJACL    =	 SUA.UA_LOJA "
+	
 	cSql += "WHERE ZA0.ZA0_DTNECL BETWEEN '" + cSDataI + "' AND '" + cSDataF + "' "
 	cSql += "AND ZA0.D_E_L_E_T_ = ' ' "
 	cSql += "AND SB1.B1_FILIAL = '05' "
 	cSql += "AND SB1.B1_GRMAR1 IN ('000001','000002') AND SB1.B1_TIPO IN ('PA','PP','MP') "
 	cSql += "AND SB1.D_E_L_E_T_ = ' ' "
+	
+	cSql += "AND SUA.D_E_L_E_T_ = ' ' "
+	cSql += "AND SUA.UA_STATUS  !=  'CAN' "
+	cSql += "AND SUA.UA_CANC    !=  'S' "
+
 	cSql += "GROUP BY ZA0.ZA0_FILIAL, ZA0.ZA0_PRODUT "
 	
 	cSql += "UNION "   
@@ -838,11 +875,23 @@ Static Function CoefVar()// 2.2  Calculo do Coeficiente de Variabilidade
 	cSql += "ROUND( SUM(0) ) 					COEFICIENTE "
 	cSql += "FROM ZA0010 ZA0 INNER JOIN SB1010 SB1 "
 	cSql += "ON   ZA0.ZA0_PRODUT = SB1.B1_COD "
+	
+	cSql += " 				 INNER JOIN SUA010 SUA "
+	cSql += "ON  ZA0.ZA0_FILIAL    =     SUA.UA_FILIAL "
+	cSql += "AND ZA0.ZA0_NUMORC    =     SUA.UA_NUM "
+	cSql += "AND ZA0.ZA0_CLIENT    =	 SUA.UA_CLIENTE "
+	cSql += "AND ZA0.ZA0_LOJACL    =	 SUA.UA_LOJA "
+	
 	cSql += "WHERE ZA0.ZA0_DTNECL BETWEEN '" + cSDataI + "' AND '" + cSDataF + "' "
 	cSql += "AND   ZA0.D_E_L_E_T_ = ' ' "
 	cSql += "AND   SB1.B1_FILIAL = '05' "
 	cSql += "AND   SB1.B1_GRMAR1 IN ('000001','000002') AND SB1.B1_TIPO IN ('PA','PP','MP') "
 	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
+	
+	cSql += "AND SUA.D_E_L_E_T_ = ' ' "
+	cSql += "AND SUA.UA_STATUS  !=  'CAN' "
+	cSql += "AND SUA.UA_CANC    !=  'S' "
+	
 	cSql += "GROUP BY SB1.B1_CODITE, SUBSTR(ZA0.ZA0_DTNECL,1,6) "
 
 	U_ExecMySql( cSql, cCursor := "", cModo := "E", lMostra, lChange := .F. )
@@ -865,11 +914,23 @@ Static Function CoefVar()// 2.2  Calculo do Coeficiente de Variabilidade
 	cSql += "ROUND( SUM(ZA0.ZA0_VENDRE) / "+CV(nPeriodo)+" ,4 ) MEDIAVR "
 	cSql += "FROM ZA0010 ZA0 INNER JOIN SB1010 SB1 "
 	cSql += "ON   ZA0.ZA0_PRODUT = SB1.B1_COD "
+	
+	cSql += " 				 INNER JOIN SUA010 SUA "
+	cSql += "ON  ZA0.ZA0_FILIAL    =     SUA.UA_FILIAL "
+	cSql += "AND ZA0.ZA0_NUMORC    =     SUA.UA_NUM "
+	cSql += "AND ZA0.ZA0_CLIENT    =	 SUA.UA_CLIENTE "
+	cSql += "AND ZA0.ZA0_LOJACL    =	 SUA.UA_LOJA "
+	
 	cSql += "WHERE ZA0.ZA0_DTNECL BETWEEN  '" + cSDataI + "' AND '" + cSDataF + "' "
 	cSql += "AND   ZA0.D_E_L_E_T_ = ' ' "
 	cSql += "AND   SB1.B1_FILIAL = '05' "
 	cSql += "AND   SB1.B1_GRMAR1 IN ('000001','000002') AND SB1.B1_TIPO IN ('PA','PP','MP') "
 	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
+	
+	cSql += "AND SUA.D_E_L_E_T_ = ' ' "
+	cSql += "AND SUA.UA_STATUS  !=  'CAN' "
+	cSql += "AND SUA.UA_CANC    !=  'S' "
+
 	cSql += "GROUP BY SB1.B1_CODITE "
 	
 	U_ExecMySql( cSql, cCursor := "", cModo := "E", lMostra, lChange := .F. )
@@ -1077,6 +1138,13 @@ Static Function RankVen()//2.3  Calculo do Ranking de Vendas
 	cSql += "	ZA0010 ZA0 "
 	cSql += "INNER JOIN SB1010 SB1 ON "
 	cSql += "	ZA0.ZA0_PRODUT = SB1.B1_COD "
+	
+	cSql += " 				 INNER JOIN SUA010 SUA "
+	cSql += "ON  ZA0.ZA0_FILIAL    =     SUA.UA_FILIAL "
+	cSql += "AND ZA0.ZA0_NUMORC    =     SUA.UA_NUM "
+	cSql += "AND ZA0.ZA0_CLIENT    =	 SUA.UA_CLIENTE "
+	cSql += "AND ZA0.ZA0_LOJACL    =	 SUA.UA_LOJA "
+	
 	cSql += "WHERE "
 	cSql += "	ZA0.ZA0_DTNECL BETWEEN '" + cSDataI + "' AND '" + cSDataF + "' "
 	cSql += "	AND ZA0.D_E_L_E_T_ = ' ' "
@@ -1084,6 +1152,11 @@ Static Function RankVen()//2.3  Calculo do Ranking de Vendas
 	cSql += "	AND SB1.B1_GRMAR1 IN ( '000001', '000002' ) "
 	cSql += "	AND SB1.B1_TIPO IN ( 'PA', 'PP', 'MP' ) "
 	cSql += "	AND SB1.D_E_L_E_T_ = ' ' "
+	
+	cSql += "	AND SUA.D_E_L_E_T_ = ' ' "
+	cSql += "	AND SUA.UA_STATUS  !=  'CAN' "
+	cSql += "	AND SUA.UA_CANC    !=  'S' "
+
 	cSql += "	GROUP BY SB1.B1_CODITE " 				
 
 	cSql += "UNION ALL " 
@@ -1098,6 +1171,13 @@ Static Function RankVen()//2.3  Calculo do Ranking de Vendas
 	cSql += "	ZA0010 ZA0 "
 	cSql += "INNER JOIN SB1010 SB1 ON "
 	cSql += "	ZA0.ZA0_PRODUT = SB1.B1_COD "
+	
+	cSql += " 				 INNER JOIN SUA010 SUA "
+	cSql += "ON  ZA0.ZA0_FILIAL    =     SUA.UA_FILIAL "
+	cSql += "AND ZA0.ZA0_NUMORC    =     SUA.UA_NUM "
+	cSql += "AND ZA0.ZA0_CLIENT    =	 SUA.UA_CLIENTE "
+	cSql += "AND ZA0.ZA0_LOJACL    =	 SUA.UA_LOJA "
+	
 	cSql += "WHERE "
 	cSql += "	ZA0.ZA0_DTNECL BETWEEN '" + cSDataI + "' AND '" + cSDataF + "' "
 	cSql += "	AND ZA0.D_E_L_E_T_ = ' ' "
@@ -1105,6 +1185,11 @@ Static Function RankVen()//2.3  Calculo do Ranking de Vendas
 	cSql += "	AND SB1.B1_GRMAR1 IN ( '000001', '000002' ) "
 	cSql += "	AND SB1.B1_TIPO IN ( 'PA', 'PP', 'MP' ) "
 	cSql += "	AND SB1.D_E_L_E_T_ = ' ' "
+	
+	cSql += "	AND SUA.D_E_L_E_T_ = ' ' "
+	cSql += "	AND SUA.UA_STATUS  !=  'CAN' "
+	cSql += "	AND SUA.UA_CANC    !=  'S' "
+
 	cSql += "	GROUP BY SB1.B1_CODITE "
 	
 	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra := .F., lChange := .F. )
@@ -1527,11 +1612,23 @@ Static Function CurvasPQR() // 3.2.	Curvas PQR
 	cSql +="		FROM ZA0010 ZA0 INNER JOIN SB1010 SB1 " 
 	cSql +="		ON 	ZA0.ZA0_FILIAL = SB1.B1_FILIAL " 
 	cSql +="		AND ZA0.ZA0_PRODUT = SB1.B1_COD " 
+ 	
+ 	cSql += " 				 INNER JOIN SUA010 SUA "
+ 	cSql += "		ON  ZA0.ZA0_FILIAL    =  SUA.UA_FILIAL "
+ 	cSql += "		AND ZA0.ZA0_NUMORC    =  SUA.UA_NUM "
+ 	cSql += "		AND ZA0.ZA0_CLIENT    =	 SUA.UA_CLIENTE "
+ 	cSql += "		AND ZA0.ZA0_LOJACL    =	 SUA.UA_LOJA "
+ 	
  	cSql +="		WHERE ZA0_DTNECL BETWEEN  '" + cSDataI + "' AND '" + cSDataF + "' "
  	cSql +="		AND   ZA0.D_E_L_E_T_ = ' ' " 
  	cSql +="		AND   SB1.B1_GRMAR1 IN ( '000001', '000002' ) " 
  	cSql +="		AND   SB1.B1_TIPO IN ( 'PA', 'PP', 'MP' ) " 
  	cSql +="		AND   SB1.D_E_L_E_T_ = ' ' " 
+ 	
+ 	cSql += "		AND SUA.D_E_L_E_T_ = ' ' "
+ 	cSql += "		AND SUA.UA_STATUS  !=  'CAN' "
+ 	cSql += "		AND SUA.UA_CANC    !=  'S' "
+ 	
  	cSql +="		GROUP BY SB1.B1_CODITE " 
  	cSql +="	 ) TABA, "  
 	
@@ -1545,11 +1642,23 @@ Static Function CurvasPQR() // 3.2.	Curvas PQR
 	cSql +="				FROM ZA0010 ZA0 INNER JOIN SB1010 SB1 " 
 	cSql +="				ON 	ZA0.ZA0_FILIAL = SB1.B1_FILIAL " 
 	cSql +="				AND ZA0.ZA0_PRODUT = SB1.B1_COD " 
+	
+	cSql += " 				INNER JOIN SUA010 SUA "
+	cSql += "				ON  ZA0.ZA0_FILIAL    =  SUA.UA_FILIAL "
+	cSql += "				AND ZA0.ZA0_NUMORC    =  SUA.UA_NUM "
+	cSql += "				AND ZA0.ZA0_CLIENT    =	 SUA.UA_CLIENTE "
+	cSql += "				AND ZA0.ZA0_LOJACL    =	 SUA.UA_LOJA "
+
  	cSql +="				WHERE ZA0_DTNECL BETWEEN  '" + cSDataI + "' AND '" + cSDataF + "' "
  	cSql +="				AND   ZA0.D_E_L_E_T_ = ' ' " 
  	cSql +="				AND   SB1.B1_GRMAR1 IN ( '000001', '000002' ) " 
  	cSql +="				AND   SB1.B1_TIPO IN ( 'PA', 'PP', 'MP' ) " 
  	cSql +="				AND   SB1.D_E_L_E_T_ = ' ' " 
+ 	
+ 	cSql += "				AND SUA.D_E_L_E_T_ = ' ' "
+ 	cSql += "				AND SUA.UA_STATUS  !=  'CAN' "
+ 	cSql += "				AND SUA.UA_CANC    !=  'S' "
+ 	
  	cSql +="		) GROUP BY CODITE " 
  	cSql +="	  ) TABB "
  	
