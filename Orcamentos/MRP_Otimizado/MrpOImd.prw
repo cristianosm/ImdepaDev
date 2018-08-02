@@ -659,7 +659,7 @@ Static Function MediaCOV()// 2.1.1 Calculo Média do COV
 	cSql += "FROM ( "
 	cSql += "SELECT ZA0.ZA0_FILIAL FILIAL, ZA0.ZA0_PRODUT PRODUTO, " 
 	cSql += "Round( Sum(ZA0.ZA0_QUANTD) / "+cValToChar(nPeriodo)+",2) MCONS, " 
-	cSql += "Round( Sum(ZA0.ZA0_QOFERT) / "+cValToChar(nPeriodo)+",2) MOFER, " 
+	cSql += "Round( Sum(ZA0.ZA0_QOATEN) / "+cValToChar(nPeriodo)+",2) MOFER, " 
 	cSql += "Round( Sum(ZA0.ZA0_VENDRE) / "+cValToChar(nPeriodo)+",2) MVREV, "
 	cSql += "Round( Sum(0) ,2) MFATU " 
 	cSql += "FROM ZA0010 ZA0 INNER JOIN SB1010 SB1 "
