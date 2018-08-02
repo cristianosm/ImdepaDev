@@ -107,8 +107,8 @@ User function MetasMargem()
 	
 	    //| Chamado: 22203 - Desconsiderar Devolucao
 		//| Devolucoes
-		// ConLog("Obtendo Devolucoes...")
-		// Devolucao()
+		//| ConLog("Obtendo Devolucoes...")
+		//| Devolucao()
 		//| Fim Chamado 22203
 	
 		//| Calcula Indices  
@@ -542,8 +542,6 @@ Static Function Indices() // Calcula os Indices
 	// Deve Atualizar o Valor Percentual Atingido para o TOTAL Imdepa... 
 	HMSet( oHaPri, cGerImd+FAT_MET+P_PER, Round( nMAFatRea / nMAFatMet * 100, 4 )   )  // 'P' //| Percentual
 	HMSet( oHaPri, cGerImd+MAR_MET+P_PER, Round( nMAMarRea / nMAMarMet * 100, 4 )   )  // 'P' //| Percentual
-		
-	
 	
 Return Nil 
 *******************************************************************************
