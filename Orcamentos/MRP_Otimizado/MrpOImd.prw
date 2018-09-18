@@ -26,13 +26,14 @@ User Function MrpOImd()
 *******************************************************************************
 
 	
-	Private lMostra := .F.
-	Private lStatusP:= .F.
-	Private lMedias := .F.
-	Private lCoefVar:= .F.
-	Private lRankVen:= .F.
-	Private lCurvABC:= .F.
-	Private lCurvPQR:= .F.
+	Private lMostra  := .F.
+	Private lStatusP := .F.
+	Private lMedias  := .F.
+	Private lCoefVar := .F.
+	Private lRankVen := .F.
+	Private lCurvABC := .F.
+	Private lCurvPQR := .F.
+	Private lCurABCM := .F.
 	
 	Private lAbort 	
 	Private bAbort	:= { || IIf ( lAbort == .T., Alert("Não vá neste momento"), "" ) }
@@ -47,6 +48,7 @@ User Function MrpOImd()
 		lRankVen := Iw_MsgBox("Deseja Calcular o Ranking de Vendas ?","Atenção","YESNO")
 		lCurvABC := Iw_MsgBox("Deseja calcular a Curva ABC ?","Atenção","YESNO")
 		lCurvPQR := Iw_MsgBox("Deseja calcular a Curva PQR ?","Atenção","YESNO")
+		lCurABCM := Iw_MsgBox("Deseja calcular a Curva ABC Margem ?","Atenção","YESNO")
 		
 		If lCurvABC
 			lRankVen := lCurvABC
@@ -292,6 +294,16 @@ Static Function  ExecMensal()// Execucoes Mensais
 		Processa( bAction, @cTitulo, @cMsg, @lAbort )
 	
 	Endif 
+	
+	If lCurABCM
+
+		//3  Calculo das Curvas ABC  
+		bAction 	:= {|| CurvABCM() }
+		cTitulo   	:= "Calculando Curvas ABC Margem"
+		Processa( bAction, @cTitulo, @cMsg, @lAbort )
+	
+	Endif 
+	
 Return Nil
 ******************************************************************************
 Static Function PreRecMes()
@@ -1054,7 +1066,7 @@ Static Function RankVen()//2.3  Calculo do Ranking de Vendas
 	
 	
 	//***************************************************************	
-	// Criando Tabela Atualizada Base para o Calculo do Coeficiente ja com SOMA VR 
+	// Criando Tabela Atualizada Base para avaliar Rank de Vendas
 	IncProc("Criando e alimentando Tabela Auxiliar [RANKVEN]" )
 	
 	cSql := "CREATE TABLE RANKVEN AS " 
@@ -1790,6 +1802,139 @@ Static Function AvalFPQR(nPerc, nPAcu, nPAPa, nSToC, CpoCon ) // Avalia Faixa do
 	
 Return cFaixa
 
+*******************************************************************************
+Static Function CurvABCM() // "Calculando Curvas ABC Margem"
+*******************************************************************************
+
+
+	Local cSql := ""
+	Local cSDataI 	:= dToS(DataRef(nMeses := 12))
+	Local cSDataF 	:= dToS(DataRef(nMeses := 1,.T. ))  
+	
+	Local nIntPro 	:= 0 // Intervalo IncProc
+	
+	Local nSToMarg 	:= 0 // Soma Total das Margens
+	Local nPAcuSMA 	:= 0 // Percentual Acumulado de Soma Margem
+	Local nPAPaCIM 	:= 0 // Percentual Acumulado Paralelo de Soma Margem
+	Local nPercCIM 	:= 0 // Percentual do CodITe Sobre Total da Margem
+
+	Local nTotIUpd 	:= 0 // Total de ABC MArgem por Itens Atualizados  
+	
+	ProcRegua(0)
+	IncProc()
+	
+	//**************************************************************	
+	// Dropar Tabela Tamporaria RANKMAR
+	IncProc("Apagando Tabela Auxiliar [RANKMAR]" )
+	U_ExecMySql( cSql := "Drop Table RANKMAR" , cCursor := "", cModo := "E", lMostra, lChange := .F. )
+
+
+	//***************************************************************	
+	// Criando Tabela Atualizada Base para avaliar Ranking Margem
+	IncProc("Criando e alimentando Tabela Auxiliar [RANKMAR]" )
+
+	cSql := "CREATE TABLE RANKMAR AS " 
+	cSql += "SELECT " 
+	cSql += "	SB1.B1_CODITE CODITE, "
+	cSql += "	ROUND( SUM( D2_MARGEM ), 2 ) SOMA, "
+	cSql += "	RANK() OVER (ORDER BY ROUND( SUM( D2_MARGEM ), 2 ) DESC  ) POSICAO "
+	cSql += "FROM "
+	cSql += "	SD2010 SD2 "
+	cSql += "INNER JOIN SF2010 SF2 ON "
+	cSql += "	SD2.D2_FILIAL = SF2.F2_FILIAL "
+	cSql += "	AND SD2.D2_DOC = SF2.F2_DOC "
+	cSql += "	AND SD2.D2_SERIE = SF2.F2_SERIE "
+	cSql += "	AND SD2.D2_CLIENTE = SF2.F2_CLIENT "
+	cSql += "	AND SD2.D2_LOJA = SF2.F2_LOJA "
+	cSql += "INNER JOIN SF4010 SF4 ON "
+	cSql += "	SD2.D2_FILIAL = SF4.F4_FILIAL "
+	cSql += "	AND SD2.D2_TES = SF4.F4_CODIGO "
+	cSql += "INNER JOIN SB1010 SB1 ON "
+	cSql += "	SD2.D2_COD = SB1.B1_COD "
+	cSql += "WHERE "
+	cSql += "	SF2.F2_EMISSAO BETWEEN '" + cSDataI + "' AND '" + cSDataF + "' "
+	cSql += "	AND SF4.F4_ESTOQUE = 'S' "
+	cSql += "	AND SF4.F4_DUPLIC = 'S' "
+	cSql += "	AND SD2.D_E_L_E_T_ = ' ' "
+	cSql += "	AND SF2.D_E_L_E_T_ = ' ' "
+	cSql += "	AND SF4.D_E_L_E_T_ = ' ' "
+	cSql += "	AND SB1.B1_FILIAL = '05' "
+	cSql += "	AND SB1.B1_GRMAR1 IN ( '000001', '000002' ) "
+	cSql += "	AND SB1.B1_TIPO IN ( 'PA', 'PP', 'MP' ) "
+	cSql += "	AND SB1.D_E_L_E_T_ = ' ' "
+	cSql += "GROUP BY "
+	cSql += "	SB1.B1_CODITE "
+
+	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra := .F., lChange := .F. )
+	
+	IncProc("Consultando Tabela Auxiliar [RANKMAR] Rankin Margem" )
+	U_ExecMySql( "SELECT SUM(SOMA) TRM FROM RANKMAR "  , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
+	
+	DbSelectArea("TAUX");DbGoTop()
+	nSToMargem := TAUX->TRM
+	DbSelectArea("TAUX");DbCloseArea()
+	
+
+	IncProc("Consultando Tabela Auxiliar [RANKMAR] Ranking Margens por Item" )
+	U_ExecMySql( "SELECT CODITE, SOMA, POSICAO FROM RANKMAR ORDER BY POSICAO"  , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
+
+	DbSelectArea("TAUX");dbGotop();nIntPro := 0
+	While !EOF()
+		
+		cFaixa := AvaCABCM(@nPercCIM, @nPAcuSMA, @nPAPaCIM, nSToMarg, "TAUX->SOMA" )  
+		
+		If nIntPro == 100
+			IncProc("Atualizando Curva ABC Margem Item " + CV(TAUX->CODITE)) 
+			nIntPro := 0
+		Else
+			nIntPro += 1
+		EndIf 
+
+		nTotIUpd += 1 
+	 	
+		cSql := "UPDATE ZA7010 SET ZA7_ABCMC = SUBSTR(ZA7_ABCMC,1,1)||'"+cFaixa+"'  WHERE CODITE = '"+CV(TAUX->CODITE)+"' "
+		U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
+		
+		DbSelectArea("TAUX")
+		DbSkip()
+	EndDo
+	DbSelectArea("TAUX");DbCloseArea()
+
+
+	MntLog ("3.3  Montagem Curva ABC Margens " + ENTER + ; 
+			"Foram Atualizados: " + Alltrim( Transform(nTotIUpd,"@E 99,999,999"))  + ENTER + ;
+			 " Em cada Filial por CODITE. ","Campo [ZA7_ABCMC]" )
+Return
+*******************************************************************************
+Static Function AvaCABCM(nPerc, nPAcu, nPAPa, nSToM, CpoCon) // Avalia Posicao Ranking Margem 
+*******************************************************************************
+
+	// Faixas Cusva ABC Margem 
+	Local nFxABCMA := 50 			// Faixa Margem ABC - A 
+	Local nFxABCMB := nFxABCMA + 35 // Faixa Margem ABC - B
+	Local nFxABCMC := nFxABCMB + 13 // Faixa Margem ABC - C 
+	Local nFxABCMD := nFxABCMC + 2  // Faixa Margem ABC - D 
+		
+	If nPerc <> ( &CpoCon / nSToM * 100 , 20) 
+		nPAcu := nPAPa
+		nPAcu += nPerc := Round( &CpoCon / nSToM * 100 , 20)
+		nPAPa := nPAcu
+	Else
+		nPAPa += nPerc := Round( &CpoCon / nSToM *100 , 20)
+	EndIf
+		
+	If nPAcu <= nFxABCMA
+		cFaixa := "A"
+	ElseIf nPAcu <= nFxABCMB
+		cFaixa := "B"
+	ElseIf nPAcu <= nFxABCMC
+		cFaixa := "C"
+	ElseIf nPAcu <= nFxABCMD
+		cFaixa := "D"
+	EndIf
+	
+	
+Return cFaixa
 *******************************************************************************
 Static Function DataRef(nMeses,lUlt)//| Retorna a data dia 1 de nMeses atraz
 *******************************************************************************
