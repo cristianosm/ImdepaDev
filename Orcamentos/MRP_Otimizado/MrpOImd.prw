@@ -34,6 +34,7 @@ User Function MrpOImd()
 	Private lCurvABC := .F.
 	Private lCurvPQR := .F.
 	Private lCurABCM := .F.
+	Private lCuABCOV := .F.
 	
 	Private lAbort 	
 	Private bAbort	:= { || IIf ( lAbort == .T., Alert("Não vá neste momento"), "" ) }
@@ -49,6 +50,7 @@ User Function MrpOImd()
 		lCurvABC := Iw_MsgBox("Deseja calcular a Curva ABC ?","Atenção","YESNO")
 		lCurvPQR := Iw_MsgBox("Deseja calcular a Curva PQR ?","Atenção","YESNO")
 		lCurABCM := Iw_MsgBox("Deseja calcular a Curva ABC Margem ?","Atenção","YESNO")
+		lCuABCOV := Iw_MsgBox("Deseja calcular a Curva ABC Ofertado e Vendido ?","Atenção","YESNO")
 		
 		If lCurvABC
 			lRankVen := lCurvABC
@@ -297,9 +299,18 @@ Static Function  ExecMensal()// Execucoes Mensais
 	
 	If lCurABCM
 
-		//3  Calculo das Curvas ABC  
+		//3.3  Calculo das Curvas ABC Margem 
 		bAction 	:= {|| CurvABCM() }
 		cTitulo   	:= "Calculando Curvas ABC Margem"
+		Processa( bAction, @cTitulo, @cMsg, @lAbort )
+	
+	Endif 
+	
+	If lCuABCOV
+
+		//3.4  Calculo das Curvas ABC Ofertado e Vendido 
+		bAction 	:= {|| CurABCOV() }
+		cTitulo   	:= "Calculando Curvas ABC Ofertado e Vendido "
 		Processa( bAction, @cTitulo, @cMsg, @lAbort )
 	
 	Endif 
@@ -1803,7 +1814,7 @@ Static Function AvalFPQR(nPerc, nPAcu, nPAPa, nSToC, CpoCon ) // Avalia Faixa do
 Return cFaixa
 
 *******************************************************************************
-Static Function CurvABCM() // "Calculando Curvas ABC Margem"
+Static Function CurvABCM() // //3.3  Calculo das Curvas ABC Margem 
 *******************************************************************************
 
 
@@ -1935,6 +1946,94 @@ Static Function AvaCABCM(nPerc, nPAcu, nPAPa, nSToM, CpoCon) // Avalia Posicao R
 	
 	
 Return cFaixa
+*******************************************************************************
+Static Function CurABCOV()//3.4  Calculo das Curvas ABC Ofertado e Vendido
+*******************************************************************************
+	
+	Local cSql 		:= ""
+	Local nIntPro 	:= 0
+	Local nTotIUpd 	:= 0 // Total de Registros Atualizados... 
+	
+	ProcRegua(0)
+	IncProc()
+
+	//**************************************************************	
+	// Dropar Tabela Tamporaria CABCCV
+	IncProc("Apagando Tabela Auxiliar [CABCCV]" )
+	U_ExecMySql( cSql := "Drop Table CABCCV" , cCursor := "", cModo := "E", lMostra, lChange := .F. )
+
+	//***************************************************************	
+	// Criando Tabela Atualizada Base para avaliar Curva ABC Ofertado e Vendido
+	IncProc("Criando e alimentando Tabela Auxiliar [CABCCV] Curva ABC Ofertado e Vendido" )
+
+	cSql := "CREATE TABLE CABCCV AS "
+	cSql += "SELECT DISTINCT ZA7_CODITE CODITE,  "
+	cSql += "ZA7_M12OPI, ZA7_M12CPI, "
+	cSql += "CASE  "
+	cSql += "WHEN ROUND( ZA7_M12OPI / DECODE(ZA7_M12CPI,0,1,ZA7_M12CPI)  , 4 )  >= 0.90 THEN '1' "
+	cSql += "WHEN ROUND( ZA7_M12OPI / DECODE(ZA7_M12CPI,0,1,ZA7_M12CPI)  , 4 )  >= 0.80 THEN '2' "
+	cSql += "WHEN ROUND( ZA7_M12OPI / DECODE(ZA7_M12CPI,0,1,ZA7_M12CPI)  , 4 )  >= 0.70 THEN '3' "
+	cSql += "WHEN ROUND( ZA7_M12OPI / DECODE(ZA7_M12CPI,0,1,ZA7_M12CPI)  , 4 )  >= 0.63 THEN '4' "
+	cSql += "WHEN ROUND( ZA7_M12OPI / DECODE(ZA7_M12CPI,0,1,ZA7_M12CPI)  , 4 )  >= 0.50 THEN '5' "
+	cSql += "WHEN ROUND( ZA7_M12OPI / DECODE(ZA7_M12CPI,0,1,ZA7_M12CPI)  , 4 )  <  0.50 THEN '6' "
+	cSql += "WHEN ROUND( ZA7_M12OPI , 2 ) 			    = 0.00 THEN '7'  "
+	cSql += "WHEN ROUND( ZA7_M12CPI , 2 )                = 0.00 THEN '9' "
+	cSql += "END	OVE,  "
+	cSql += "ZA7_ABCOC, "
+	cSql += "ZA7_M12VPI , "
+	cSql += "CASE  "
+	cSql += "WHEN ROUND( ZA7_M12VPI / DECODE(ZA7_M12OPI,0,1,ZA7_M12OPI)  , 4 )  >= 0.65 THEN '1' "
+	cSql += "WHEN ROUND( ZA7_M12VPI / DECODE(ZA7_M12OPI,0,1,ZA7_M12OPI)  , 4 )  >= 0.55 THEN '2' "
+	cSql += "WHEN ROUND( ZA7_M12VPI / DECODE(ZA7_M12OPI,0,1,ZA7_M12OPI)  , 4 )  >= 0.50 THEN '3' "
+	cSql += "WHEN ROUND( ZA7_M12VPI / DECODE(ZA7_M12OPI,0,1,ZA7_M12OPI)  , 4 )  >= 0.45 THEN '4' "
+	cSql += "WHEN ROUND( ZA7_M12VPI / DECODE(ZA7_M12OPI,0,1,ZA7_M12OPI)  , 4 )  >= 0.35 THEN '5' "
+	cSql += "WHEN ROUND( ZA7_M12VPI / DECODE(ZA7_M12OPI,0,1,ZA7_M12OPI)  , 4 )  <  0.35 THEN '6' "
+	cSql += "WHEN ROUND( ZA7_M12VPI , 2 )			   =  0.00 THEN '7' "
+	cSql += "WHEN ROUND( ZA7_M12OPI , 2 )			   =  0.00 THEN '9' "
+	cSql += "END VEO, "
+	cSql += "ZA7_ABCVO "
+	cSql += "FROM ZA7010 ZA7, SB1010 SB1 "
+	cSql += "WHERE ZA7.D_E_L_E_T_ = ' ' "
+	cSql += "AND   ZA7.ZA7_CODITE > ' ' "
+	cSql += "AND   ZA7.ZA7_FILIAL = SB1.B1_FILIAL "
+	cSql += "AND   ZA7.ZA7_CODPRO  = SB1.B1_COD "
+	cSql += "AND   SB1.B1_FILIAL = '05' "
+	cSql += "AND   SB1.B1_GRMAR1 IN ('000001','000002') AND SB1.B1_TIPO IN ('PA','PP','MP') "
+	cSql += "AND   SB1.B1_DESC NOT LIKE '%(N USAR)%'  "
+	cSql += "AND   SB1.D_E_L_E_T_ = ' '  "
+	cSql += "ORDER BY ZA7_CODITE DESC "
+
+	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
+
+	IncProc("Consultando Tabela Auxiliar [CABCCV] Curva ABC Ofertado e Vendido" )
+	U_ExecMySql( cSql := "SELECT * FROM CABCCV" , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
+	
+	DbSelectArea("TAUX");dbGotop();nIntPro := 0
+	While !EOF()
+		
+		If nIntPro == 100
+			IncProc("Atualizando Curva ABC Ofertado e Vendido Item " + CV(TAUX->CODITE)) 
+			nIntPro := 0
+		Else
+			nIntPro += 1
+		EndIf 
+
+		nTotIUpd += 1 
+	 	
+		cSql := "UPDATE ZA7010 SET ZA7_ABCOC = '"+TAUX->OVE+"', ZA7_ABCVO = '"+TAUX->VEO+"' WHERE ZA7_CODITE = '"+CV(TAUX->CODITE)+"' "
+		U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
+		
+		DbSelectArea("TAUX")
+		DbSkip()
+	EndDo
+	DbSelectArea("TAUX");DbCloseArea()
+
+	MntLog ("3.5  Montagem Curva ABC Ofertado e Vendido " + ENTER + ; 
+			"Foram Atualizados: " + Alltrim( Transform(nTotIUpd,"@E 99,999,999"))  + ENTER + ;
+			"em cada Filial por CODITE. ","Campo [ZA7_ABCOC] E [ZA7_ABCVO]" )
+
+
+Return
 *******************************************************************************
 Static Function DataRef(nMeses,lUlt)//| Retorna a data dia 1 de nMeses atraz
 *******************************************************************************
