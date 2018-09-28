@@ -391,6 +391,9 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	Local oHTPar	:= HMNew()	// Tabela Hash Parametros Produto 
 	Local aValHT	:= Nil		// Auxiliar para Obter Valor nas Hash Tables 
 	
+	Local nRaizF1	:= 10 // Numero de digitos que formam a RAIZ da formacao do codigo na familia 1
+	Local nRaizF2	:= 7  // Numero de digitos que formam a RAIZ da formacao do codigo na familia 2
+	
 	ProcRegua(0)
 	IncProc()
 
@@ -418,7 +421,7 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	cSql += "AND SUA.UA_STATUS  !=  'CAN' "
 	cSql += "AND SUA.UA_CANC    !=  'S' "
 	
-
+	
 	cSql += "GROUP BY ZA0_PRODUT "
 
 	IncProc("Consultando COV apartir entre " + SToC(cSDataI) + " e "+ SToC(cSDataF) )
@@ -435,6 +438,8 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	//*************************************************************************
 	// Consulta Produtos com Estoque Imdepa
 	//*************************************************************************
+	
+	//-- PRODUTOS SEM FAMILIA 00
 	cSql := "SELECT B2_COD PRODUTO "
 	cSql += "FROM SB2010 SB2 INNER JOIN SB1010 SB1 "
 	cSql += "ON SB1.B1_COD = SB2.B2_COD "
@@ -444,7 +449,44 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	cSql += "AND   SB1.B1_GRMAR1 IN ('000001','000002') AND SB1.B1_TIPO IN ('PA','PP','MP') "
 	cSql += "AND   SB1.B1_DESC NOT LIKE '%(N USAR)%' "
 	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
+	cSql += "AND   SUBSTR(SB1.B1_COD,1,2) = '00' " // CODIGO INICIO COM "00"
 	cSql += "GROUP BY B2_COD "
+
+	cSql += "UNION "
+
+	//-- PRODUTOS FAMILIA 01
+	cSql += "SELECT SB1.B1_COD PRODUTO "
+	cSql += "FROM  "
+	cSql += "	( 	SELECT SUBSTR(B2_COD,1,"+CV(nRaizF1)+") GC_CODIGO FROM SB2010  "
+	cSql += "		WHERE D_E_L_E_T_ = ' ' "
+	cSql += "		AND   B2_QATU > 0  "
+	//cSql += "AND   SUBSTR(B2_COD,1,"+CV(nRaizF1)+") = '0110303570' "
+	cSql += "		GROUP BY SUBSTR(B2_COD,1,"+CV(nRaizF1)+") ) SB2 INNER JOIN SB1010 SB1 "
+	cSql += "ON SUBSTR(B1_COD,1,"+CV(nRaizF1)+") = SB2.GC_CODIGO "
+	cSql += "WHERE SB1.B1_FILIAL = '05' "
+	cSql += "AND   SB1.B1_GRMAR1 IN ('000001','000002') AND SB1.B1_TIPO IN ('PA','PP','MP') "
+	cSql += "AND   SB1.B1_DESC NOT LIKE '%(N USAR)%' "
+	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
+	cSql += "AND   SUBSTR(SB1.B1_COD,1,2) = '01' " // CODIGO INICIO COM "01"
+	cSql += "GROUP BY SB1.B1_COD "
+
+	cSql += "UNION "
+
+	//-- PRODUTOS FAMILIA 02
+	cSql += "SELECT SB1.B1_COD PRODUTO "
+	cSql += "FROM  "
+	cSql += "	( 	SELECT SUBSTR(B2_COD,1,"+CV(nRaizF2)+") GC_CODIGO FROM SB2010  "
+	cSql += "		WHERE D_E_L_E_T_ = ' ' "
+	cSql += "		AND   B2_QATU > 0  "
+	//cSql += " AND   SUBSTR(B2_COD,1,"+CV(nRaizF2)+") = '0221023' "
+	cSql += "		GROUP BY SUBSTR(B2_COD,1,"+CV(nRaizF2)+") ) SB2 INNER JOIN SB1010 SB1 "
+	cSql += "ON SUBSTR(B1_COD,1,"+CV(nRaizF2)+") = SB2.GC_CODIGO "
+	cSql += "WHERE SB1.B1_FILIAL = '05' "
+	cSql += "AND   SB1.B1_GRMAR1 IN ('000001','000002') AND SB1.B1_TIPO IN ('PA','PP','MP') "
+	cSql += "AND   SB1.B1_DESC NOT LIKE '%(N USAR)%' "
+	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
+	cSql += "AND   SUBSTR(SB1.B1_COD,1,2) = '02' " // CODIGO INICIO COM "02"
+	cSql += "GROUP BY SB1.B1_COD "
 	
 	IncProc("Consultando Estoque dos Produtos ")
 	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
@@ -456,38 +498,6 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	EndDo
 	DbSelectArea("TAUX");DbCloseArea()
 
-
-	/*************************************************************************
-	// Consulta Produtos com PO em Aberto
-	//*************************************************************************
-	cSData 	:= dToS(DataRef(nMeses := 12))
-	cSql := "SELECT SW3.W3_COD_I PRODUTO "
-	cSql += "FROM SW2010 SW2 INNER JOIN SW3010 SW3 "
-	cSql += "ON 	SW2.W2_FILIAL = SW3.W3_FILIAL "
-	cSql += "AND  SW2.W2_PO_NUM = SW3.W3_PO_NUM "
-	cSql += "				INNER JOIN SW5010 SW5 "
-	cSql += "ON  SW3.W3_FILIAL = SW5.W5_FILIAL "
-	cSql += "AND SW3.W3_PO_NUM = SW5.W5_PO_NUM "
-	cSql += "AND SW3.W3_POSICAO = SW5.W5_POSICAO "
-	cSql += "AND SW3.W3_COD_I = SW5.W5_COD_I "
-	cSql += "WHERE SW2.D_E_L_E_T_ = ' ' "
-	cSql += "AND   SW2.W2_PO_DT >= '" + cSData + "' "
-	cSql += "AND   SW3.W3_SEQ = 0 "
-	cSql += "AND   SW3.D_E_L_E_T_ = ' ' "
-	cSql += "AND   SW5.D_E_L_E_T_ = ' ' "
-	cSql += "AND   SW5.W5_SALDO_Q > 0 "
-	cSql += "GROUP BY SW3.W3_COD_I "
-
-	IncProc("Consulta Produtos com PO em Aberto")
-	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
-
-	DbSelectArea("TAUX");DbGoTop()
-	While !EOF()
-		HMAdd(oHTPor,{ TAUX->PRODUTO } )
-		DbSkip()
-	EndDo
-	DbSelectArea("TAUX");DbCloseArea()
-	*/
 
 	//*************************************************************************
 	// Consulta Status dos Produtos 
