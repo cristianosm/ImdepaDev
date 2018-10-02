@@ -1,5 +1,6 @@
-#include 'protheus.ch'
-#include 'parmtype.ch'
+#include 'Protheus.ch'
+#include 'Parmtype.ch'
+#include 'Totvs.ch'
 
 #Define ENTER Chr(13)+Chr(10)
 
@@ -25,7 +26,6 @@
 User Function MrpOImd()
 *******************************************************************************
 
-	
 	Private lMostra  := .F.
 	Private lStatusP := .F.
 	Private lMedias  := .F.
@@ -36,7 +36,13 @@ User Function MrpOImd()
 	Private lCurABCM := .F.
 	Private lCuABCOV := .F.
 	
+	// Variaveis Utilizadas no oProcess:SetRegua1
 	Private lAbort 	:= .F.
+	Private cMsg   	:= "Aguarde o Inicio" 
+	Private bAction := {}
+	Private cTitulo := ""
+	Private oProcess := Nil
+	
 	//Private bAbort	:= { || IIf ( lAbort == .T., Alert("Não vá neste momento"), "" ) }
 	
 	Private cLog := ""
@@ -56,13 +62,13 @@ User Function MrpOImd()
 			lRankVen := lCurvABC
 		EndIf
 		
-		
 		// Execucoes Diarias
 		ExecDiario()
 	
 		// Execucoes Mensais
 		ExecMensal()
 	
+		// Apresenta o LOG de Execucao
 		ShowLog()
 		
 	EndIf
@@ -71,11 +77,6 @@ Return()
 *******************************************************************************
 Static Function  ExecDiario()// Execucoes Diarias
 *******************************************************************************
-	
-	Local cMsg   	:= "Aguarde o Inicio" 
-
-	Local bAction 	:= {}
-	Local cTitulo   := ""
 
 
 	If lStatusP
@@ -83,14 +84,17 @@ Static Function  ExecDiario()// Execucoes Diarias
 		// 1.1 ZA7_PPCOMP => Produtos com Pedidos Abertos 
 		bAction 	:= {|| za7ppcomp() }
 		cTitulo   	:= "Atualizando (ZA7_PPCOMP) - Produtos com Pedidos"
-		Processa( bAction, @cTitulo, @cMsg, @lAbort )
-	
+		//Processa( bAction, @cTitulo, @cMsg, @lAbort )
+		oProcess := MsNewProcess():New( bAction ,cTitulo,"Lendo...",.T.)
+		oProcess:Activate()
 	
 		// 1.2 ZA7_PGRAMA => SIM - Produto com Programa (Contrato) 
 		bAction 	:= {|| ZA7PGRAMA() }
 		cTitulo   := "Atualizando (ZA7_PGRAMA) - Produtos com Programa"
-		Processa( bAction, @cTitulo, @cMsg, @lAbort )
-
+		//Processa( bAction, @cTitulo, @cMsg, @lAbort )
+		oProcess := MsNewProcess():New( bAction ,cTitulo,"Lendo...",.T.)
+		oProcess:Activate()
+		
 	EndIf
 	
 
@@ -103,10 +107,10 @@ Static function za7ppcomp()	// 1.1 ZA7_PPCOMP => Produtos com Pedidos Abertos
 	Local cSDataPC 	:= dToS(DataRef(nMeses := 6)) // Retorna 6 meses
 	Local cSDataSC 	:= dToS(DataRef(nMeses := 0)) // Retorna 0 meses
 	Local nPAtu 	:= 0 // Total de Produtos Atualizados 
-	Local nIntPro 	:= 0 // Intervalo IncProc
+	Local nIntPro 	:= 0 // Intervalo oProcess:IncRegua1
 	
-	ProcRegua(0)
-	IncProc()
+	oProcess:SetRegua1(0);oProcess:SetRegua2(0)
+	oProcess:IncRegua1();oProcess:IncRegua2()
 	
 	// Consulta Pedidos de Compras e Solicitacoes de Compras  
 	cSql := "SELECT PRODUTO FROM ( " 
@@ -124,13 +128,13 @@ Static function za7ppcomp()	// 1.1 ZA7_PPCOMP => Produtos com Pedidos Abertos
 	cSql += ") ORDER BY PRODUTO "
 	
 	
-	IncProc("Consultando Pedidos de Compras apartir de "+SToC(cSDataPC))
+	oProcess:IncRegua1("Consultando Pedidos de Compras apartir de "+SToC(cSDataPC)) ; oProcess:IncRegua2()
 	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
 	
 	
 	// Atualiza Todos os Produtos para NAO
 	cSql := "UPDATE ZA7010 SET ZA7_PPCOMP = 'N' WHERE ZA7_PPCOMP <> 'N' "
-	IncProc("Definido Todos os Produtos como N-Nao") 
+	oProcess:IncRegua1("Definido Todos os Produtos como N-Nao") ; oProcess:IncRegua2()
 	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
 	
 	// Inicia a Atualizacao 
@@ -141,7 +145,8 @@ Static function za7ppcomp()	// 1.1 ZA7_PPCOMP => Produtos com Pedidos Abertos
 		cSql := "Update ZA7010 Set ZA7_PPCOMP = 'S' WHERE ZA7_CODPRO = '" + CV(TAUX->PRODUTO) + "' " 
 		
 		If nIntPro == 100
-			IncProc("Atualizando o Produto " +  Alltrim(TAUX->PRODUTO) + " para SIM " )
+ 
+			oProcess:IncRegua1("Atualizando o Produto " +  Alltrim(TAUX->PRODUTO) + " para SIM " ); oProcess:IncRegua2()
 			nIntPro := 0
 		Else
 			nIntPro += 1
@@ -168,11 +173,14 @@ Static function ZA7PGRAMA()	// 1.2 ZA7_PGRAMA => SIM - Produto com Programa (Con
 	Local cSql 		:= ""
 	Local cSData 	:= dToS(DataRef(nMeses := 1,.T.)) // Retorna 6 meses
 	Local nPAtu 	:= 0 // Total de Produtos Atualizados 
-	Local nIntPro 	:= 0 // Intervalo IncProc
+	Local nIntPro 	:= 0 // Intervalo oProcess:IncRegua1
 
-	ProcRegua(0)
-	IncProc()
+	//oProcess:SetRegua1(0);oProcess:SetRegua2(0)
+	//oProcess:IncRegua1();oProcess:IncRegua2()
 
+	oProcess:SetRegua1(0);oProcess:SetRegua2(0)
+	oProcess:IncRegua1();oProcess:IncRegua2()
+	
 	// Consulta Contratos
 	cSql := "SELECT ADB.ADB_CODPRO PRODUTO "
 	cSql += "FROM ADA010 ADA INNER JOIN ADB010 ADB "
@@ -184,13 +192,13 @@ Static function ZA7PGRAMA()	// 1.2 ZA7_PGRAMA => SIM - Produto com Programa (Con
 	cSql += "GROUP BY ADB.ADB_CODPRO " 
 
 
-	IncProc("Consultando Contratos de Compras apartir de " + SToC(cSData) )
+	oProcess:IncRegua1("Consultando Contratos de Compras apartir de " + SToC(cSData) ) ; oProcess:IncRegua2()
 	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
 	
 	
 	// Atualiza Todos os Produtos para NAO
 	cSql := "UPDATE ZA7010 SET ZA7_PGRAMA = 'N' WHERE ZA7_PGRAMA <> 'N' "
-	IncProc("Definido Todos os Produtos como N-Nao") 
+	oProcess:IncRegua1("Definido Todos os Produtos como N-Nao") ; oProcess:IncRegua2()
 	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
 	
 	// Inicia a Atualizacao 
@@ -201,7 +209,8 @@ Static function ZA7PGRAMA()	// 1.2 ZA7_PGRAMA => SIM - Produto com Programa (Con
 		cSql := "Update ZA7010 Set ZA7_PGRAMA = 'S' WHERE ZA7_CODPRO = '" + CV(TAUX->PRODUTO) + "' " 
 		
 		If nIntPro == 100
-			IncProc("Atualizando o Produto " +  Alltrim(TAUX->PRODUTO) + " para SIM" )
+			oProcess:IncRegua1("Atualizando o Produto " +  Alltrim(TAUX->PRODUTO) + " para SIM" ) ; oProcess:IncRegua2()
+
 			nIntPro := 0
 		Else
 			nIntPro += 1
@@ -224,8 +233,6 @@ Return Nil
 *******************************************************************************
 Static Function  ExecMensal()// Execucoes Mensais
 *******************************************************************************
-	Local lAbort 	:= .F.
-	Local cMsg   	:= "Aguarde o Inicio" 
 
 	// Executa Consultas como Pré-Requisito Mensal
 	//PreRecMes()
@@ -234,19 +241,25 @@ Static Function  ExecMensal()// Execucoes Mensais
 		// 1.3 B1_PRONOVO => Produto NOVO
 		bAction 	:= {|| B1PRONOVO() }
 		cTitulo   	:= "Atualizando B1_PRONOVO"
-		Processa( bAction, @cTitulo, @cMsg, @lAbort )
+		//Processa( bAction, @cTitulo, @cMsg, @lAbort )
+		oProcess := MsNewProcess():New( bAction ,cTitulo,"Lendo...",.T.)
+		oProcess:Activate()
 
 
 		//1.4 B1_PROATIV => SIM - Produtos Ativos 
 		bAction 	:= {|| B1PROATIV() }
 		cTitulo   	:= "Atualizando B1_PROATIV"
-		Processa( bAction, @cTitulo, @cMsg, @lAbort )
+		//Processa( bAction, @cTitulo, @cMsg, @lAbort )
+		oProcess := MsNewProcess():New( bAction ,cTitulo,"Lendo...",.T.)
+		oProcess:Activate()
 	
 	
 		//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados 
 		bAction 	:= {|| B1MSBLOQ() }
 		cTitulo   	:= "Atualizando B1_MSBLOQ"
-		Processa( bAction, @cTitulo, @cMsg, @lAbort )
+		//Processa( bAction, @cTitulo, @cMsg, @lAbort )
+		oProcess := MsNewProcess():New( bAction ,cTitulo,"Lendo...",.T.)
+		oProcess:Activate()
 
 	Endif
 
@@ -254,12 +267,16 @@ Static Function  ExecMensal()// Execucoes Mensais
 		//2.1.1  Calcular Média do COV
 		bAction 	:= {|| MediaCOV() }
 		cTitulo   	:= "Calculando Media COV"
-		Processa( bAction, @cTitulo, @cMsg, @lAbort )
+		//Processa( bAction, @cTitulo, @cMsg, @lAbort )
+		oProcess := MsNewProcess():New( bAction ,cTitulo,"Lendo...",.T.)
+		oProcess:Activate()
 
 		//2.1.2  Calcular Média do COV
 		bAction 	:= {|| SomaMCOV() }
 		cTitulo   	:= "Calculando Soma Media COV"
-		Processa( bAction, @cTitulo, @cMsg, @lAbort )
+		//Processa( bAction, @cTitulo, @cMsg, @lAbort )
+		oProcess := MsNewProcess():New( bAction ,cTitulo,"Lendo...",.T.)
+		oProcess:Activate()
 	EndIf
 	
 	If lCoefVar 
@@ -267,7 +284,9 @@ Static Function  ExecMensal()// Execucoes Mensais
 		//2.2  Calculo do Coeficiente de Variabilidade 
 		bAction 	:= {|| CoefVar() }
 		cTitulo   	:= "Calculando o Coeficiente de Variabilidade"
-		Processa( bAction, @cTitulo, @cMsg, @lAbort )
+		//Processa( bAction, @cTitulo, @cMsg, @lAbort )
+		oProcess := MsNewProcess():New( bAction ,cTitulo,"Lendo...",.T.)
+		oProcess:Activate()
 	
 	Endif 
 	
@@ -276,7 +295,9 @@ Static Function  ExecMensal()// Execucoes Mensais
 		//2.3  Calculo do Ranking de Vendas  
 		bAction 	:= {|| RankVen() }
 		cTitulo   	:= "Calculando o Ranking de Vendas "
-		Processa( bAction, @cTitulo, @cMsg, @lAbort )
+		//Processa( bAction, @cTitulo, @cMsg, @lAbort )
+		oProcess := MsNewProcess():New( bAction ,cTitulo,"Lendo...",.T.)
+		oProcess:Activate()
 	
 	Endif 
 	
@@ -285,7 +306,9 @@ Static Function  ExecMensal()// Execucoes Mensais
 		//3  Calculo das Curvas ABC  
 		bAction 	:= {|| CurvasABC() }
 		cTitulo   	:= "Calculando Curvas ABC "
-		Processa( bAction, @cTitulo, @cMsg, @lAbort )
+		//Processa( bAction, @cTitulo, @cMsg, @lAbort )
+		oProcess := MsNewProcess():New( bAction ,cTitulo,"Lendo...",.T.)
+		oProcess:Activate()
 	
 	Endif 
 
@@ -293,7 +316,9 @@ Static Function  ExecMensal()// Execucoes Mensais
 		//3.2 Calculo das Curvas PQR Consultado e Cliente  
 		bAction 	:= {|| CurvasPQR() }
 		cTitulo   	:= "Calculando Curva PQR "
-		Processa( bAction, @cTitulo, @cMsg, @lAbort )
+		//Processa( bAction, @cTitulo, @cMsg, @lAbort )
+		oProcess := MsNewProcess():New( bAction ,cTitulo,"Lendo...",.T.)
+		oProcess:Activate()
 	
 	Endif 
 	
@@ -302,7 +327,9 @@ Static Function  ExecMensal()// Execucoes Mensais
 		//3.3  Calculo das Curvas ABC Margem 
 		bAction 	:= {|| CurvABCM() }
 		cTitulo   	:= "Calculando Curvas ABC Margem"
-		Processa( bAction, @cTitulo, @cMsg, @lAbort )
+		//Processa( bAction, @cTitulo, @cMsg, @lAbort )
+		oProcess := MsNewProcess():New( bAction ,cTitulo,"Lendo...",.T.)
+		oProcess:Activate()
 	
 	Endif 
 	
@@ -311,16 +338,12 @@ Static Function  ExecMensal()// Execucoes Mensais
 		//3.4  Calculo das Curvas ABC Ofertado e Vendido 
 		bAction 	:= {|| CurABCOV() }
 		cTitulo   	:= "Calculando Curvas ABC Ofertado e Vendido "
-		Processa( bAction, @cTitulo, @cMsg, @lAbort )
+		//Processa( bAction, @cTitulo, @cMsg, @lAbort )
+		oProcess := MsNewProcess():New( bAction ,cTitulo,"Lendo...",.T.)
+		oProcess:Activate()
 	
 	Endif 
 	
-Return Nil
-******************************************************************************
-Static Function PreRecMes()
-******************************************************************************
-
-
 Return Nil
 ******************************************************************************
 Static Function B1PRONOVO() // 1.3 B1_PRONOVO => Produto NOVO
@@ -328,10 +351,10 @@ Static Function B1PRONOVO() // 1.3 B1_PRONOVO => Produto NOVO
 	Local cSql 		:= ""
 	Local cSData 	:= dToS(DataRef(nMeses := 6)) // Retorna 6 meses
 	Local nPAtu 	:= 0 // Total de Produtos Atualizados 
-	Local nIntPro 	:= 0 // Intervalo IncProc
+	Local nIntPro 	:= 0 // Intervalo oProcess:IncRegua1
 
-	ProcRegua(0)
-	IncProc()
+	oProcess:SetRegua1(0);oProcess:SetRegua2(0)
+	oProcess:IncRegua1();oProcess:IncRegua2()
 
 	// Consulta Produtos Novos
 	cSql := "SELECT B1_COD PRODUTO "
@@ -341,13 +364,13 @@ Static Function B1PRONOVO() // 1.3 B1_PRONOVO => Produto NOVO
 	cSql += "AND   D_E_L_E_T_ = ' ' "
 	cSql += "GROUP BY B1_COD "
 
-	IncProc("Consultando Produtos Novos apartir de " + SToC(cSData) )
+	oProcess:IncRegua1("Consultando Produtos Novos apartir de " + SToC(cSData) ) ; oProcess:IncRegua2()
 	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
 	
 	
 	// Atualiza Todos os Produtos para NAO
 	cSql := "UPDATE SB1010 SET B1_PRONOVO = 'N' WHERE B1_PRONOVO <> 'N' "
-	IncProc("Definido Todos os Produtos como Novo N-Nao") 
+	oProcess:IncRegua1("Definido Todos os Produtos como Novo N-Nao") ; oProcess:IncRegua2()
 	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
 	
 	// Inicia a Atualizacao 
@@ -358,7 +381,7 @@ Static Function B1PRONOVO() // 1.3 B1_PRONOVO => Produto NOVO
 		cSql := "UPDATE SB1010 SET B1_PRONOVO = 'S' WHERE B1_COD = '" + CV(TAUX->PRODUTO) + "' " 
 		
 		If nIntPro == 100
-			IncProc("Atualizando o Produto " +  Alltrim(TAUX->PRODUTO) + " para SIM" )
+			oProcess:IncRegua1("Atualizando o Produto " +  Alltrim(TAUX->PRODUTO) + " para SIM" ) ; oProcess:IncRegua2()
 			nIntPro := 0
 		Else
 			nIntPro += 1
@@ -384,7 +407,7 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	Local cSDataI 	:= dToS(DataRef(nMeses := 12))
 	Local cSDataF 	:= dToS(DataRef(nMeses := 1 ,.T.))  
 	Local nPAtu 	:= 0 // Total de Produtos Atualizados 
-	Local nIntPro 	:= 0 // Intervalo IncProc
+	Local nIntPro 	:= 0 // Intervalo oProcess:IncRegua1
 	Local oHTCov	:= HMNew()	// Tabela Hash COV
 	Local oHTEst	:= HMNew()	// Tabela Hash Estoque
 	//Local oHTPor	:= HMNew()	// Tabela Hash PO 
@@ -394,8 +417,8 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	Local nRaizF1	:= 10 // Numero de digitos que formam a RAIZ da formacao do codigo na familia 1
 	Local nRaizF2	:= 7  // Numero de digitos que formam a RAIZ da formacao do codigo na familia 2
 	
-	ProcRegua(0)
-	IncProc()
+	oProcess:SetRegua1(0);oProcess:SetRegua2(0)
+	oProcess:IncRegua1();oProcess:IncRegua2()
 
 	//*************************************************************************
 	// Consulta Produtos Ativos COV
@@ -424,7 +447,7 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	
 	cSql += "GROUP BY ZA0_PRODUT "
 
-	IncProc("Consultando COV apartir entre " + SToC(cSDataI) + " e "+ SToC(cSDataF) )
+	oProcess:IncRegua1("Consultando COV entre " + SToC(cSDataI) + " e "+ SToC(cSDataF) ) ; oProcess:IncRegua2()
 	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
 	
 	DbSelectArea("TAUX");DbGoTop()
@@ -488,7 +511,7 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	cSql += "AND   SUBSTR(SB1.B1_COD,1,2) = '02' " // CODIGO INICIO COM "02"
 	cSql += "GROUP BY SB1.B1_COD "
 	
-	IncProc("Consultando Estoque dos Produtos ")
+	oProcess:IncRegua1("Consultando Estoque dos Produtos ") ; oProcess:IncRegua2()
 	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
 
 	DbSelectArea("TAUX");DbGoTop()
@@ -516,7 +539,7 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	cSql += "AND   ZA7.D_E_L_E_T_ = ' ' "
 	cSql += "GROUP BY B1_COD, B1_DESC, B1_PRONOVO, ZA7_ITEMNO, ZA7_PGRAMA, ZA7_PPCOMP, B1_ESTFOR, B1_ESTSEG "
 
-	IncProc("Consulta Parametros dos Produtos ")
+	oProcess:IncRegua1("Consulta Parametros dos Produtos ") ; oProcess:IncRegua2()
 	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
 
 
@@ -525,7 +548,7 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	//*************************************************************************
 	
 	cSql := "UPDATE SB1010 SET B1_PROATIV = 'N' WHERE B1_PROATIV <> 'N' AND B1_GRMAR1 IN ('000001','000002') AND B1_TIPO IN ('PA','PP','MP') " 
-	IncProc("Definido Todos os Produtos como Ativo N-Nao") 
+	oProcess:IncRegua1("Definido Todos os Produtos como Ativo N-Nao"); oProcess:IncRegua2()
 	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
 	
 	// Inicia a Atualizacao 
@@ -549,7 +572,7 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 			cSql := "UPDATE SB1010 SET B1_PROATIV = 'S' WHERE B1_COD = '" + CV(TAUX->PRODUTO) + "' "
 		
 			If nIntPro == 100
-				IncProc("Atualizando o Produto " +  Alltrim(TAUX->PRODUTO) + " para SIM" )
+				oProcess:IncRegua1("Atualizando o Produto " +  Alltrim(TAUX->PRODUTO) + " para SIM" ); oProcess:IncRegua2()
 				nIntPro := 0
 			Else
 				nIntPro += 1
@@ -577,12 +600,12 @@ Static Function B1MSBLOQ()//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados
 	Local cSql 		:= ""
 	Local cSData 	:= dToS(DataRef(nMeses := 24)) 
 	Local nPAtu 	:= 0 // Total de Produtos Atualizados 
-	Local nIntPro 	:= 0 // Intervalo IncProc
+	Local nIntPro 	:= 0 // Intervalo oProcess:IncRegua1
 	Local oHTCov	:= HMNew()	// Tabela Hash COV
 	Local aValHT	:= Nil		// Auxiliar para Obter Valor nas Hash Tables 
 	
-	ProcRegua(0)
-	IncProc()
+	oProcess:SetRegua1(0);oProcess:SetRegua2(0)
+	oProcess:IncRegua1();oProcess:IncRegua2()
 
 	//*************************************************************************
 	// Consulta Produtos com Movimento COV
@@ -608,7 +631,7 @@ Static Function B1MSBLOQ()//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados
 
 	cSql += "GROUP BY ZA0_PRODUT "
 
-	IncProc("Consultando COV apartir de  " + SToC(cSData) )
+	oProcess:IncRegua1("Consultando COV apartir de  " + SToC(cSData) ); oProcess:IncRegua2() 
 	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
 	
 	DbSelectArea("TAUX")
@@ -631,7 +654,7 @@ Static Function B1MSBLOQ()//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados
 	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
 	cSql += "GROUP BY B1_COD"
 	
-	IncProc("Verificando Produtos ATIVOS e com Data REF apartir de  " + SToC(cSData) )
+	oProcess:IncRegua1("Verificando Produtos ATIVOS e com Data REF apartir de  " + SToC(cSData) ); oProcess:IncRegua2()
 	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
 	
 	DbSelectArea("TAUX");DbGoTop()
@@ -644,7 +667,7 @@ Static Function B1MSBLOQ()//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados
 			cSql := "UPDATE SB1010 SET B1_MSBLQL = '1' WHERE B1_COD = '" + CV(TAUX->PRODUTO) + "' "
 	
 			If nIntPro == 100
-				IncProc("Atualizando o Produto " +  Alltrim(TAUX->PRODUTO) + " para BLOQUEADO" )
+				oProcess:IncRegua1("Atualizando o Produto " +  Alltrim(TAUX->PRODUTO) + " para BLOQUEADO" ); oProcess:IncRegua2()
 				nIntPro := 0
 			Else
 				nIntPro += 1
@@ -674,15 +697,15 @@ Static Function MediaCOV()// 2.1.1 Calculo Média do COV
 	Local cSDataI 	:= dToS(DataRef(nMeses := nPeriodo))
 	Local cSDataF 	:= dToS(DataRef(nMeses := 1 ,.T.))  
 	Local nPAtu 	:= 0 // Total de Produtos Atualizados 
-	Local nIntPro 	:= 0 // Intervalo IncProc
+	Local nIntPro 	:= 0 // Intervalo oProcess:IncRegua1
 	Local oHTCov	:= HMNew()	// Tabela Hash COV
 	Local aValHT	:= Nil		// Auxiliar para Obter Valor nas Hash Tables 
 
 
-	ProcRegua(0)
-	IncProc()
+	oProcess:SetRegua1(0);oProcess:SetRegua2(0)
+	oProcess:IncRegua1();oProcess:IncRegua2()
 	
-	IncProc("Apagando Tabela Temporária" )
+	oProcess:IncRegua1("Apagando Tabela Temporária" ); oProcess:IncRegua2() 
 	U_ExecMySql( cSql := "Drop Table MEDCOV" , cCursor := "", cModo := "E", lMostra, lChange := .F. )
 	
 	
@@ -751,7 +774,7 @@ Static Function MediaCOV()// 2.1.1 Calculo Média do COV
 	cSql += "GROUP BY FILIAL, PRODUTO "
 	cSql += "ORDER BY PRODUTO, FILIAL "
 
-	IncProc("Criando Tabela Auxiliar Media do COV Periodo: ["+SToC(cSDataI)+" ate "+SToC(cSDataF)+"] " )
+	oProcess:IncRegua1("Criando Tabela Auxiliar Media do COV Periodo: ["+SToC(cSDataI)+" ate "+SToC(cSDataF)+"] " ); oProcess:IncRegua2()
 	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
 
 	
@@ -763,7 +786,7 @@ Static Function MediaCOV()// 2.1.1 Calculo Média do COV
 	//*************************************************************************
 	
 	cSql := "UPDATE ZA7010 SET ZA7_M12CP = 0, ZA7_M12OP  = 0, ZA7_M12VP  = 0, ZA7_M12VRP  = 0 "
-	IncProc("Zerando as Médias [ZA7_M12CP,ZA7_M12OP,ZA7_M12VP,ZA7_M12VRP]") 
+	oProcess:IncRegua1("Zerando as Médias [ZA7_M12CP,ZA7_M12OP,ZA7_M12VP,ZA7_M12VRP]") ; oProcess:IncRegua2()
 	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
 
 
@@ -779,7 +802,7 @@ Static Function MediaCOV()// 2.1.1 Calculo Média do COV
 			cSql += "WHERE ZA7_FILIAL = "+CV(TAUX->FILIAL)+" AND ZA7_CODPRO = '" + CV(TAUX->PRODUTO) + "' "
 	
 			If nIntPro == 100
-				IncProc("Atualizando as Medias da [Filial-Produto] " + Alltrim(TAUX->FILIAL) +"-"+Alltrim(TAUX->PRODUTO) + "" )
+				oProcess:IncRegua1("Atualizando as Medias da [Filial-Produto] " + Alltrim(TAUX->FILIAL) +"-"+Alltrim(TAUX->PRODUTO) + "" ); oProcess:IncRegua2() 
 				nIntPro := 0
 			Else
 				nIntPro += 1
@@ -807,13 +830,13 @@ Static Function SomaMCOV()// 2.1.2 - Soma Media do COV
 	Local cSDataI 	:= dToS(DataRef(nMeses := 12))
 	Local cSDataF 	:= dToS(DataRef(nMeses := 1,.T. ))  
 	Local nPAtu 	:= 0 // Total de Produtos Atualizados 
-	Local nIntPro 	:= 0 // Intervalo IncProc
+	Local nIntPro 	:= 0 // Intervalo oProcess:IncRegua1
 	Local oHTCov	:= HMNew()	// Tabela Hash COV
 	Local aValHT	:= Nil		// Auxiliar para Obter Valor nas Hash Tables 
 
 	
-	ProcRegua(0)
-	IncProc()
+	oProcess:SetRegua1(0);oProcess:SetRegua2(0)
+	oProcess:IncRegua1();oProcess:IncRegua2()
 	//*************************************************************************
 	// Montando Media do COV  
 	//*************************************************************************
@@ -825,7 +848,7 @@ Static Function SomaMCOV()// 2.1.2 - Soma Media do COV
 	cSql += "AND   SB1.B1_COD = MED.PRODUTO "
 	cSql += "GROUP BY SB1.B1_CODITE "
 
-	IncProc("Montando Soma Media do COV por CODITE Periodo: ["+SToC(cSDataI)+" ate "+SToC(cSDataF)+"] " )
+	oProcess:IncRegua1("Montando Soma Media do COV por CODITE Periodo: ["+SToC(cSDataI)+" ate "+SToC(cSDataF)+"] " ); oProcess:IncRegua2()
 	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
 
 	
@@ -834,7 +857,7 @@ Static Function SomaMCOV()// 2.1.2 - Soma Media do COV
 	//*************************************************************************
 	
 	cSql := "UPDATE ZA7010 SET ZA7_M12CPI = 0, ZA7_M12OPI  = 0, ZA7_M12VPI  = 0, ZA7_M12VRI  = 0 "
-	IncProc("Zerando Todas as Somas de Médias [ZA7_M12CPI,ZA7_M12OPI,ZA7_M12VPI,ZA7_M12VRI]") 
+	oProcess:IncRegua1("Zerando Todas as Somas de Médias [ZA7_M12CPI,ZA7_M12OPI,ZA7_M12VPI,ZA7_M12VRI]"); oProcess:IncRegua2()
 	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
 
 
@@ -850,7 +873,7 @@ Static Function SomaMCOV()// 2.1.2 - Soma Media do COV
 			cSql += "WHERE ZA7_CODITE = '" + CV(TAUX->CODITE) + "' "
 			
 			If nIntPro == 100
-				IncProc("Atualizando as Somas Media do CodItem " + Alltrim(TAUX->CODITE) + "" )
+				oProcess:IncRegua1("Atualizando as Somas Media do CodItem " + Alltrim(TAUX->CODITE) + "" ); oProcess:IncRegua2()
 				nIntPro := 0
 			Else
 				nIntPro += 1
@@ -884,20 +907,20 @@ Static Function CoefVar()// 2.2  Calculo do Coeficiente de Variabilidade
 	Local cCoefMax 	:= Alltrim(cValToChar(1.50))
 	
 	Local nPAtu 	:= 0 // Total de Produtos Atualizados 
-	Local nIntPro 	:= 0 // Intervalo IncProc
+	Local nIntPro 	:= 0 // Intervalo oProcess:IncRegua1
 	
 	
-	ProcRegua(0)
-	IncProc()
+	oProcess:SetRegua1(0);oProcess:SetRegua2(0)
+	oProcess:IncRegua1();oProcess:IncRegua2()
 
 	// Dropar Tabela Tamporaria COEFVAR
-	IncProc("Apagando Tabela Temporária" )
+	oProcess:IncRegua1("Apagando Tabela Temporária" ); oProcess:IncRegua2()
 	U_ExecMySql( cSql := "Drop Table COEFVAR" , cCursor := "", cModo := "E", lMostra, lChange := .F. )
 	
 	
 	//***************************************************************	
 	// Criando Tabela Atualizada Base para o Calculo do Coeficiente ja com SOMA VR 
-	IncProc("Criando Tabela Base Coeficiente Variavel [COEFVAR]" )
+	oProcess:IncRegua1("Criando Tabela Base Coeficiente Variavel [COEFVAR]" ); oProcess:IncRegua2()
 	
 	cSql := "CREATE TABLE COEFVAR AS "
 	cSql += "SELECT SB1.B1_CODITE 				ITEM, " 
@@ -933,14 +956,14 @@ Static Function CoefVar()// 2.2  Calculo do Coeficiente de Variabilidade
 	
 	//***************************************************************
 	// Indexando Tabela  [COEFVAR] pelo Item para melhor performance  
-	IncProc("Indexando Tabela [COEFVAR] por Item " )
+	oProcess:IncRegua1("Indexando Tabela [COEFVAR] por Item " ); oProcess:IncRegua2()
 	cSql := "CREATE INDEX SIGA.IDX_COEFVAR ON SIGA.COEFVAR(ITEM) TABLESPACE SIGA_INDEX"
 	U_ExecMySql( cSql, cCursor := "", cModo := "E", lMostra , lChange := .F. )
 	
 	
 	//***************************************************************
 	// Calculando Média VR por Item   
-	IncProc("Calculando Média VR por Item " )
+	oProcess:IncRegua1("Calculando Média VR por Item " ); oProcess:IncRegua2()
 	
 	DropTAux() // Dropa a Tabela Temporaria Auxiliar do MRP
 	 
@@ -972,7 +995,7 @@ Static Function CoefVar()// 2.2  Calculo do Coeficiente de Variabilidade
 	
 	//***************************************************************
 	// Atualizando Média VR por Item   
-	IncProc("Atualizando Média VR na Tabela [COEFVAR]" )
+	oProcess:IncRegua1("Atualizando Média VR na Tabela [COEFVAR]" ); oProcess:IncRegua2()
 	
 	cSql := "UPDATE COEFVAR CV SET CV.MEDIAVR = ( SELECT AUX.MEDIAVR FROM TAUX_MRP AUX WHERE AUX.ITEM = CV.ITEM )"
 	cSql += "WHERE CV.ITEM IN ( SELECT AUX.ITEM FROM TAUX_MRP AUX WHERE AUX.ITEM = CV.ITEM )"
@@ -981,14 +1004,14 @@ Static Function CoefVar()// 2.2  Calculo do Coeficiente de Variabilidade
 	
 	//***************************************************************
 	// Calculando Valor Absoluto   
-	IncProc("Calculando Valor Absoluto e Aplicando na Tabela [COEFVAR]" )
+	oProcess:IncRegua1("Calculando Valor Absoluto e Aplicando na Tabela [COEFVAR]" ); oProcess:IncRegua2()
 	cSql := "UPDATE COEFVAR CV SET CV.VLABS =  ROUND ( ABS(SOMAVR - MEDIAVR) , 2 )"
 	
 	U_ExecMySql( cSql, cCursor := "", cModo := "E", lMostra, lChange := .F. )
 	
 	//***************************************************************
 	// Calculando Média do Valor  Absoluto   
-	IncProc("Calculando Média do Valor  Absoluto" )
+	oProcess:IncRegua1("Calculando Média do Valor  Absoluto" ); oProcess:IncRegua2()
 	
 	DropTAux() // Dropa a Tabela Temporaria Auxiliar do MRP
 	
@@ -1001,7 +1024,7 @@ Static Function CoefVar()// 2.2  Calculo do Coeficiente de Variabilidade
 
 	//***************************************************************
 	// Atualizando Média do Valor Absoluto
-	IncProc("Atualizando Média do Valor Absoluto na Tabela [COEFVAR]" )
+	oProcess:IncRegua1("Atualizando Média do Valor Absoluto na Tabela [COEFVAR]" ); oProcess:IncRegua2()
 	
 	cSql := "UPDATE COEFVAR CV SET CV.MEDIAABS = ( SELECT AUX.MEDIAABS FROM TAUX_MRP AUX WHERE AUX.ITEM = CV.ITEM )"
 	cSql += "WHERE CV.ITEM IN ( SELECT AUX.ITEM FROM TAUX_MRP AUX WHERE AUX.ITEM = CV.ITEM )"
@@ -1011,7 +1034,7 @@ Static Function CoefVar()// 2.2  Calculo do Coeficiente de Variabilidade
 
 	//***************************************************************
 	// Calculando Desvio Padrao 
-	IncProc("Calculando Desvio Padrao e Aplicando na Tabela [COEFVAR]" )
+	oProcess:IncRegua1("Calculando Desvio Padrao e Aplicando na Tabela [COEFVAR]" ); oProcess:IncRegua2()
 	cSql := "UPDATE COEFVAR SET COEFVAR.DESVPAD = ROUND( ( COEFVAR.MEDIAABS / "+CV(nPeriodo)+" ) ,4 )"
 	
 	U_ExecMySql( cSql, cCursor := "", cModo := "E", lMostra, lChange := .F. )
@@ -1019,7 +1042,7 @@ Static Function CoefVar()// 2.2  Calculo do Coeficiente de Variabilidade
 
 	//***************************************************************
 	// Calculando Coeficiente e Atualizando na Tabela 
-	IncProc( "Calculando Coeficiente e Atualizando na Tabela [COEFVAR]" )
+	oProcess:IncRegua1( "Calculando Coeficiente e Atualizando na Tabela [COEFVAR]" ); oProcess:IncRegua2()
 	cSql := "UPDATE COEFVAR SET COEFICIENTE = CASE " 
 	cSql += "WHEN ROUND( DESVPAD / DECODE(MEDIAVR,0,1,MEDIAVR) ,4) < "+CV(cCoefMin)+" THEN "+CV(cCoefMin)+" " 
 	cSql += "WHEN ROUND( DESVPAD / DECODE(MEDIAVR,0,1,MEDIAVR) ,4) > "+CV(cCoefMax)+" THEN "+CV(cCoefMax)+" "
@@ -1030,7 +1053,7 @@ Static Function CoefVar()// 2.2  Calculo do Coeficiente de Variabilidade
 	
 	//***************************************************************
 	// Preparando para Atualizar ZA7_CVVRIT
-	IncProc( "incianco atualizacao do Campo ZA7_CVVRIT " )
+	oProcess:IncRegua1( "incianco atualizacao do Campo ZA7_CVVRIT " ); oProcess:IncRegua2()
 	
 	cSql := "SELECT ITEM, MAX(COEFICIENTE) COEFICIENTE FROM COEFVAR GROUP BY ITEM"
 	U_ExecMySql( cSql, cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
@@ -1045,7 +1068,7 @@ Static Function CoefVar()// 2.2  Calculo do Coeficiente de Variabilidade
 			cSql += "WHERE ZA7_CODITE = '" + CV(TAUX->ITEM) + "' "
 			
 			If nIntPro == 100
-				IncProc("Atualizando Coeficiente [ZA7_CVVRIT] do ITEM " + Alltrim(TAUX->ITEM) + "" )
+				oProcess:IncRegua1("Atualizando Coeficiente [ZA7_CVVRIT] do ITEM " + Alltrim(TAUX->ITEM) + "" ); oProcess:IncRegua2()
 				nIntPro := 0
 			Else
 				nIntPro += 1
@@ -1077,20 +1100,20 @@ Static Function RankVen()//2.3  Calculo do Ranking de Vendas
 	Local nPAtuPR 	:= 0 // Total de Produtos Pecas Revisadas
 	Local nPAtuVR 	:= 0 // Total de Produtos Valor revisadas 
 	
-	Local nIntPro 	:= 0 // Intervalo IncProc
+	Local nIntPro 	:= 0 // Intervalo oProcess:IncRegua1
 	
-	ProcRegua(0)
-	IncProc()
+	oProcess:SetRegua1(0);oProcess:SetRegua2(0)
+	oProcess:IncRegua1();oProcess:IncRegua2()
 	
 	//***************************************************************
 	// Dropar Tabela Tamporaria RANKVEN
-	IncProc("Apagando Tabela Auxiliar [RANKVEN]" )
+	oProcess:IncRegua1("Apagando Tabela Auxiliar [RANKVEN]" ); oProcess:IncRegua2()
 	U_ExecMySql( cSql := "Drop Table RANKVEN" , cCursor := "", cModo := "E", lMostra, lChange := .F. )
 	
 	
 	//***************************************************************	
 	// Criando Tabela Atualizada Base para avaliar Rank de Vendas
-	IncProc("Criando e alimentando Tabela Auxiliar [RANKVEN]" )
+	oProcess:IncRegua1("Criando e alimentando Tabela Auxiliar [RANKVEN]" ); oProcess:IncRegua2()
 	
 	cSql := "CREATE TABLE RANKVEN AS " 
 	// Ranking Venda por Peças - VEP 
@@ -1239,12 +1262,12 @@ Static Function RankVen()//2.3  Calculo do Ranking de Vendas
 	cSql += "ZA7_RKVRIP  = 0 ," 
 	cSql += "ZA7_RKVRIV  = 0 "
 	
-	IncProc("Zerando campos de Ranking [ZA7_RKVDIP][ZA7_RKVDIV][ZA7_RKVRIP][ZA7_RKVRIV]" )
+	oProcess:IncRegua1("Zerando campos de Ranking [ZA7_RKVDIP][ZA7_RKVDIV][ZA7_RKVRIP][ZA7_RKVRIV]" ); oProcess:IncRegua2()
 	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
 
 
 	// Verificando Ranking de Vendas  
-	IncProc("Consultando Tabela Auxiliar [RANKVEN]" )
+	oProcess:IncRegua1("Consultando Tabela Auxiliar [RANKVEN]" ); oProcess:IncRegua2()
 	cSql := "SELECT TIPO, CODITE, SOMA, POSICAO FROM RANKVEN ORDER BY TIPO,CODITE"  
 	U_ExecMySql( cSql, cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
 	
@@ -1273,13 +1296,13 @@ Static Function RankVen()//2.3  Calculo do Ranking de Vendas
 			
 			If nIntPro == 100
 				If 		Alltrim(TAUX->TIPO) == "VEP"
-					IncProc("Atualizando Ranking Venda Peças [ZA7_RKVDIP] ITEM " + Alltrim(TAUX->CODITE) + "" )
+					oProcess:IncRegua1("Atualizando Ranking Venda Peças [ZA7_RKVDIP] ITEM " + Alltrim(TAUX->CODITE) + "" ); oProcess:IncRegua2()
 				ElseIf Alltrim(TAUX->TIPO) == "VEV"		
-					IncProc("Atualizando Ranking Venda Valor [ZA7_RKVDIV] ITEM " + Alltrim(TAUX->CODITE) + "" )
+					oProcess:IncRegua1("Atualizando Ranking Venda Valor [ZA7_RKVDIV] ITEM " + Alltrim(TAUX->CODITE) + "" ); oProcess:IncRegua2()
 				ElseIf Alltrim(TAUX->TIPO) == "VRP"	
-					IncProc("Atualizando Ranking Venda Revisada Peças [ZA7_RKVRIP] ITEM " + Alltrim(TAUX->CODITE) + "" )
+					oProcess:IncRegua1("Atualizando Ranking Venda Revisada Peças [ZA7_RKVRIP] ITEM " + Alltrim(TAUX->CODITE) + "" ); oProcess:IncRegua2()
 				ElseIf Alltrim(TAUX->TIPO) == "VRV"
-					IncProc("Atualizando Ranking Venda Revisada Valor [ZA7_RKVRIV] ITEM " + Alltrim(TAUX->CODITE) + "" )
+					oProcess:IncRegua1("Atualizando Ranking Venda Revisada Valor [ZA7_RKVRIV] ITEM " + Alltrim(TAUX->CODITE) + "" ); oProcess:IncRegua2()
 				EndIf
 				nIntPro := 0
 			Else
@@ -1319,7 +1342,7 @@ Static Function CurvasABC() // 3  Curvas ABC
 
 	Local nPercent  := 0 // Guarda o Resultado do Calculo de Percentual de Representação do Item
 	
-	Local nIntPro 	:= 0 // Intervalo IncProc
+	Local nIntPro 	:= 0 // Intervalo oProcess:IncRegua1
 
 	// Salva os Acumulos  de Vendas
 	Local nSAcuVEP 	:= 0 // Acumulo de Venda Pecas 
@@ -1343,13 +1366,13 @@ Static Function CurvasABC() // 3  Curvas ABC
 	Local nPAtuVR 	:= 0 // Total de Produtos Valor revisadas 
 
 	
-	ProcRegua(0)
-	IncProc()
+	oProcess:SetRegua1(0);oProcess:SetRegua2(0)
+	oProcess:IncRegua1();oProcess:IncRegua2()
 
 
 	//***********************************************************
 	// Consultando Soma Total de Venda Pecas  
-	IncProc("Consultando Soma Total de Venda Pecas ")
+	oProcess:IncRegua1("Consultando Soma Total de Venda Pecas "); oProcess:IncRegua2()
 	
 	cSql := "SELECT ROUND( SUM(SOMA),2) TOTAL FROM RANKVEN WHERE TIPO = 'VEP'"
 	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
@@ -1361,7 +1384,7 @@ Static Function CurvasABC() // 3  Curvas ABC
 	
 	//***********************************************************
 	// Consultando Soma Total de Venda Valor
-	IncProc("Consultando Soma Total de Venda Valor ")
+	oProcess:IncRegua1("Consultando Soma Total de Venda Valor "); oProcess:IncRegua2()
 	
 	cSql := "SELECT ROUND( SUM(SOMA),2) TOTAL FROM RANKVEN WHERE TIPO = 'VEV'"
 	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
@@ -1373,7 +1396,7 @@ Static Function CurvasABC() // 3  Curvas ABC
 
 	//***********************************************************
 	// Soma Total de Venda Revisada Pecas
-	IncProc("Consultando Soma Total de Venda Revisada Pecas")
+	oProcess:IncRegua1("Consultando Soma Total de Venda Revisada Pecas"); oProcess:IncRegua2()
 	
 	cSql := "SELECT ROUND( SUM(SOMA),2) TOTAL FROM RANKVEN WHERE TIPO = 'VRP'"
 	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
@@ -1385,7 +1408,7 @@ Static Function CurvasABC() // 3  Curvas ABC
 
 	//***********************************************************
 	// Soma Total de Venda Revisada Valor
-	IncProc("Consultando Soma Total de Venda Revisada Valor")
+	oProcess:IncRegua1("Consultando Soma Total de Venda Revisada Valor"); oProcess:IncRegua2()
 	
 	cSql := "SELECT ROUND( SUM(SOMA),2) TOTAL FROM RANKVEN WHERE TIPO = 'VRV'"
 	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
@@ -1398,21 +1421,21 @@ Static Function CurvasABC() // 3  Curvas ABC
 
 	//********************************************************************
 	// Resetando Curvas Vendas Pecas e Valor  
-	IncProc("Resetando Curva ABC de Venda Pecas e Valor  " )
+	oProcess:IncRegua1("Resetando Curva ABC de Venda Pecas e Valor  " ); oProcess:IncRegua2()
 	cSql := "UPDATE SB1010 SET B1_CURVAIT = 'ZZ' "  
 	U_ExecMySql( cSql, cCursor := "", cModo := "E", lMostra, lChange := .F. )
 	
 
 	//********************************************************************
 	// Resetando Curvas Vendas Revisadas Pecas e Valor  
-	IncProc("Resetando Curva ABC de Venda Pecas e Valor  " )
+	oProcess:IncRegua1("Resetando Curva ABC de Venda Pecas e Valor  " ); oProcess:IncRegua2()
 	cSql := "UPDATE ZA7010 SET ZA7_ABCVRI = 'ZZ' "  
 	U_ExecMySql( cSql, cCursor := "", cModo := "E", lMostra, lChange := .F. )
 	
 	
 	//********************************************************************
 	// Verificando Somas de Vendas  
-	IncProc("Consultando Tabela Auxiliar [RANKVEN]" )
+	oProcess:IncRegua1("Consultando Tabela Auxiliar [RANKVEN]" ); oProcess:IncRegua2()
 	cSql := "SELECT TIPO, CODITE, SOMA, POSICAO FROM RANKVEN ORDER BY POSICAO"  
 	U_ExecMySql( cSql, cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
 	
@@ -1456,13 +1479,13 @@ Static Function CurvasABC() // 3  Curvas ABC
 		If nIntPro == 100
 			ConOut("nPercent : " + cValToChar(nPercent) + " ITEM: " + Alltrim(TAUX->CODITE) )
 			If 		Alltrim(TAUX->TIPO) == "VEP"
-				IncProc("Atualizando Curva ABC Venda Peças [B1_CURVAIT] ITEM " + Alltrim(TAUX->CODITE) + "" )
+				oProcess:IncRegua1("Atualizando Curva ABC Venda Peças [B1_CURVAIT] ITEM " + Alltrim(TAUX->CODITE) + "" ); oProcess:IncRegua2()
 			ElseIf 	Alltrim(TAUX->TIPO) == "VEV"		
-				IncProc("Atualizando Curva ABC Venda Valor [B1_CURVAIT] ITEM " + Alltrim(TAUX->CODITE) + "" )
+				oProcess:IncRegua1("Atualizando Curva ABC Venda Valor [B1_CURVAIT] ITEM " + Alltrim(TAUX->CODITE) + "" ); oProcess:IncRegua2()
 			ElseIf 	Alltrim(TAUX->TIPO) == "VRP"	
-				IncProc("Atualizando Curva ABC Venda Revisada Peças [ZA7_ABCVRI] ITEM " + Alltrim(TAUX->CODITE) + "" )
+				oProcess:IncRegua1("Atualizando Curva ABC Venda Revisada Peças [ZA7_ABCVRI] ITEM " + Alltrim(TAUX->CODITE) + "" ); oProcess:IncRegua2()
 			ElseIf 	Alltrim(TAUX->TIPO) == "VRV"
-				IncProc("Atualizando Curva ABC Venda Revisada Valor [ZA7_ABCVRI] ITEM " + Alltrim(TAUX->CODITE) + "" )
+				oProcess:IncRegua1("Atualizando Curva ABC Venda Revisada Valor [ZA7_ABCVRI] ITEM " + Alltrim(TAUX->CODITE) + "" ); oProcess:IncRegua2()
 			EndIf
 			nIntPro := 0
 		Else
@@ -1503,7 +1526,7 @@ Static Function CurvasABC() // 3  Curvas ABC
 		Endif 	
 		
 		If nIntPro == 100
-			IncProc("Ajustando Curva E [B1_CURVAIT] Item " + CV(TAUX->CODITE) )
+			oProcess:IncRegua1("Ajustando Curva E [B1_CURVAIT] Item " + CV(TAUX->CODITE) ); oProcess:IncRegua2()
 			nIntPro := 0
 		Else
 			nIntPro += 1
@@ -1527,7 +1550,7 @@ Static Function CurvasABC() // 3  Curvas ABC
 		U_ExecMySql( TAUX->UPD , cCursor := "", cModo := "E", lMostra, lChange := .F. )
 		
 		If nIntPro == 100
-			IncProc(cTexto )
+			oProcess:IncRegua1(cTexto ); oProcess:IncRegua2()
 			nIntPro := 0
 		Else
 			nIntPro += 1
@@ -1612,7 +1635,7 @@ Static Function CurvasPQR() // 3.2.	Curvas PQR
 
 	Local nPercent  := 0 // Guarda o Resultado do Calculo de Percentual de Representação do Item
 	
-	Local nIntPro 	:= 0 // Intervalo IncProc
+	Local nIntPro 	:= 0 // Intervalo oProcess:IncRegua1
 
 	Local nSToCITE 	:= 0 // Soma Total de Consultas Item
 	Local nPAcuITE 	:= 0 // Percentual Acumulado de Consultas Item
@@ -1627,13 +1650,13 @@ Static Function CurvasPQR() // 3.2.	Curvas PQR
 	Local nTotIUpd 	:= 0 // Total de Itens Consulta Itens Atualizados  
 	Local nTotCUpd 	:= 0 // Total de Itens Consulta Clientes Atualizados 
 	
-	ProcRegua(0)
-	IncProc()
+	oProcess:SetRegua1(0);oProcess:SetRegua2(0)
+	oProcess:IncRegua1();oProcess:IncRegua2()
 	
-	IncProc("Resetando Consulta PQR..." )
+	oProcess:IncRegua1("Resetando Consulta PQR..." ); oProcess:IncRegua2()
 	U_ExecMySql( "UPDATE ZA7010 SET ZA7_PQR = 'ZZ' ", cCursor := "", cModo := "E", lMostra, lChange := .F. )
 	
-	IncProc("Excluindo Tabela Auxiliar [RANKPQR]" )
+	oProcess:IncRegua1("Excluindo Tabela Auxiliar [RANKPQR]" ); oProcess:IncRegua2()
 	U_ExecMySql( "Drop Table RANKPQR" , cCursor := "", cModo := "E", lMostra, lChange := .F. )
 	
 	
@@ -1700,10 +1723,10 @@ Static Function CurvasPQR() // 3.2.	Curvas PQR
  	cSql +="	WHERE TABA.CODITE = TABB.CODITE "
  	cSql +="	ORDER BY TABA.CODITE "
 	
-	IncProc("Criando Tabela Auxiliar [RANKPQR]" )
+	oProcess:IncRegua1("Criando Tabela Auxiliar [RANKPQR]" ); oProcess:IncRegua2()
 	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
 	
-	IncProc("Consultando Tabela Auxiliar [RANKPQR] Total Consultas" )
+	oProcess:IncRegua1("Consultando Tabela Auxiliar [RANKPQR] Total Consultas" ); oProcess:IncRegua2()
 	U_ExecMySql( "SELECT SUM(CONITE) TCONITE FROM RANKPQR"  , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
 	
 	DbSelectArea("TAUX");DbGoTop()
@@ -1711,7 +1734,7 @@ Static Function CurvasPQR() // 3.2.	Curvas PQR
 	DbSelectArea("TAUX");DbCloseArea()
 	
 
-	IncProc("Consultando Tabela Auxiliar [RANKPQR] Consultas por Item" )
+	oProcess:IncRegua1("Consultando Tabela Auxiliar [RANKPQR] Consultas por Item" ); oProcess:IncRegua2()
 	U_ExecMySql( "SELECT CODITE, CONITE, POSITE  FROM RANKPQR ORDER BY POSITE"  , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
 	
 	DbSelectArea("TAUX");dbGotop();nIntPro := 0
@@ -1720,7 +1743,7 @@ Static Function CurvasPQR() // 3.2.	Curvas PQR
 		cFaixa := AvalFPQR(@nPercITE, @nPAcuITE, @nPAPaITE, nSToCITE, "TAUX->CONITE" )  
 		
 		If nIntPro == 100
-			IncProc("Atualizando Curva PQR Consulta Item " + CV(TAUX->CODITE)) 
+			oProcess:IncRegua1("Atualizando Curva PQR Consulta Item " + CV(TAUX->CODITE)) ; oProcess:IncRegua2()
 			nIntPro := 0
 		Else
 			nIntPro += 1
@@ -1736,7 +1759,7 @@ Static Function CurvasPQR() // 3.2.	Curvas PQR
 	EndDo
 	DbSelectArea("TAUX");DbCloseArea()
 	
-	IncProc("Consultando Tabela Auxiliar [RANKPQR] Total Clientes" )
+	oProcess:IncRegua1("Consultando Tabela Auxiliar [RANKPQR] Total Clientes" ); oProcess:IncRegua2()
 	U_ExecMySql( "SELECT SUM(CONCLI) TCONCLI FROM RANKPQR"  , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
 
 	DbSelectArea("TAUX");DbGoTop()
@@ -1744,7 +1767,7 @@ Static Function CurvasPQR() // 3.2.	Curvas PQR
 	DbSelectArea("TAUX");DbCloseArea()
 	
 
-	IncProc("Consultando Tabela Auxiliar [RANKPQR] Consultas por Cliente" )
+	oProcess:IncRegua1("Consultando Tabela Auxiliar [RANKPQR] Consultas por Cliente" ); oProcess:IncRegua2()
 	U_ExecMySql( "SELECT CODITE, CONCLI, POSCLI FROM RANKPQR ORDER BY POSCLI"  , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
 
 	DbSelectArea("TAUX");dbGotop();nIntPro := 0
@@ -1753,7 +1776,7 @@ Static Function CurvasPQR() // 3.2.	Curvas PQR
 		cFaixa := AvalFPQR(@nPercCLI, @nPAcuCLI, @nPAPaCLI, nSToCCLI, "TAUX->CONCLI" )  
 		
 		If nIntPro == 100
-			IncProc("Atualizando Curva PQR Consulta Cliente "  + CV(TAUX->CODITE)) 
+			oProcess:IncRegua1("Atualizando Curva PQR Consulta Cliente "  + CV(TAUX->CODITE)) ; oProcess:IncRegua2()
 			nIntPro := 0
 		Else
 			nIntPro += 1
@@ -1834,7 +1857,7 @@ Static Function CurvABCM() // //3.3  Calculo das Curvas ABC Margem
 	Local cSDataI 	:= dToS(DataRef(nMeses := 12))
 	Local cSDataF 	:= dToS(DataRef(nMeses := 1,.T. ))  
 	
-	Local nIntPro 	:= 0 // Intervalo IncProc
+	Local nIntPro 	:= 0 // Intervalo oProcess:IncRegua1
 	
 	Local nSToMarg 	:= 0 // Soma Total das Margens
 	Local nPAcuSMA 	:= 0 // Percentual Acumulado de Soma Margem
@@ -1843,18 +1866,18 @@ Static Function CurvABCM() // //3.3  Calculo das Curvas ABC Margem
 
 	Local nTotIUpd 	:= 0 // Total de ABC MArgem por Itens Atualizados  
 	
-	ProcRegua(0)
-	IncProc()
+	oProcess:SetRegua1(0);oProcess:SetRegua2(0)
+	oProcess:IncRegua1();oProcess:IncRegua2()
 	
 	//**************************************************************	
 	// Dropar Tabela Tamporaria RANKMAR
-	IncProc("Apagando Tabela Auxiliar [RANKMAR]" )
+	oProcess:IncRegua1("Apagando Tabela Auxiliar [RANKMAR]" ); oProcess:IncRegua2()
 	U_ExecMySql( cSql := "Drop Table RANKMAR" , cCursor := "", cModo := "E", lMostra, lChange := .F. )
 
 
 	//***************************************************************	
 	// Criando Tabela Atualizada Base para avaliar Ranking Margem
-	IncProc("Criando e alimentando Tabela Auxiliar [RANKMAR]" )
+	oProcess:IncRegua1("Criando e alimentando Tabela Auxiliar [RANKMAR]" ); oProcess:IncRegua2()
 
 	cSql := "CREATE TABLE RANKMAR AS " 
 	cSql += "SELECT " 
@@ -1890,7 +1913,7 @@ Static Function CurvABCM() // //3.3  Calculo das Curvas ABC Margem
 
 	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra := .F., lChange := .F. )
 	
-	IncProc("Consultando Tabela Auxiliar [RANKMAR] Rankin Margem" )
+	oProcess:IncRegua1("Consultando Tabela Auxiliar [RANKMAR] Rankin Margem" ); oProcess:IncRegua2()
 	U_ExecMySql( "SELECT SUM(SOMA) TRM FROM RANKMAR "  , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
 	
 	DbSelectArea("TAUX");DbGoTop()
@@ -1898,7 +1921,7 @@ Static Function CurvABCM() // //3.3  Calculo das Curvas ABC Margem
 	DbSelectArea("TAUX");DbCloseArea()
 	
 
-	IncProc("Consultando Tabela Auxiliar [RANKMAR] Ranking Margens por Item" )
+	oProcess:IncRegua1("Consultando Tabela Auxiliar [RANKMAR] Ranking Margens por Item" ); oProcess:IncRegua2()
 	U_ExecMySql( "SELECT CODITE, SOMA, POSICAO FROM RANKMAR ORDER BY POSICAO"  , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
 
 	DbSelectArea("TAUX");dbGotop();nIntPro := 0
@@ -1907,7 +1930,7 @@ Static Function CurvABCM() // //3.3  Calculo das Curvas ABC Margem
 		cFaixa := AvaCABCM(@nPercCIM, @nPAcuSMA, @nPAPaCIM, nSToMarg, "TAUX->SOMA" )  
 		
 		If nIntPro == 100
-			IncProc("Atualizando Curva ABC Margem Item " + CV(TAUX->CODITE)) 
+			oProcess:IncRegua1("Atualizando Curva ABC Margem Item " + CV(TAUX->CODITE)); oProcess:IncRegua2()
 			nIntPro := 0
 		Else
 			nIntPro += 1
@@ -1966,17 +1989,17 @@ Static Function CurABCOV()//3.4  Calculo das Curvas ABC Ofertado e Vendido
 	Local nIntPro 	:= 0
 	Local nTotIUpd 	:= 0 // Total de Registros Atualizados... 
 	
-	ProcRegua(0)
-	IncProc()
+	oProcess:SetRegua1(0);oProcess:SetRegua2(0)
+	oProcess:IncRegua1();oProcess:IncRegua2()
 
 	//**************************************************************	
 	// Dropar Tabela Tamporaria CABCCV
-	IncProc("Apagando Tabela Auxiliar [CABCCV]" )
+	oProcess:IncRegua1("Apagando Tabela Auxiliar [CABCCV]" ); oProcess:IncRegua2()
 	U_ExecMySql( cSql := "Drop Table CABCCV" , cCursor := "", cModo := "E", lMostra, lChange := .F. )
 
 	//***************************************************************	
 	// Criando Tabela Atualizada Base para avaliar Curva ABC Ofertado e Vendido
-	IncProc("Criando e alimentando Tabela Auxiliar [CABCCV] Curva ABC Ofertado e Vendido" )
+	oProcess:IncRegua1("Criando e alimentando Tabela Auxiliar [CABCCV] Curva ABC Ofertado e Vendido" ); oProcess:IncRegua2()
 
 	cSql := "CREATE TABLE CABCCV AS "
 	cSql += "SELECT DISTINCT ZA7_CODITE CODITE,  "
@@ -2017,14 +2040,14 @@ Static Function CurABCOV()//3.4  Calculo das Curvas ABC Ofertado e Vendido
 
 	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
 
-	IncProc("Consultando Tabela Auxiliar [CABCCV] Curva ABC Ofertado e Vendido" )
+	oProcess:IncRegua1("Consultando Tabela Auxiliar [CABCCV] Curva ABC Ofertado e Vendido" ); oProcess:IncRegua2()
 	U_ExecMySql( cSql := "SELECT * FROM CABCCV" , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
 	
 	DbSelectArea("TAUX");dbGotop();nIntPro := 0
 	While !EOF()
 		
 		If nIntPro == 100
-			IncProc("Atualizando Curva ABC Ofertado e Vendido Item " + CV(TAUX->CODITE)) 
+			oProcess:IncRegua1("Atualizando Curva ABC Ofertado e Vendido Item " + CV(TAUX->CODITE)) ; oProcess:IncRegua2()
 			nIntPro := 0
 		Else
 			nIntPro += 1
