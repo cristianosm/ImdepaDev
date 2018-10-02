@@ -36,8 +36,8 @@ User Function MrpOImd()
 	Private lCurABCM := .F.
 	Private lCuABCOV := .F.
 	
-	Private lAbort 	
-	Private bAbort	:= { || IIf ( lAbort == .T., Alert("Não vá neste momento"), "" ) }
+	Private lAbort 	:= .F.
+	//Private bAbort	:= { || IIf ( lAbort == .T., Alert("Não vá neste momento"), "" ) }
 	
 	Private cLog := ""
 	
@@ -447,7 +447,7 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	cSql += "AND   SB2.D_E_L_E_T_ = ' ' "
 	cSql += "AND   SB1.B1_FILIAL = '05' "
 	cSql += "AND   SB1.B1_GRMAR1 IN ('000001','000002') AND SB1.B1_TIPO IN ('PA','PP','MP') "
-	cSql += "AND   SB1.B1_DESC NOT LIKE '%(N USAR)%' "
+	//cSql += "AND   SB1.B1_DESC NOT LIKE '%(N USAR)%' "
 	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
 	cSql += "AND   SUBSTR(SB1.B1_COD,1,2) = '00' " // CODIGO INICIO COM "00"
 	cSql += "GROUP BY B2_COD "
@@ -465,7 +465,7 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	cSql += "ON SUBSTR(B1_COD,1,"+CV(nRaizF1)+") = SB2.GC_CODIGO "
 	cSql += "WHERE SB1.B1_FILIAL = '05' "
 	cSql += "AND   SB1.B1_GRMAR1 IN ('000001','000002') AND SB1.B1_TIPO IN ('PA','PP','MP') "
-	cSql += "AND   SB1.B1_DESC NOT LIKE '%(N USAR)%' "
+	//cSql += "AND   SB1.B1_DESC NOT LIKE '%(N USAR)%' "
 	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
 	cSql += "AND   SUBSTR(SB1.B1_COD,1,2) = '01' " // CODIGO INICIO COM "01"
 	cSql += "GROUP BY SB1.B1_COD "
@@ -483,7 +483,7 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	cSql += "ON SUBSTR(B1_COD,1,"+CV(nRaizF2)+") = SB2.GC_CODIGO "
 	cSql += "WHERE SB1.B1_FILIAL = '05' "
 	cSql += "AND   SB1.B1_GRMAR1 IN ('000001','000002') AND SB1.B1_TIPO IN ('PA','PP','MP') "
-	cSql += "AND   SB1.B1_DESC NOT LIKE '%(N USAR)%' "
+	//cSql += "AND   SB1.B1_DESC NOT LIKE '%(N USAR)%' "
 	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
 	cSql += "AND   SUBSTR(SB1.B1_COD,1,2) = '02' " // CODIGO INICIO COM "02"
 	cSql += "GROUP BY SB1.B1_COD "
@@ -503,16 +503,18 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	// Consulta Status dos Produtos 
 	//*************************************************************************
 
-	cSql := "SELECT B1_COD PRODUTO, B1_PRONOVO PRONOVO, ZA7_ITEMNO ITEMNOVO, ZA7_PGRAMA PROGRAMA, ZA7_PPCOMP PEDIDO, B1_ESTFOR ESTFOR, B1_ESTSEG ESTSEG "
+	cSql := "SELECT B1_COD PRODUTO, B1_PRONOVO PRONOVO, ZA7_ITEMNO ITEMNOVO, ZA7_PGRAMA PROGRAMA, ZA7_PPCOMP PEDIDO, B1_ESTFOR ESTFOR, B1_ESTSEG ESTSEG, "
+	cSql += "CASE WHEN SB1.B1_DESC NOT LIKE '%(N USAR)%' THEN 'NAO' "
+	cSql += "ELSE 'SIM' END USAR "	
 	cSql += "FROM SB1010 SB1 INNER JOIN ZA7010 ZA7 "
 	cSql += "ON SB1.B1_FILIAL = ZA7.ZA7_FILIAL "
 	cSql += "AND SB1.B1_COD = ZA7.ZA7_CODPRO "
 	cSql += "WHERE SB1.B1_FILIAL = '05' "
 	cSql += "AND   SB1.B1_GRMAR1 IN ('000001','000002') AND SB1.B1_TIPO IN ('PA','PP','MP') "
-	cSql += "AND   SB1.B1_DESC NOT LIKE '%(N USAR)%' "
+	//cSql += "AND   SB1.B1_DESC NOT LIKE '%(N USAR)%' "
 	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
 	cSql += "AND   ZA7.D_E_L_E_T_ = ' ' "
-	cSql += "GROUP BY B1_COD, B1_PRONOVO, ZA7_ITEMNO, ZA7_PGRAMA, ZA7_PPCOMP, B1_ESTFOR, B1_ESTSEG "
+	cSql += "GROUP BY B1_COD, B1_DESC, B1_PRONOVO, ZA7_ITEMNO, ZA7_PGRAMA, ZA7_PPCOMP, B1_ESTFOR, B1_ESTSEG "
 
 	IncProc("Consulta Parametros dos Produtos ")
 	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
@@ -522,7 +524,7 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	// Atualiza Todos os Produtos para NAO
 	//*************************************************************************
 	
-	cSql := "UPDATE SB1010 SET B1_PROATIV = 'N' WHERE B1_PROATIV <> 'N' AND B1_GRMAR1 IN ('000001','000002') AND B1_TIPO IN ('PA','PP','MP')" 
+	cSql := "UPDATE SB1010 SET B1_PROATIV = 'N' WHERE B1_PROATIV <> 'N' AND B1_GRMAR1 IN ('000001','000002') AND B1_TIPO IN ('PA','PP','MP') " 
 	IncProc("Definido Todos os Produtos como Ativo N-Nao") 
 	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
 	
@@ -536,7 +538,7 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 		If HMGet(oHTCov , TAUX->PRODUTO , @aValHT) .Or. HMGet(oHTEst , TAUX->PRODUTO , @aValHT) //.Or. HMGet(oHTPor , TAUX->PRODUTO , @aValHT)
 			lUpd := .T.
 			
-		ElseIf TAUX->PRONOVO == "S" .Or.  TAUX->ITEMNOVO  == "S" .Or.  TAUX->PROGRAMA  == "S" .Or.  TAUX->PEDIDO == "S" .Or. ( TAUX->ESTFOR <> 'C04' .And. TAUX->ESTSEG >= 1 )
+		ElseIf TAUX->USAR == "SIM" .AND. ( TAUX->PRONOVO == "S" .Or.  TAUX->ITEMNOVO  == "S" .Or.  TAUX->PROGRAMA  == "S" .Or.  TAUX->PEDIDO == "S" .Or. ( TAUX->ESTFOR <> 'C04' .And. TAUX->ESTSEG >= 1 ))
 			lUpd := .T.
 		EndIf
 		
@@ -787,7 +789,7 @@ Static Function MediaCOV()// 2.1.1 Calculo Média do COV
 		
 			nPAtu += 1
 			
-			eVal(bAbort)
+			//eVal(bAbort)
 			
 		DbSkip()
 	EndDo
@@ -858,7 +860,7 @@ Static Function SomaMCOV()// 2.1.2 - Soma Media do COV
 		
 			nPAtu += 1
 			
-			eVal(bAbort)
+			//eVal(bAbort)
 		
 		DbSelectArea("TAUX")
 		DbSkip()
@@ -1053,7 +1055,7 @@ Static Function CoefVar()// 2.2  Calculo do Coeficiente de Variabilidade
 		
 			nPAtu += 1
 			
-			eVal(bAbort)
+			//eVal(bAbort)
 			
 		DbSkip()
 	EndDo
@@ -1286,7 +1288,7 @@ Static Function RankVen()//2.3  Calculo do Ranking de Vendas
 			
 				U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
 			
-			eVal(bAbort)
+			//eVal(bAbort)
 		
 		DbSelectArea("TAUX")
 		DbSkip()
