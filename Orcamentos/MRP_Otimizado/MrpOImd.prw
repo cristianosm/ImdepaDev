@@ -527,7 +527,7 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	//*************************************************************************
 
 	cSql := "SELECT B1_COD PRODUTO, B1_PRONOVO PRONOVO, ZA7_ITEMNO ITEMNOVO, ZA7_PGRAMA PROGRAMA, ZA7_PPCOMP PEDIDO, B1_ESTFOR ESTFOR, B1_ESTSEG ESTSEG, "
-	cSql += "CASE WHEN SB1.B1_DESC NOT LIKE '%(N USAR)%' THEN 'NAO' "
+	cSql += "CASE WHEN SB1.B1_DESC LIKE '%(N USAR)%' THEN 'NAO' "
 	cSql += "ELSE 'SIM' END USAR "	
 	cSql += "FROM SB1010 SB1 INNER JOIN ZA7010 ZA7 "
 	cSql += "ON SB1.B1_FILIAL = ZA7.ZA7_FILIAL "
@@ -904,7 +904,7 @@ Static Function CoefVar()// 2.2  Calculo do Coeficiente de Variabilidade
 	Local cSDataF 	:= dToS(DataRef(nMeses := 1,.T. ))  
 	
 	Local cCoefMin 	:= Alltrim(cValToChar(0.25))
-	Local cCoefMax 	:= Alltrim(cValToChar(1.50))
+	Local cCoefMax 	:= Alltrim(cValToChar(1.25))
 	
 	Local nPAtu 	:= 0 // Total de Produtos Atualizados 
 	Local nIntPro 	:= 0 // Intervalo oProcess:IncRegua1
@@ -1811,9 +1811,9 @@ Static Function AvalFPQR(nPerc, nPAcu, nPAPa, nSToC, CpoCon ) // Avalia Faixa do
 	
 	// Faixas Consultas Cliente	
 	Local nFxPQRCP := 50 // Faixa PQR Consulta Itens P
-	Local nFxPQRCQ := nFxPQRIP + 35 // Faixa PQR Consulta Itens Q
-	Local nFxPQRCR := nFxPQRCQ + 13 // Faixa PQR Consulta Itens R 
-	Local nFxPQRCS := nFxPQRCR + 02 // Faixa PQR Consulta Itens S
+	Local nFxPQRCQ := nFxPQRIP + 35 // Faixa PQR Consulta Cliente Q
+	Local nFxPQRCR := nFxPQRCQ + 13 // Faixa PQR Consulta Cliente R 
+	Local nFxPQRCS := nFxPQRCR + 02 // Faixa PQR Consulta Cliente S
 		
 	If nPerc <>  ( &CpoCon / nSToC * 100 , 20) 
 		nPAcu := nPAPa
