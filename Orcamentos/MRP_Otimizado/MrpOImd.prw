@@ -552,6 +552,7 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	// Atualiza Todos os Produtos para NAO
 	//*************************************************************************
 	
+	// TEMP
 	cSql := "UPDATE SB1010 SET B1_PROATIV = 'N' WHERE B1_PROATIV <> 'N' AND B1_GRMAR1 IN ('000001','000002') AND B1_TIPO IN ('PA','PP','MP') " 
 	oProcess:IncRegua1("Definido Todos os Produtos como Ativo N-Nao"); oProcess:IncRegua2()
 	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
@@ -607,7 +608,7 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 			EndIf 
 		
 			U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
-			
+			//ConOut("MRP | Atualizando o Produto " +  Alltrim(TAUX->PRODUTO) + " para SIM -> " + Alltrim(cSql))
 			nPAtu += 1
 			
 		EndIf
@@ -684,6 +685,12 @@ Static Function B1MSBLOQ()//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados
 	
 	oProcess:IncRegua1("Verificando Produtos ATIVOS e com Data REF apartir de  " + SToC(cSData) ); oProcess:IncRegua2()
 	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
+	
+	
+	cSql := "UPDATE SB1010 SET B1_MSBLQL = '2' WHERE B1_MSBLQL <> '2' AND B1_GRMAR1 IN ('000001','000002') AND B1_TIPO IN ('PA','PP','MP') " 
+	oProcess:IncRegua1("Definido Todos os Produtos como Desbloqueados N-Nao"); oProcess:IncRegua2()
+	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
+	
 	
 	DbSelectArea("TAUX");DbGoTop()
 	While !EOF()
@@ -953,7 +960,7 @@ Static Function CoefVar()// 2.2  Calculo do Coeficiente de Variabilidade
 	cSql := "CREATE TABLE COEFVAR AS "
 	cSql += "SELECT SB1.B1_CODITE 				ITEM, " 
 	cSql += "		SUBSTR(ZA0.ZA0_DTNECL,1,6) 	MESANO, "
-	cSql += "ROUND( SUM(ZA0.ZA0_VENDRE) )		SOMAVR, "
+	cSql += "ROUND( SUM(ZA0.ZA0_VENDRE),2 )		SOMAVR, "
 	cSql += "ROUND( SUM(0) )					MEDIAVR, "
 	cSql += "ROUND( SUM(0) ) 					VLABS, "
 	cSql += "ROUND( SUM(0) ) 					MEDIAABS, "
@@ -1039,34 +1046,34 @@ Static Function CoefVar()// 2.2  Calculo do Coeficiente de Variabilidade
 	
 	//***************************************************************
 	// Calculando Média do Valor  Absoluto   
-	oProcess:IncRegua1("Calculando Média do Valor  Absoluto" ); oProcess:IncRegua2()
+	oProcess:IncRegua1("Calculando Desvio Padrao" ); oProcess:IncRegua2()
 	
 	DropTAux() // Dropa a Tabela Temporaria Auxiliar do MRP
 	
 	cSql := "CREATE TABLE TAUX_MRP AS "  
-	cSql += "SELECT CV.ITEM,  ROUND( SUM(CV.VLABS),4) SOMA, ROUND( "+CV(nPeriodo)+",4) QTD, ROUND( SUM(CV.VLABS) / "+CV(nPeriodo)+" ,4 ) MEDIAABS " 
+	cSql += "SELECT CV.ITEM,  ROUND( SUM(CV.VLABS),4) SOMA, ROUND( "+CV(nPeriodo)+",4) QTD, ROUND( SUM(CV.VLABS) / "+CV(nPeriodo)+" ,4 ) DESVPAD " 
 	cSql += "FROM COEFVAR CV GROUP BY CV.ITEM "
 	
 	U_ExecMySql( cSql, cCursor := "", cModo := "E", lMostra, lChange := .F. )
 	
 
 	//***************************************************************
-	// Atualizando Média do Valor Absoluto
-	oProcess:IncRegua1("Atualizando Média do Valor Absoluto na Tabela [COEFVAR]" ); oProcess:IncRegua2()
+	// Atualizando Desvio Padrao
+	oProcess:IncRegua1("Calculando Desvio Padrao e Aplicando na Tabela [COEFVAR]" ); oProcess:IncRegua2()
 	
-	cSql := "UPDATE COEFVAR CV SET CV.MEDIAABS = ( SELECT AUX.MEDIAABS FROM TAUX_MRP AUX WHERE AUX.ITEM = CV.ITEM )"
+	cSql := "UPDATE COEFVAR CV SET CV.DESVPAD = ( SELECT AUX.DESVPAD FROM TAUX_MRP AUX WHERE AUX.ITEM = CV.ITEM )"
 	cSql += "WHERE CV.ITEM IN ( SELECT AUX.ITEM FROM TAUX_MRP AUX WHERE AUX.ITEM = CV.ITEM )"
 	
 	U_ExecMySql( cSql, cCursor := "", cModo := "E", lMostra, lChange := .F. )
 	
-
+	/*
 	//***************************************************************
 	// Calculando Desvio Padrao 
 	oProcess:IncRegua1("Calculando Desvio Padrao e Aplicando na Tabela [COEFVAR]" ); oProcess:IncRegua2()
 	cSql := "UPDATE COEFVAR SET COEFVAR.DESVPAD = ROUND( ( COEFVAR.MEDIAABS / "+CV(nPeriodo)+" ) ,4 )"
 	
 	U_ExecMySql( cSql, cCursor := "", cModo := "E", lMostra, lChange := .F. )
-	
+	*/
 
 	//***************************************************************
 	// Calculando Coeficiente e Atualizando na Tabela 

@@ -2,6 +2,10 @@
 #Include 'Parmtype.ch'
 #Include 'Totvs.ch'
 
+
+#Define F
+
+
 /*****************************************************************************\
 **---------------------------------------------------------------------------**
 ** FUNÇÃO   : MrpOView.prw | AUTOR : Cristiano Machado | DATA : 03/10/2018**
@@ -49,18 +53,17 @@ User Function MrpOView()
   oTButton1 := TButton():New( 090, 020, "PROCESSAR" ,oTFolder:aDialogs[1],{||alert("Botão 01")}, 60,15,,,.F.,.T.,.F.,,.F.,,,.F. )   
   oTButton2 := TButton():New( 090, 155, "HISTÓRICO" ,oTFolder:aDialogs[1],{||alert("Botão 02")}, 60,15,,,.F.,.T.,.F.,,.F.,,,.F. )   
  
- 
+
+  oSay1	 := TSay():New(35,60,{ ||'Coeficiente Mínimo: ' },oTFolder:aDialogs[2],,oFont,,,,.T.,,CLR_WHITE,200,20)
+  cTGet1 := 0.25
+  oTGet1 := NTGet(034,115,Nil,oTFolder:aDialogs[2],005,"@E 9.99",cTGet1 )
+  
+  oSay2  := TSay():New(70,60,{ ||'Coeficiente Máximo: ' },oTFolder:aDialogs[2],,oFont,,,,.T.,,CLR_WHITE,200,20)
+  cTGet2 := 1.50
+  oTGet2 := NTGet(069,115,Nil,oTFolder:aDialogs[2],005,"@E 9.99",cTGet2 )
+  
  
   
-  //cTGet1 := "Teste TGet 01"
-  //oTGet1 := TGet():New( 01,01,{||cTGet1},oTFolder:aDialogs[1],096,009,"",,0,,,.F.,,.T.,,.F.,,.F.,.F.,,.F.,.F.,,cTGet1,,,, )
- 
-  cTGet2 := "Teste TGet 02"
-  oTGet2 := TGet():New( 01,01,{||cTGet2},oTFolder:aDialogs[2],096,009,"",,0,,,.F.,,.T.,,.F.,,.F.,.F.,,.F.,.F.,,cTGet2,,,, )
- 
-  cTGet3 := "Teste TGet 03"
-  oTGet3 := TGet():New( 01,01,{||cTGet3},oTFolder:aDialogs[3],096,009,"",,0,,,.F.,,.T.,,.F.,,.F.,.F.,,.F.,.F.,,cTGet3,,,, )
- 
  
   oTButtonA := TButton():New( 140, 010, "SAIR"			,oDlg,{||alert("Botão A")}, 60,15,,,.F.,.T.,.F.,,.F.,,,.F. )   
   oTButtonB := TButton():New( 140, 100, "SALVAR"		,oDlg,{||alert("Botão B")}, 60,15,,,.F.,.T.,.F.,,.F.,,,.F. )   
@@ -72,3 +75,41 @@ User Function MrpOView()
 
 
 return
+
+
+*******************************************************************************
+Static Function NTGet(nRow,nCol,bSetGet,oWnd,nWidth,cPict,cReadVar )
+*******************************************************************************
+	Local oObj				:= Nil
+	Local nHeight			:= 10
+	Local bValid 			:= {||}
+	Local nClrFore 			:= Nil
+	Local nClrBack			:= Nil
+	Local oFont				:= Nil
+	Local lPixel			:= .T.
+	Local bWhen				:= {||}
+	Local bChange			:= {||}
+	Local lReadOnly			:= .F.
+	Local lPassword			:= .F.
+	Local lHasButton		:= .T.
+	Local lNoButton			:= .F.
+	Local cLabelText		:= ""
+	Local nLabelPos			:= Nil
+	Local oLabelFont		:= Nil
+	Local nLabelColor		:= Nil
+	Local cPlaceHold		:= Nil
+	Local lPicturePriority	:= Nil
+	Local lFocSel			:= Nil
+	
+	Local uP12,uP13,uP15,uP16,uP18,uP19,uP23,uP25,uP26,uP27,uP30 := Nil
+
+	cReadVar := cValToChar(cReadVar)
+
+	Default bSetGet := {||cReadVar}
+
+	oObj := TGet():New( nRow,nCol,bSetGet,oWnd,nWidth,nHeight,cPict,bValid,nClrFore,nClrBack,oFont,uP12,uP13,;
+	lPixel,uP15,uP16,bWhen,uP18,uP19,bChange,lReadOnly,lPassword,uP23,cReadVar,uP25,uP26,uP27,lHasButton,lNoButton,;
+	uP30,cLabelText,nLabelPos,oLabelFont,nLabelColor,cPlaceHold,lPicturePriority,lFocSel )
+
+	
+Return oObj	
