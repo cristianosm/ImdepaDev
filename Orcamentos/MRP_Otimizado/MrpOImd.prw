@@ -417,12 +417,17 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	Local nRaizF1	:= 10 // Numero de digitos que formam a RAIZ da formacao do codigo na familia 1
 	Local nRaizF2	:= 7  // Numero de digitos que formam a RAIZ da formacao do codigo na familia 2
 	
+	Local lUF1		:= .F. // Deve Atualizar a Nivel Guarda Chuva - Familia de Correias 01
+	Local lUF2		:= .F. // Deve Atualizar a Nivel Guarda Chuva - Familia de Correias 02
+	
 	oProcess:SetRegua1(0);oProcess:SetRegua2(0)
 	oProcess:IncRegua1();oProcess:IncRegua2()
 
 	//*************************************************************************
 	// Consulta Produtos Ativos COV
 	//*************************************************************************
+	
+	
 	cSql := "SELECT ZA0_PRODUT PRODUTO "
 	cSql += "FROM ZA0010 ZA0 INNER JOIN SB1010 SB1 "
 	cSql += "ON SB1.B1_COD = ZA0.ZA0_PRODUT "
@@ -443,7 +448,6 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	cSql += "AND SUA.D_E_L_E_T_ = ' ' "
 	cSql += "AND SUA.UA_STATUS  !=  'CAN' "
 	cSql += "AND SUA.UA_CANC    !=  'S' "
-	
 	
 	cSql += "GROUP BY ZA0_PRODUT "
 
@@ -472,11 +476,11 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	cSql += "AND   SB1.B1_GRMAR1 IN ('000001','000002') AND SB1.B1_TIPO IN ('PA','PP','MP') "
 	//cSql += "AND   SB1.B1_DESC NOT LIKE '%(N USAR)%' "
 	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
-	cSql += "AND   SUBSTR(SB1.B1_COD,1,2) = '00' " // CODIGO INICIO COM "00"
+	//cSql += "AND   SUBSTR(SB1.B1_COD,1,2) = '00' " // CODIGO INICIO COM "00"
 	cSql += "GROUP BY B2_COD "
-
+	/*
 	cSql += "UNION "
-
+	
 	//-- PRODUTOS FAMILIA 01
 	cSql += "SELECT SB1.B1_COD PRODUTO "
 	cSql += "FROM  "
@@ -510,6 +514,7 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
 	cSql += "AND   SUBSTR(SB1.B1_COD,1,2) = '02' " // CODIGO INICIO COM "02"
 	cSql += "GROUP BY SB1.B1_COD "
+	*/
 	
 	oProcess:IncRegua1("Consultando Estoque dos Produtos ") ; oProcess:IncRegua2()
 	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
@@ -555,22 +560,45 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	DbSelectArea("TAUX");DbGotop()
 	While !EOF()
 		
-		lUpd := .F. // Deve Atualizar o Produto ?
+		lUpd := lUF1 := lUF2 := .F. // Deve Atualizar o Produto e/ou Familias ?
 		
 		// Produto Possui COV ou Estoque 
 		If HMGet(oHTCov , TAUX->PRODUTO , @aValHT) .Or. HMGet(oHTEst , TAUX->PRODUTO , @aValHT) //.Or. HMGet(oHTPor , TAUX->PRODUTO , @aValHT)
+			
 			lUpd := .T.
 			
+			// Avalia se eh Correias, Neste Caso deve Atualizar o Guarda-Chuva...Nao importa qual é o Filho, O Pai "PA" e Todos os "PP"'s devem ser ATIVADOS.
+			If Substr(CV(TAUX->PRODUTO),1,2) > "00"  
+				
+				If Substr(CV(TAUX->PRODUTO),1,2) == "01" // Correias, Familia 01 
+					lUF1 := .T.
+				EndIf
+				If Substr(CV(TAUX->PRODUTO),1,2) == "02" // Correias, Familia 02
+					lUF2 := .T.
+				EndIf
+			Else
+				lUF1 := lUF2 := .F.
+			Endif
+				
 		ElseIf TAUX->USAR == "SIM" .AND. ( TAUX->PRONOVO == "S" .Or.  TAUX->ITEMNOVO  == "S" .Or.  TAUX->PROGRAMA  == "S" .Or.  TAUX->PEDIDO == "S" .Or. ( TAUX->ESTFOR <> 'C04' .And. TAUX->ESTSEG >= 1 ))
+	
 			lUpd := .T.
+	
 		EndIf
 		
 		
 		If lUpd
 		
 			// Atualiza os Produtos para SIM
-			cSql := "UPDATE SB1010 SET B1_PROATIV = 'S' WHERE B1_COD = '" + CV(TAUX->PRODUTO) + "' "
-		
+
+			If lUF1 // Correias Familia 01
+				cSql := "UPDATE SB1010 SET B1_PROATIV = 'S' WHERE D_E_L_E_T_ = ' ' AND SUBSTR(B1_COD,1,"+CV(nRaizF1)+") = '" + SUBSTR(CV(TAUX->PRODUTO),1,nRaizF1) + "' "
+			ElseIf lUF2 // Correias Familia 02
+				cSql := "UPDATE SB1010 SET B1_PROATIV = 'S' WHERE D_E_L_E_T_ = ' ' AND SUBSTR(B1_COD,1,"+CV(nRaizF2)+") = '" + SUBSTR(CV(TAUX->PRODUTO),1,nRaizF2) + "' "
+			Else // Nao eh correias
+				cSql := "UPDATE SB1010 SET B1_PROATIV = 'S' WHERE D_E_L_E_T_ = ' ' AND B1_COD = '" + CV(TAUX->PRODUTO) + "' "
+			EndIf
+			
 			If nIntPro == 100
 				oProcess:IncRegua1("Atualizando o Produto " +  Alltrim(TAUX->PRODUTO) + " para SIM" ); oProcess:IncRegua2()
 				nIntPro := 0
