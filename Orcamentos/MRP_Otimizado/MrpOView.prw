@@ -36,7 +36,7 @@ User Function MrpOView()
   aTFolder := { 'Geral', 'Coeficiente', 'Curva ABC', 'Curva PQR', 'ABC Margem', 'ABC OV' }
   oTFolder := TFolder():New( 05,10,aTFolder,,oDlg,,,,.T.,,238,130 )
  
-  oGroup1 := TGroup():Create(oTFolder:aDialogs[1],030,030,050,050,'Selecione',,,.T.)
+  oGroup1 := TGroup():Create(oTFolder:aDialogs[1],002,005,080,240,'Selecione',,,.T.)
  
   // Insere um TGet em cada aba da folder
   //lCheck  := .F.
@@ -50,24 +50,25 @@ User Function MrpOView()
   oCheck8 := TCheckBox():New(070,155,'Curva ABC OV'					, ,oGroup1,100,210,,,,,,,,.T.,,,)
   
   
-  oTButton1 := TButton():New( 090, 020, "PROCESSAR" ,oTFolder:aDialogs[1],{||alert("Botão 01")}, 60,15,,,.F.,.T.,.F.,,.F.,,,.F. )   
-  oTButton2 := TButton():New( 090, 155, "HISTÓRICO" ,oTFolder:aDialogs[1],{||alert("Botão 02")}, 60,15,,,.F.,.T.,.F.,,.F.,,,.F. )   
+  oTButton1 := TButton():New( 090, 020, "PROCESSAR" ,oTFolder:aDialogs[1],{||alert("PROCESSAR")}, 60,15,,,.F.,.T.,.F.,,.F.,,,.F. )   
+  oTButton2 := TButton():New( 090, 087, "AGENDA" 	,oTFolder:aDialogs[1],{||alert("AGENDA")}	, 60,15,,,.F.,.T.,.F.,,.F.,,,.F. )   
+  oTButton2 := TButton():New( 090, 155, "HISTÓRICO" ,oTFolder:aDialogs[1],{||alert("HISTÓRICO")}, 60,15,,,.F.,.T.,.F.,,.F.,,,.F. )   
  
 
   oSay1	 := TSay():New(35,60,{ ||'Coeficiente Mínimo: ' },oTFolder:aDialogs[2],,oFont,,,,.T.,,CLR_WHITE,200,20)
   cTGet1 := 0.25
-  oTGet1 := NTGet(034,115,Nil,oTFolder:aDialogs[2],005,"@E 9.99",cTGet1 )
+  oTGet1 := NTGet(033,115,Nil,oTFolder:aDialogs[2],005,"@R 9.99 %",cTGet1 )
   
   oSay2  := TSay():New(70,60,{ ||'Coeficiente Máximo: ' },oTFolder:aDialogs[2],,oFont,,,,.T.,,CLR_WHITE,200,20)
   cTGet2 := 1.50
-  oTGet2 := NTGet(069,115,Nil,oTFolder:aDialogs[2],005,"@E 9.99",cTGet2 )
+  oTGet2 := NTGet(068,115,Nil,oTFolder:aDialogs[2],005,"@R 9.99 %",cTGet2 )
   
  
   
  
-  oTButtonA := TButton():New( 140, 010, "SAIR"			,oDlg,{||alert("Botão A")}, 60,15,,,.F.,.T.,.F.,,.F.,,,.F. )   
-  oTButtonB := TButton():New( 140, 100, "SALVAR"		,oDlg,{||alert("Botão B")}, 60,15,,,.F.,.T.,.F.,,.F.,,,.F. )   
-  oTButtonC := TButton():New( 140, 190, "SALVAR E SAIR"	,oDlg,{||alert("Botão C")}, 60,15,,,.F.,.T.,.F.,,.F.,,,.F. )
+  oTButtonA := TButton():New( 140, 010, "SALVAR"	,oDlg,{||alert("Botão A")}, 60,15,,,.F.,.T.,.F.,,.F.,,,.F. )   
+   
+  oTButtonC := TButton():New( 140, 190, "SAIR"		,oDlg,{||alert("Botão C")}, 60,15,,,.F.,.T.,.F.,,.F.,,,.F. )
  
  
   // ativa diálogo centralizado
@@ -75,8 +76,6 @@ User Function MrpOView()
 
 
 return
-
-
 *******************************************************************************
 Static Function NTGet(nRow,nCol,bSetGet,oWnd,nWidth,cPict,cReadVar )
 *******************************************************************************
@@ -113,3 +112,30 @@ Static Function NTGet(nRow,nCol,bSetGet,oWnd,nWidth,cPict,cReadVar )
 
 	
 Return oObj	
+
+*******************************************************************************
+Static Function NTSlider(nRow, nCol, oWnd, bChange, nWidth )
+*******************************************************************************
+
+// bChange -> {|u| if(Pcount()>0,FAtuPeso("*","nTmCliDe",u),nTmCliDe)}
+
+	Local oTSlider	:= Nil 
+	Local nHeight 	:= 10
+	Local cMsg		:= ""
+	Local bWhen     := {||}
+
+	oTSlider := TSlider():New( nRow, nCol, oWnd, bChange, nWidth, nHeight, cMsg, bWhen)
+
+Return ( oTSlider )
+
+*******************************************************************************
+Static Function NTBtnBmp2()
+*******************************************************************************
+	
+	Local oTBtnBmp2 := Nil
+	
+	oTBtnBmp2 := TBtnBmp2():New(nTop,nLeft,nWidth,nHeight,cResName1,uP6,uP7,uP8,bAction,oWnd,cMsg,bWhen,uP13,uP14)
+	
+
+
+Return ( oTBtnBmp2 ) 
