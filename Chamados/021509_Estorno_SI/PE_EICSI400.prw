@@ -21,30 +21,55 @@
 **   |  | **
 \*---------------------------------------------------------------------------*/
 *******************************************************************************
-User Function EICSI400() // PE Easy Importa Control na Rotina de Manutencao da SI
+User Function EICSI400() // PE Easy Importa Control na Rotina de Manutencao da SI EICSI400 
 *******************************************************************************
 	Local cParam := ""
 	Local cNumSI := "" 
 	Local cNumSC := "" 
+	Local DelSI  := ""
+	Local lRet	 := Nil
 	
 	If ValType(ParamIXB) == "C"      
 		cParam := Alltrim(ParamIXB)
 	EndIf
 
-	If cParam == "DEPOIS_ESTORNO"
-			
-			cNumSI := SW0->W0__NUM
-			cNumSC := SW0->W0_C1_NUM
-			
-		If Iw_MsgBox("Deseja desvincular a SC ["+cNumSC+"] da SI ["+cNumSI+"] ?","Estorno","YESNO")
+
+	If cParam == "ANTES_TELA_EXCLUI"
 		
-			EstornaSC( cNumSI, cNumSC )
+		cNumSI := SW0->W0__NUM
+		cNumSC := SW0->W0_C1_NUM
 		
-		EndIf
+		AjustaSC( cNumSI, cNumSC )
+	
+	ElseIf cParam == "GRV_EXCLUI" // Só executa na Exclusao/Estorno da SI
+		
+		cNumSI := SW0->W0__NUM
+		cNumSC := SW0->W0_C1_NUM
+	
+		EstornaSC( cNumSI, cNumSC )
+	
+		lRet := .T.
 		
 	EndIf
 
 	
+Return lRet
+*******************************************************************************
+Static Function AjustaSC( cNumSI, cNumSC ) // Ajusta a Solicitacao de Compras para que possa ser estornada... 
+*******************************************************************************
+	Local cSql := ""
+	
+	cSql += "UPDATE SC1010 SET C1_COTACAO = 'IMPORT' "
+	cSql += "WHERE R_E_C_N_O_ IN (	SELECT R_E_C_N_O_ FROM SC1010  "
+	cSql += "						WHERE C1_FILIAL = '  ' "
+	cSql += "						AND   C1_NUM 	= '"+cNumSC+"'  " // --> W0_C1_NUM
+	cSql += "						AND   C1_NUM_SI = '"+cNumSI+"'  " // --> W0__NUM
+	cSql += "						AND   C1_FILENT = '"+cFilAnt+"' " // --> W0__CC
+	cSql += "						AND   C1_COTACAO<>'IMPORT' "
+	cSql += "					) "
+	
+	U_ExecMySql( cSql , "" , "E", lMostra := .F., lChange := .F.)
+
 Return Nil
 *******************************************************************************
 Static Function EstornaSC( cNumSI, cNumSC ) // Estorna a Solicitacao de Compras
@@ -57,6 +82,7 @@ Static Function EstornaSC( cNumSI, cNumSC ) // Estorna a Solicitacao de Compras
 	cSql += "						AND   C1_NUM 	= '"+cNumSC+"'  " // --> W0_C1_NUM
 	cSql += "						AND   C1_NUM_SI = '"+cNumSI+"'  " // --> W0__NUM
 	cSql += "						AND   C1_FILENT = '"+cFilAnt+"' " // --> W0__CC
+	//cSql += "					    AND   C1_COTACAO= 'IMPORT' "
 	cSql += "					) "
 	
 	U_ExecMySql( cSql , "" , "E", lMostra := .F., lChange := .F.)
