@@ -750,7 +750,8 @@ Static Function MediaCOV()// 2.1.1 Calculo Média do COV
 	cSql := "CREATE TABLE MEDCOV AS "
 	cSql += "SELECT FILIAL, PRODUTO, SUM(MCONS) MCONS, SUM(MOFER) MOFER, SUM(MVREV) MVREV, SUM(MFATU) MFATU "
 	cSql += "FROM ( "
-	cSql += "SELECT ZA0.ZA0_FILIAL FILIAL, ZA0.ZA0_PRODUT PRODUTO, " 
+
+	cSql += "SELECT SA1.A1_ESTQFIL FILIAL, ZA0.ZA0_PRODUT PRODUTO, " 
 	cSql += "Round( Sum(ZA0.ZA0_QUANTD) / "+cValToChar(nPeriodo)+",2) MCONS, " 
 	cSql += "Round( Sum(ZA0.ZA0_QOATEN) / "+cValToChar(nPeriodo)+",2) MOFER, " 
 	cSql += "Round( Sum(ZA0.ZA0_VENDRE) / "+cValToChar(nPeriodo)+",2) MVREV, "
@@ -763,9 +764,14 @@ Static Function MediaCOV()// 2.1.1 Calculo Média do COV
 	cSql += "AND ZA0.ZA0_NUMORC    =     SUA.UA_NUM "
 	cSql += "AND ZA0.ZA0_CLIENT    =	 SUA.UA_CLIENTE "
 	cSql += "AND ZA0.ZA0_LOJACL    =	 SUA.UA_LOJA "
-	
+
+	cSql += " 				 INNER JOIN SA1010 SA1 "
+	cSql += "ON  ZA0.ZA0_CLIENT    =     SA1.A1_COD "
+	cSql += "AND ZA0.ZA0_LOJACL    =     SA1.A1_LOJA "
+
 	cSql += "WHERE ZA0.ZA0_DTNECL BETWEEN '" + cSDataI + "' AND '" + cSDataF + "' "
 	cSql += "AND ZA0.D_E_L_E_T_ = ' ' "
+	cSql += "AND SA1.D_E_L_E_T_ = ' ' "
 	cSql += "AND SB1.B1_FILIAL = '05' "
 	cSql += "AND SB1.B1_GRMAR1 IN ('000001','000002') AND SB1.B1_TIPO IN ('PA','PP','MP') "
 	cSql += "AND SB1.D_E_L_E_T_ = ' ' "
@@ -774,44 +780,53 @@ Static Function MediaCOV()// 2.1.1 Calculo Média do COV
 	cSql += "AND SUA.UA_STATUS  !=  'CAN' "
 	cSql += "AND SUA.UA_CANC    !=  'S' "
 
-	cSql += "GROUP BY ZA0.ZA0_FILIAL, ZA0.ZA0_PRODUT "
+	cSql += "GROUP BY SA1.A1_ESTQFIL, ZA0.ZA0_PRODUT "
 	
 	cSql += "UNION "   
 	
-	cSql += "SELECT  SD2.D2_FILIAL FILIAL, SD2.D2_COD PRODUTO, "
+	cSql += "SELECT  SA1.A1_ESTQFIL FILIAL, SD2.D2_COD PRODUTO, "
 	cSql += "Round( Sum(0) ,2) MCONS, " 
 	cSql += "Round( Sum(0) ,2) MOFER, " 
 	cSql += "Round( Sum(0) ,2) MVREV, "
 	cSql += "Round( Sum(SD2.D2_QUANT) / "+cValToChar(nPeriodo)+",2) MFATU "
+
 	cSql += "FROM SD2010 SD2 INNER JOIN SF2010 SF2 "
-	cSql += "ON   SD2.D2_FILIAL = SF2.F2_FILIAL "
-	cSql += "AND  SD2.D2_DOC    = SF2.F2_DOC "
-	cSql += "AND  SD2.D2_SERIE  = SF2.F2_SERIE "
-	cSql += "AND  SD2.D2_CLIENTE= SF2.F2_CLIENTE "
-	cSql += "AND  SD2.D2_LOJA   = SF2.F2_LOJA "
+	cSql += "ON   SD2.D2_FILIAL  = SF2.F2_FILIAL "
+	cSql += "AND  SD2.D2_DOC     = SF2.F2_DOC "
+	cSql += "AND  SD2.D2_SERIE   = SF2.F2_SERIE "
+	cSql += "AND  SD2.D2_CLIENTE = SF2.F2_CLIENTE "
+	cSql += "AND  SD2.D2_LOJA    = SF2.F2_LOJA "
+
 	cSql += "INNER JOIN SF4010 SF4 "
 	cSql += "ON  SD2.D2_FILIAL = SF4.F4_FILIAL "
 	cSql += "AND SD2.D2_TES    = SF4.F4_CODIGO "
+
 	cSql += "INNER JOIN SB1010 SB1 "
 	cSql += "ON SD2.D2_COD = SB1.B1_COD "
+
+	cSql += "INNER JOIN SA1010 SA1 "
+	cSql += "ON  SD2.D2_CLIENTE = SA1.A1_COD "
+	cSql += "AND SD2.D2_LOJA   	= SA1.A1_LOJA "
+	
 	cSql += "WHERE SF2.F2_EMISSAO BETWEEN '" + cSDataI + "' AND '" + cSDataF + "' "
 	cSql += "AND SF4.F4_ESTOQUE = 'S' "
 	cSql += "AND SF4.F4_DUPLIC = 'S' "
 	cSql += "AND SF2.F2_CLIENTE <> 'N00000' "
 	cSql += "AND SD2.D_E_L_E_T_ = ' ' "
+	cSql += "AND SA1.D_E_L_E_T_ = ' ' "
 	cSql += "AND SF2.D_E_L_E_T_ = ' ' "
 	cSql += "AND SF4.D_E_L_E_T_ = ' ' "
 	cSql += "AND SB1.B1_FILIAL = '05' "
 	cSql += "AND SB1.B1_GRMAR1 IN ('000001','000002') AND SB1.B1_TIPO IN ('PA','PP','MP') "
 	cSql += "AND SB1.D_E_L_E_T_ = ' ' "
-	cSql += "GROUP BY SD2.D2_FILIAL, SD2.D2_COD "
+	cSql += "GROUP BY SA1.A1_ESTQFIL, SD2.D2_COD "
 	cSql += ") " 
 	cSql += "GROUP BY FILIAL, PRODUTO "
 	cSql += "ORDER BY PRODUTO, FILIAL "
 
 	oProcess:IncRegua1("Criando Tabela Auxiliar Media do COV Periodo: ["+SToC(cSDataI)+" ate "+SToC(cSDataF)+"] " ); oProcess:IncRegua2()
-	U_ExecMySql( cSql , cCursor := "", cModo := "E", lMostra, lChange := .F. )
-
+	U_ExecMySql( cSql , cCursor := "", cModo := "E",  lMostra, lChange := .F. )
+	lMostra:= .F.
 	
 	cSql := "SELECT * FROM MEDCOV"
 	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
