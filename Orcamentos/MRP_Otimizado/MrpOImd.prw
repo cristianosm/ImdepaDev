@@ -531,19 +531,30 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 	// Consulta Status dos Produtos 
 	//*************************************************************************
 
-	cSql := "SELECT B1_COD PRODUTO, B1_PRONOVO PRONOVO, ZA7_ITEMNO ITEMNOVO, ZA7_PGRAMA PROGRAMA, ZA7_PPCOMP PEDIDO, B1_ESTFOR ESTFOR, B1_ESTSEG ESTSEG, "
+	//cSql := "SELECT B1_COD PRODUTO, B1_PRONOVO PRONOVO, ZA7_ITEMNO ITEMNOVO, ZA7_PGRAMA PROGRAMA, ZA7_PPCOMP PEDIDO, B1_ESTFOR ESTFOR, B1_ESTSEG ESTSEG, "
+	cSql := "SELECT B1_COD PRODUTO, B1_PRONOVO PRONOVO, ZA7_ITEMNO ITEMNOVO, ZA7_PGRAMA PROGRAMA, ZA7_PPCOMP PEDIDO, B1_ESTSEG ESTSEG, "
 	cSql += "CASE WHEN SB1.B1_DESC LIKE '%(N USAR)%' THEN 'NAO' "
 	cSql += "ELSE 'SIM' END USAR "	
-	cSql += "FROM SB1010 SB1 INNER JOIN ZA7010 ZA7 "
+	cSql += "FROM ( SELECT '05' B1_FILIAL, B1_COD,B1_DESC,  MIN(B1_PRONOVO) B1_PRONOVO, SUM(B1_ESTSEG) B1_ESTSEG "
+	cSql += "		FROM SB1010 "
+	cSql += "		WHERE D_E_L_E_T_ = ' ' "
+	//cSql += "		AND   B1_COD IN('000000007172H','000000028755Z') " 
+	cSql += "		AND   B1_GRMAR1 IN ('000001','000002') "
+	cSql += "		AND   B1_TIPO IN ('PA','PP','MP') "
+	//cSql += "		AND   B1_DESC NOT LIKE '%(N USAR)%' " 
+	cSql += "		GROUP BY B1_COD, B1_DESC ) SB1 INNER JOIN ZA7010 ZA7 "
 	cSql += "ON SB1.B1_FILIAL = ZA7.ZA7_FILIAL "
 	cSql += "AND SB1.B1_COD = ZA7.ZA7_CODPRO "
-	cSql += "WHERE SB1.B1_FILIAL = '05' "
-	cSql += "AND   SB1.B1_GRMAR1 IN ('000001','000002') AND SB1.B1_TIPO IN ('PA','PP','MP') "
+	
+	//cSql += "WHERE SB1.B1_FILIAL = '05' "
+	//cSql += "AND   SB1.B1_GRMAR1 IN ('000001','000002') AND SB1.B1_TIPO IN ('PA','PP','MP') "
 	//cSql += "AND   SB1.B1_DESC NOT LIKE '%(N USAR)%' "
-	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
-	cSql += "AND   ZA7.D_E_L_E_T_ = ' ' "
-	cSql += "GROUP BY B1_COD, B1_DESC, B1_PRONOVO, ZA7_ITEMNO, ZA7_PGRAMA, ZA7_PPCOMP, B1_ESTFOR, B1_ESTSEG "
-
+	//cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
+	
+	cSql += "WHERE   ZA7.D_E_L_E_T_ = ' ' "
+	//cSql += "GROUP BY B1_COD, B1_DESC, B1_PRONOVO, ZA7_ITEMNO, ZA7_PGRAMA, ZA7_PPCOMP, B1_ESTFOR, B1_ESTSEG "
+	cSql += "GROUP BY B1_COD, B1_DESC, B1_PRONOVO, ZA7_ITEMNO, ZA7_PGRAMA, ZA7_PPCOMP, B1_ESTSEG "
+	
 	oProcess:IncRegua1("Consulta Parametros dos Produtos ") ; oProcess:IncRegua2()
 	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
 
@@ -581,7 +592,7 @@ Static Function B1PROATIV()//1.4 B1_PROATIV => SIM - Produtos Ativos
 				lUF1 := lUF2 := .F.
 			Endif
 				
-		ElseIf TAUX->USAR == "SIM" .AND. ( TAUX->PRONOVO == "S" .Or.  TAUX->ITEMNOVO  == "S" .Or.  TAUX->PROGRAMA  == "S" .Or.  TAUX->PEDIDO == "S" .Or. ( TAUX->ESTFOR <> 'C04' .And. TAUX->ESTSEG >= 1 ))
+		ElseIf TAUX->USAR == "SIM" .AND. ( TAUX->PRONOVO == "S" .Or.  TAUX->ITEMNOVO  == "S" .Or.  TAUX->PROGRAMA  == "S" .Or.  TAUX->PEDIDO == "S" .Or. (  TAUX->ESTSEG >= 1 ))
 	
 			lUpd := .T.
 	
@@ -661,7 +672,7 @@ Static Function B1MSBLOQ()//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados
 	cSql += "GROUP BY ZA0_PRODUT "
 
 	oProcess:IncRegua1("Consultando COV apartir de  " + SToC(cSData) ); oProcess:IncRegua2() 
-	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra, lChange := .F. )
+	U_ExecMySql( cSql , cCursor := "TAUX", cModo := "Q", lMostra := .F., lChange := .F. )
 	
 	DbSelectArea("TAUX")
 	While !EOF()
@@ -678,7 +689,7 @@ Static Function B1MSBLOQ()//1.5 B1_MSBLOQ => SIM - Produtos Bloqueados
 	cSql += "WHERE SB1.B1_FILIAL = '05' "
 	cSql += "AND   SB1.B1_DATREF < '" + cSData + "' "
 	cSql += "AND   SB1.B1_PROATIV = 'N' "
-	cSql += "AND   SB1.B1_MSBLQL IN (' ','2') "
+	//cSql += "AND   SB1.B1_MSBLQL IN (' ','2') "
 	cSql += "AND   SB1.B1_GRMAR1 IN ('000001','000002') AND SB1.B1_TIPO IN ('PA','PP','MP') "
 	cSql += "AND   SB1.D_E_L_E_T_ = ' ' "
 	cSql += "GROUP BY B1_COD"
