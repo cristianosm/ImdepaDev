@@ -2,7 +2,7 @@
 #Include 'Totvs.ch'
 #Include "Tbiconn.ch"
 
-#Define _TESTE_ .T.  //| Habilita modo teste envia emails apenas para a conta teste .... 
+#Define _TESTE_ .F.  //| Habilita modo teste envia emails apenas para a conta teste .... 
 #Define _CONTATESTE_ 'cristiano.machado@imdepa.com.br' 
 #Define _DATABASE	CToD("12/11/2018")
 
@@ -297,13 +297,9 @@ Static Function PrepEst() // Prepara a Estrutura Hash Principal para Receber os 
 
 		 	// Armazenar Receita Bruta apenas para Calculo Interno
 		 	If cTipo == FAT_TOD // "02" //	FAT => Faturamento s/ IPI	TOD => Realizado Total Dia
-		 		HMSet( oHaPri, GER->CODGER + REB_TOD + "F" + P_VAL, 0 					) // 'V' //| Valor
-		 		HMSet( oHaPri, GER->CODGER + REB_TOD + "M" + P_VAL, 0 					) // 'V' //| Valor
-		 		HMSet( oHaPri, GER->CODGER + REB_TOD + "D" + P_VAL, 0 					) // 'V' //| Valor	 	
+		 		HMSet( oHaPri, GER->CODGER + REB_TOD + P_VAL, 0 					) // 'V' //| Valor	
 		 	ElseIf cTipo ==  FAT_TOM  //"03" //	FAT => Faturamento s/ IPI	TOM => Realizado Total Mês
-		 		HMSet( oHaPri, GER->CODGER + REB_TOM + "F" + P_VAL, 0 					) // 'V' //| Valor
-		 		HMSet( oHaPri, GER->CODGER + REB_TOM + "M" + P_VAL, 0 					) // 'V' //| Valor
-		 		HMSet( oHaPri, GER->CODGER + REB_TOM + "D" + P_VAL, 0 					) // 'V' //| Valor	 	
+		 		HMSet( oHaPri, GER->CODGER + REB_TOM + P_VAL, 0 					) // 'V' //| Valor
 		 	EndIf
 		 	
 			HMSet( oHaPri, GER->CODGER + cTipo + P_PER, 0 					) // 'P' //| Percentual
@@ -336,17 +332,11 @@ Static Function PrepEst() // Prepara a Estrutura Hash Principal para Receber os 
 		Endif
 		
 		
-		// Armazenar Receita Bruta apenas para Calculo Interno
+		// Armazenar Receita Bruta apenas para Calculo Interno "90" e "91"
 		If cTipo == FAT_TOD // "02" //	FAT => Faturamento s/ IPI	TOD => Realizado Total Dia
 			HMSet( oHaPri, cGerImd + REB_TOD + P_VAL, 0 					) // 'V' //| Valor
-			HMSet( oHaPri, cGerImd + REB_TOD + P_VAL, 0 					) // 'V' //| Valor
-		 	HMSet( oHaPri, cGerImd + REB_TOD + P_VAL, 0 					) // 'V' //| Valor	 	
-		
 		ElseIf cTipo ==  FAT_TOM  //"03" //	FAT => Faturamento s/ IPI	TOM => Realizado Total Mês
 			HMSet( oHaPri, cGerImd + REB_TOM + P_VAL, 0 					) // 'V' //| Valor
-			HMSet( oHaPri, cGerImd + REB_TOM + P_VAL, 0 					) // 'V' //| Valor
-		 	HMSet( oHaPri, cGerImd + REB_TOM + P_VAL, 0 					) // 'V' //| Valor	 	
-		
 		EndIf
 	
 	 	HMSet( oHaPri, cGerImd + cTipo + P_PER, 0 					) // 'P' //| Percentual
@@ -441,16 +431,16 @@ Static Function Devolucao() //| Consulta Metas
 *******************************************************************************
 
 	// Devolucao Mes
-	ConDev(cQual := DVEN, cPer := 'M');SlvDados(cQual, cPer)
+	ConDev(cQual := DVEN, cPer := 'M');SlvDados(cQual := DVEN, cPer)
 	//ConDev(cQual := DMAR, cPer := 'M');SlvDados(cQual, cPer)
 	
 
 	// Devolucao Dia
-	ConDev(cQual := DVEN, cPer := 'D');SlvDados(cQual, cPer)
+	ConDev(cQual := DVEN, cPer := 'D');SlvDados(cQual := DVEN, cPer)
 	//ConDev(cQual := DMAR, cPer := 'D');SlvDados(cQual, cPer)
 	
 	// Devolucao Ano
-	ConDev(cQual := DVEN, cPer := 'A');SlvDados(cQual, cPer)
+	ConDev(cQual := DVEN, cPer := 'A');SlvDados(cQual := DVEN, cPer)
 
 Return Nil
 *******************************************************************************
@@ -599,6 +589,7 @@ Static Function ConNotas(cQual, cPer )//| Consulta Nf's Emitidas,  com Parametro
 	If 	cQual == FVEN
 		cSql += "SUM(D2_TOTAL) FVEN, " // FAT -> FATURAMENTO SEM IPI
 		cSql += "SUM(D2_TOTAL + D2_VALFRE) RVEN " // REB -> RECEBITA BRUTA
+	
 	ElseIf cQual == FMAR
 		cSql += "SUM(D2_MC) FMAR"
 	EndIf
@@ -646,7 +637,7 @@ Static Function ConNotas(cQual, cPer )//| Consulta Nf's Emitidas,  com Parametro
 	cSql += " GROUP BY SC5.C5_VEND5  "
 	cSql += " ORDER BY SC5.C5_VEND5  "
 
-	U_ExecMySql( cSql , cCursor := "TAUX" , cModo := "Q", lMostra := .T., lChange := .F. )
+	U_ExecMySql( cSql , cCursor := "TAUX" , cModo := "Q", lMostra := .F., lChange := .F. )
 	
 Return
 *******************************************************************************
@@ -812,10 +803,11 @@ Static Function SlvDados( cQual, cPer) // Salva os Dados das Notas/Metas no Hash
 			ConLog( TAUX->GERENTE + " Lanc em Totais: " + cGerImd + cTipo + P_VAL + " " +cValToChar(nValTot +  nValor))
 	
 			// Monta os Valores da Receita Bruta que é utilizado internamente no calculo dos indices das margens
-			IF cTipo == FAT_TOD
-				
+			
+			IF cTipo == FAT_TOD .And. cQual == FVEN
+				ConOut("Entrou REB_TOD Gravacao ")
 				If HMGet( oHaPri, TAUX->GERENTE + REB_TOD + P_VAL, @nValAtu )
-				
+					ConOut("Entrou REB_TOD Calculo ")
 					// Alimenta Gerente
 					nValor := TAUX->RVEN
 					HMSet( oHaPri, TAUX->GERENTE + REB_TOD + P_VAL, nValAtu + nValor )
@@ -825,8 +817,10 @@ Static Function SlvDados( cQual, cPer) // Salva os Dados das Notas/Metas no Hash
 					HMSet( oHaPri, cGerImd + REB_TOD + P_VAL, nValTot + nValor )
 				Endif
 			
-			ElseIf cTipo == FAT_TOM
+			ElseIf cTipo == FAT_TOM .And. cQual == FVEN
+				ConOut("Entrou REB_TOM Gravacao ")
 				If HMGet( oHaPri, TAUX->GERENTE + REB_TOM + P_VAL, @nValAtu )
+					ConOut("Entrou REB_TOM Calculo ")
 					// Alimenta Gerente
 					nValor := TAUX->RVEN
 					HMSet( oHaPri, TAUX->GERENTE + REB_TOM + P_VAL, nValAtu + nValor )
