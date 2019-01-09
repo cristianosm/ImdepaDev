@@ -39,7 +39,7 @@ User Function MigColetores()
 	Local cFuncao  := "MIGCOLETORES"
 	
 
-	PREPARE ENVIRONMENT EMPRESA cEmpresa FILIAL cFilLog FUNNAME cFuncao //TABLES "SX1","SX2","SX3","SX6"
+	PREPARE ENVIRONMENT EMPRESA cEmpresa FILIAL cFilLog FUNNAME cFuncao TABLES "SX2","SX3","SX6","SIX"
 		
 		Principal() // Rotina Principal...
 		
