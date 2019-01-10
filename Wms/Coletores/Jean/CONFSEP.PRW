@@ -1320,6 +1320,11 @@ Static Function ConfVol( cPedido, lFinal )
 
 			ConWmsEst()           // Atualiza o estoque e registra movimentação automática no SDB
 			WmsC9Lib(cPedido,.T.) // Faz a liberação de WMS dos itens caso tenham sido estornados (bloqueados pela função habilita estorno)
+			If !lPalet           // Caso não esteja marcado para gerar pallet pós conferência
+				If !U_MailPvWms(cPedido) // Envia o e-mail informando que o pedido está liberado para faturamento
+					MsgAlert("Erro ao enviar o e-mail. Favor avisar o faturista para faturar o pedido "+ cPedido )
+				EndIf
+			EndIf
 			oDlgCon:End()         // Fecha a tela de conferência
 
 		Else // Parametro não encerra automatico, verifico se este volume manual [F8] deixa saldo a conferir zerado
@@ -1328,10 +1333,15 @@ Static Function ConfVol( cPedido, lFinal )
 			aEval( aItens,{ |X| _nFim += X[BRW3RES] } )
 
 			If _nFim > 0
-				SetaFk( cPedido ) // Reatribui os valores às teclas de atalho, pois continua a conferência
+				SetaFk( cPedido )    // Reatribui os valores às teclas de atalho, pois continua a conferência
 			Else
-				ConWmsEst()     // Atualiza o estoque e registra movimentação automática no SDB
-				oDlgCon:End()   // Fecha a tela de conferência
+				ConWmsEst()          // Atualiza o estoque e registra movimentação automática no SDB
+				If !lPalet           // Caso não esteja marcado para gerar pallet pós conferência
+					If !U_MailPvWms(cPedido) // Envia o e-mail informando que o pedido está liberado para faturamento
+						MsgAlert("Erro ao enviar o e-mail. Favor avisar o faturista para faturar o pedido "+ cPedido )
+					EndIf
+				EndIf
+				oDlgCon:End()        // Fecha a tela de conferência
 			EndiF
 
 		EndIf

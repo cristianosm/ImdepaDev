@@ -548,6 +548,9 @@ Static Function LibPvPlt()
 				
 				SC9->( dbSkip() )
 			End
+			If !U_MailPvWms( _aPedPal[ _nQ ] ) // Envia o e-mail informando que o pedido está liberado para faturamento
+				MsgAlert("Erro ao enviar o e-mail. Favor avisar o faturista para faturar o pedido "+ _aPedPal[ _nQ ] )
+			EndIf
 		EndIf
     Next
     

@@ -48,6 +48,7 @@ User Function CSM_Compat()
 
 	CallProc() // Chama Eventuais procedures....
 
+
 	RESET ENVIRONMENT
 
 	Return
@@ -55,7 +56,7 @@ User Function CSM_Compat()
 Static Function Principal() // Parametros e Variaveis Envolvidas
 *******************************************************************************
 
-	GLog("Iniciando Migracao")
+	GLog("Iniciando Compatibilização")
 
 	//GLog( "P_X3USADO => " + (P_X3USADO) + " P_X3RESER => " + (P_X3RESER) + " " )
 
@@ -71,7 +72,7 @@ Static Function Principal() // Parametros e Variaveis Envolvidas
 
 	SxxAjus(cTab := "CHE") // Checagem de tabelas em Geral
 
-	GLog("Finalizando Migracao")
+	GLog("Finalizando Compatibilizações")
 
 	Return
 *******************************************************************************
@@ -283,3 +284,72 @@ Static Function Check(cTab) // Obtem o Tipo do Campo que irá receber o Valor exi
 	End Sequence
 
 Return 
+
+
+/**************************************************************************************************
+
+Exemplo de Cada Arquivo .... 
+
+------------------ >>> SX2 .... /systemload/sx2_dic.csv *** Se precisar incluir campos....
+
+ZCV|X2_PATH   |\DADOSADV\
+ZCV|X2_ARQUIVO|ZCV010
+ZCV|X2_NOME   |Itens do Volume
+ZCV|X2_MODO   |E
+ZCV|X2_MODOUN |E
+ZCV|X2_MODOEMP|E
+ZCV|X2_UNICO  |ZCV_FILIAL+ZCV_CODVOL+ZCV_CODPRO+ZCV_LOTE+ZCV_SUBLOT+ZCV_IDDCF+ZCV_SEQUEN
+ZCV|X2_PYME   |N
+ZCV|X2_MODULO |42
+ZCV|X2_DISPLAY|ZCV_FILIAL+ZCV_CODVOL+ZCV_CODPRO+ZCV_LOTE+ZCV_SUBLOT+ZCV_IDDCF+ZCV_SEQUEN
+ZCV|X2_POSLGT |2
+ZCV|X2_CLOB   |2
+ZCV|X2_AUTREC |2
+
+------------------ >>> SX3 .... /systemload/sx3_dic.csv *** Se precisar incluir campos....
+ 
+DB_PVOBS|X3_CAMPO  |DB_PVOBS
+DB_PVOBS|X3_ARQUIVO|SDB
+DB_PVOBS|X3_ORDEM  |73
+DB_PVOBS|X3_TIPO   |C
+DB_PVOBS|X3_TAMANHO|90
+DB_PVOBS|X3_TITULO |Observ. PV
+DB_PVOBS|X3_DESCRIC|Observ. PV
+DB_PVOBS|X3_PICTURE|@!
+DB_PVOBS|X3_USADO  |P_X3USADO 
+DB_PVOBS|X3_RELACAO|  
+DB_PVOBS|X3_RESERV |P_X3RESER
+DB_PVOBS|X3_PROPRI |U
+DB_PVOBS|X3_BROWSE |N
+DB_PVOBS|X3_VISUAL |V
+DB_PVOBS|X3_CONTEXT|V
+DB_PVOBS|X3_INIBRW |  
+DB_PVOBS|X3_IDXSRV |N
+DB_PVOBS|X3_ORTOGRA|N
+DB_PVOBS|X3_IDXFLD |N
+
+------------------ >>> SX6 .... /systemload/sx6_dic.csv *** Se precisar incluir campos....
+
+05IMD_ATCONF|X6_VAR|IMD_ATCONF
+05IMD_ATCONF|X6_TIPO|C
+05IMD_ATCONF|X6_DESCRIC|Código da atividade de conferência de separação
+05IMD_ATCONF|X6_DESC1| 
+05IMD_ATCONF|X6_CONTEUD|022
+05IMD_ATCONF|X6_PROPRI|U
+
+  IMD_VPALET|X6_VAR|IMD_VPALET
+  IMD_VPALET|X6_TIPO|C
+  IMD_VPALET|X6_DESCRIC|Sequencial proximo pallet de expedicao (Volumes)
+  IMD_VPALET|X6_CONTEUD|00000000
+  IMD_VPALET|X6_PROPRI|U
+
+------------------ >>> SIX .... /systemload/six_dic.csv *** Se precisar incluir campos....
+
+ZCV2|INDICE|ZCV
+ZCV2|CHAVE|ZCV_FILIAL+ZCV_CODPRO+ZCV_LOTE+ZCV_SUBLOT+ZCV_IDDCF+ZCV_SEQUEN
+ZCV2|DESCRICAO|Cod.Produto + Lote + SubLote + Seq.Servico + Seq.Docto
+ZCV2|PROPRI|U
+ZCV2|NICKNAME| 
+ZCV2|SHOWPESQ|S
+
+***************************************************************************************************/
