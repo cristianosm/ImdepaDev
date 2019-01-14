@@ -278,8 +278,16 @@ Static Function Check(cTab) // Obtem o Tipo do Campo que irá receber o Valor exi
 		GLog("ChkFile Tabela [" + cTab + "]" )
 		ChkFile( cTab, .F. )
 
+		GLog("X31UpdTable Tabela [" + cTab + "]" )
+		X31UpdTable( cTab )
+
+		If __GetX31Error()
+			GLog("X31UpdTable Erro [ No foi possvel abrir "+cTab+"010 exclusivo. ] ") // + __GetX31Trace() + " ]" )
+		Endif
+		
 		GLog("TcRefresh Tabela [" + cTab + "]" )
 		TcRefresh( cTab )
+
 
 	End Sequence
 
