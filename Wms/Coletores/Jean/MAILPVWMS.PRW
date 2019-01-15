@@ -24,7 +24,7 @@ User Function MailPvWms( cPedido )
 	Local lResult   := .F.
 	Local cError    := ""
 	
-	cEmailTo := SuperGetMV("IMD_MAILPVL", .F., "anaclara@imdepa.com.br")
+	cEmailTo := SuperGetMV("IMD_MAILPVL", .F., "cristiano.machado@imdepa.com.br", xFilial("SC5"))
 	
 	// Posiciona arquivo de pedidos de venda (SC5)
 	dbSelectArea("SC5")
