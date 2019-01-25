@@ -24,6 +24,11 @@ User Function MailPvWms( cPedido )
 	Local lResult   := .F.
 	Local cError    := ""
 	
+	Local aAreaATU := GetArea()
+	Local aAreaSA1 := SA1->( GetArea() )
+	Local aAreaSC5 := SC5->( GetArea() )
+	Local aAreaSUA := SUA->( GetArea() )
+	
 	cEmailTo := SuperGetMV("IMD_MAILPVL", .F., "cristiano.machado@imdepa.com.br", xFilial("SC5"))
 	
 	// Posiciona arquivo de pedidos de venda (SC5)
@@ -36,13 +41,26 @@ User Function MailPvWms( cPedido )
 	dbSetOrder(1)
 	DbSeek( xFilial("SA1") + SC5->C5_CLIENTE + SC5->C5_LOJACLI )
 	
+	dbSelectArea("SUA")
+	dbSetOrder(8)
+	DbSeek( xFilial("SUA") + cPedido )
+	
+	
 	// corpo do e-mail
 	cMensagem := "PEDIDO LIBERADO PARA FATURAMENTO - "+ SC5->C5_NUM + CRLF + CRLF
 	cMensagem += "Seguem abaixo os dados do pedido:" + CRLF + CRLF
 	cMensagem += "Número: "+ SC5->C5_NUM + CRLF
 	cMensagem += "Emissão: "+ DtoC( SC5->C5_EMISSAO ) + CRLF
 	cMensagem += "Código/Loja do Cliente....: "+ SA1->A1_COD +"/"+ SA1->A1_LOJA + CRLF
-	cMensagem += "Nome do Cliente..............: "+ SA1->A1_NOME + CRLF
+	cMensagem += CRLF
+	cMensagem += "Obs.Expedição................: "+ SUA->UA_OBSEXP + CRLF
+	cMensagem += CRLF
+	cMensagem += CRLF
+	If SC5->C5_PEDGUIA == "1"
+		cMensagem += "ATENCAO, Pedido com ST. Por Favor Imprimir Guia de Pagamento" + CRLF
+	Else
+		cMensagem += "Pedido não possui ST." + CRLF
+	EndIf
 	
 	// conectando-se com o servidor de e-mail
 	CONNECT SMTP SERVER cServer ACCOUNT cAccount PASSWORD cPassword RESULT lResult
@@ -89,5 +107,12 @@ User Function MailPvWms( cPedido )
 		DISCONNECT SMTP SERVER
 		
 	EndIf
+	
+	
+	
+	RestArea( aAreaSA1 )
+	RestArea( aAreaSC5 )
+	RestArea( aAreaSUA )
+	RestArea( aAreaATU )
 	
 Return( lResult )

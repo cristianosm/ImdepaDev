@@ -172,7 +172,7 @@ Static Function PedConf()
 	Private aLeitur := {} // Array com a informação da leitura que foi realizada
 	Private aQtDist := {} // Array com a distribuição das quantidades nos itens
 	
-	SetKey( VK_F5 , {|| MsAguarde( {|| Atualista() }, "Atualizando..." ) } )
+	SetKey( VK_F5 , {|| MsAguarde( {|| Atualista() }, "Atualizando..." ) } ) // F5 -> 
 	SetKey( VK_F12, {|| Pergunte("CONFSEP",.T.) } )
 	
 	AvaliaPV(_cAliasSDB) // Avalia os pedidos que estão aptos a serem conferidos
@@ -1233,11 +1233,11 @@ Return
 // Função que atribui funções às teclas de atalho
 Static Function SetaFk( cPedido )
 
-	SetKey( VK_F3, {|| Pallet( cPedido ) } )
-	SetKey( VK_F4, {|| DgtQuant() } )
-	SetKey( VK_F7, {|| MsAguarde( {|| VolView( cPedido ) }, "Selecionando Volumes..." ) } )
-	SetKey( VK_F8, {|| MsAguarde( {|| ConfVol( cPedido, .F. ) }, "Gravando Volume..." ) } )
-	SetKey( VK_F9, {|| CtrlZ(cPedido) } )
+	SetKey( VK_F3, {|| Pallet( cPedido ) } ) // F3 -> 
+	SetKey( VK_F4, {|| DgtQuant() } ) // F4 ->
+	SetKey( VK_F7, {|| MsAguarde( {|| VolView( cPedido ) }, "Selecionando Volumes..." ) } ) // F7 ->
+	SetKey( VK_F8, {|| MsAguarde( {|| ConfVol( cPedido, .F. ) }, "Gravando Volume..." ) } ) // F8 -> 
+	SetKey( VK_F9, {|| CtrlZ(cPedido) } ) // F9 -> 
 
 Return
     
