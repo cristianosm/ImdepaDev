@@ -68,6 +68,7 @@
 
 #Define TLININS 3 // Numero de Linhas a ser inseridas por Lote
 #Define NLPSHOW 15000 // Numero de Linhas para Apresentar no LOG
+#Define TPADR 	120 // Tamanho PadR no ConOut 
 
 // Arquivo Grupo de Marcas 3
 #Define GER 1
@@ -80,7 +81,7 @@ User Function ImpMetasFla() // Importa Metas para Tabela SCT apartir de Arquivo 
 
 	PREPARE ENVIRONMENT EMPRESA "01" FILIAL "05" FUNNAME 'ImpMetasFla'  TABLES 'SM0'
 
-	Conout('IMPMETAS : ' + PadR('Inicio...', 100 ) + Dtoc(ddatabase) + " " + time() )
+	Conout('IMPMETAS : ' + PadR('Inicio...', TPADR ) + Dtoc(ddatabase) + " " + time() )
 	
 	SetVar() 	//| Define as Variaveis Privadas 
 
@@ -102,7 +103,7 @@ User Function ImpMetasFla() // Importa Metas para Tabela SCT apartir de Arquivo 
 
 	EndIF
 	
-	Conout('IMPMETAS : ' + PadR('Fim...', 100 ) + Dtoc(ddatabase) + " " + time() )
+	Conout('IMPMETAS : ' + PadR('Fim...', TPADR ) + Dtoc(ddatabase) + " " + time() )
 
 	RESET ENVIRONMENT
 
@@ -111,7 +112,7 @@ Return()
 Static Function SetVar() // Definicao de Todas as Variaveis Privadas Envolvidas 
 *********************************************************************
 	
-	Conout('IMPMETAS : ' + PadR('Entrou SetVar...', 100 ) + Dtoc(ddatabase) + " " + time() )
+	Conout('IMPMETAS : ' + PadR('Entrou SetVar...', TPADR ) + Dtoc(ddatabase) + " " + time() )
 	
 	_SetOwnerPrvt( 'cDirCsv' , _DIRFILE )
 	_SetOwnerPrvt( 'MascFil' , "*.csv" 	) 
@@ -157,7 +158,7 @@ Local cSql := ""
 Local cDoc := "CP0000001"
 Local cSeq := "000"
  
- 	Conout('IMPMETAS : ' + PadR('Obtendo Documento e Sequencia...', 100 ) + Dtoc(ddatabase) + " " + time() )
+ 	Conout('IMPMETAS : ' + PadR('Obtendo Documento e Sequencia...', TPADR ) + Dtoc(ddatabase) + " " + time() )
  	
 cSql += "SELECT SCT.CT_FILIAL FILIAL, Trim(SCT.CT_DOC) DOC, Trim(MAX(CT_SEQUEN)) SEQUEN " 
 cSql += "FROM SCT010 SCT, ( SELECT CT_FILIAL, MAX(CT_DOC) CT_DOC FROM SCT010 WHERE SUBSTR(CT_DOC,1,2) = 'CP' GROUP BY CT_FILIAL ) DOC "
@@ -191,7 +192,7 @@ Static Function MntRecno() 	//| Monta o Recno a Ser Utilizado
 
 	Local cSql 		:= "SELECT ( MAX(R_E_C_N_O_) + 1 ) AS RECNO FROM SCT010  "
 
-	Conout('IMPMETAS : ' + PadR('Obtendo Recno...', 100 ) + Dtoc(ddatabase) + " " + time() )
+	Conout('IMPMETAS : ' + PadR('Obtendo Recno...', TPADR ) + Dtoc(ddatabase) + " " + time() )
 	
 	U_ExecMySql(cSql, "REC", "Q", .F., .F.)
 
@@ -210,7 +211,7 @@ Static Function MntDesMet() // Monta a Descricao por Filial da Meta
 	//"SELECT A1_UFREC CUF, A1_LOJA FILIAL FROM SA1010 WHERE A1_COD = 'N00000' And D_E_L_E_T_ = ' ' "
 	//Local cUF	:= ""
 
-	Conout('IMPMETAS : ' + PadR('Monta Descricao por Filial...', 100 ) + Dtoc(ddatabase) + " " + time() )
+	Conout('IMPMETAS : ' + PadR('Monta Descricao por Filial...', TPADR ) + Dtoc(ddatabase) + " " + time() )
 	
 	U_ExecMySql(cSql, "CUF", "Q", .F., .F.)
 
@@ -258,7 +259,7 @@ Return Nil */
 *********************************************************************
 Static Function GetFiles(aFiles) // Tela com Diretorio dos arquivos para carga dos files
 *********************************************************************
-	Conout('IMPMETAS : ' + PadR('Verificando Arquivos a Importar...', 100 ) + Dtoc(ddatabase) + " " + time() )
+	Conout('IMPMETAS : ' + PadR('Verificando Arquivos a Importar...', TPADR ) + Dtoc(ddatabase) + " " + time() )
 	
 	nQtdFil := ADir( cDirCsv+MascFil,@aFilesN,@aTamFil) //Directory( cDircsv+"*.csv", Nil, Nil, Nil, ORD_NAME)
 	
@@ -277,12 +278,12 @@ Static Function CleanPeriodo(lClear, lSave) // Obtem o atual RECNO na Tabela SCT
 		if lSave 
 
 			cSql := "UPDATE SCT010 SET CT_RELAUTO = '0' WHERE CT_FILIAL > ' ' AND CT_RELAUTO = '9' AND CT_DATA BETWEEN '" + CPERINI + "' AND '" + CPERFIM + "'  "
-			Conout('IMPMETAS : ' + PadR('Salvando Periodo: ' + CPERINI + " - "+ CPERFIM, 100 ) + Dtoc(ddatabase) + " " + time() )
+			Conout('IMPMETAS : ' + PadR('Salvando Periodo: ' + CPERINI + " - "+ CPERFIM, TPADR ) + Dtoc(ddatabase) + " " + time() )
 
 		Else 
 
 			cSql := "DELETE SCT010 WHERE CT_FILIAL > ' ' AND CT_RELAUTO = '9' AND CT_DATA BETWEEN '" + CPERINI + "' AND '" + CPERFIM + "' "
-			Conout('IMPMETAS : ' + PadR('Removendo Periodo: ' + CPERINI + " - "+ CPERFIM, 100 ) + Dtoc(ddatabase) + " " + time() )
+			Conout('IMPMETAS : ' + PadR('Removendo Periodo: ' + CPERINI + " - "+ CPERFIM, TPADR ) + Dtoc(ddatabase) + " " + time() )
 			
 		EndIf
 
@@ -342,7 +343,7 @@ Static Function ImpFile(cFile, nTamFile) // Importa Arquivo
 	Local 	cNomeF	:= cFile //Substr(cFile,23)
 	Private cDataMeta	:= ""
 	
-	Conout('IMPMETAS : ' + PadR('Iniciando Importacao do Arquivo : ' + cNomeF + 'Recno: ' + ToC(nRecno), 130 ) + Dtoc(ddatabase) + " " + time() )
+	Conout('IMPMETAS : ' + PadR('Iniciando Importacao do Arquivo : ' + cNomeF + ' Recno: ' + ToC(nRecno), TPADR ) + Dtoc(ddatabase) + " " + time() )
 	
 
 	FT_FGOTOP() // Aponta para Inicio do Arquivo
@@ -380,13 +381,13 @@ Static Function ImpFile(cFile, nTamFile) // Importa Arquivo
 		//| Apresenta Mensagens do Status e posicao do Processamento
 		If( nNext == nLPerc )
 	
-			Conout('IMPMETAS : ' + PadR("Linha: "+ToC(nLPerc)+" de "+ToC(TLFile)+" File: "+cNomeF  + ' U.Recno: ' + ToC(nRecno-1), 130 ) + Dtoc(ddatabase) + " " + time() )
+			Conout('IMPMETAS : ' + PadR("Linha: "+ToC(nLPerc)+" de "+ToC(TLFile)+" File: "+cNomeF  + ' U.Recno: ' + ToC(nRecno-1), TPADR ) + Dtoc(ddatabase) + " " + time() )
 	
 			nNext += nShow
 
 		elseIf( TLFile == nLPerc )
 	
-			Conout('IMPMETAS : ' + PadR("Linha: "+ToC(nLPerc)+" de "+ToC(TLFile)+" File: "+cNomeF + ' U.Recno: ' + ToC(nRecno-1), 130 ) + Dtoc(ddatabase) + " " + time() )
+			Conout('IMPMETAS : ' + PadR("Linha: "+ToC(nLPerc)+" de "+ToC(TLFile)+" File: "+cNomeF + ' U.Recno: ' + ToC(nRecno-1), TPADR ) + Dtoc(ddatabase) + " " + time() )
 	
 		Endif
 		
@@ -402,7 +403,7 @@ Static Function ImpFile(cFile, nTamFile) // Importa Arquivo
 		cInsLin := ""	
 	EndIf
 	
-	Conout('IMPMETAS : ' + PadR("Finalizado Arquivo : "+cNomeF+" - Total Linhas: "+ToC(nLPerc) + ' U.Recno: ' + ToC(nRecno-1), 130 ) + Dtoc(ddatabase) + " " + time() )
+	Conout('IMPMETAS : ' + PadR("Finalizado Arquivo : "+cNomeF+" - Total Linhas: "+ToC(nLPerc) + ' U.Recno: ' + ToC(nRecno-1), TPADR ) + Dtoc(ddatabase) + " " + time() )
 	
 
 	FT_FUSE()// O arquivo texto deve ser fechado, bem como o dialogo criado na funcao anterior.
