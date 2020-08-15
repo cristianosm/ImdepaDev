@@ -277,12 +277,12 @@ Static Function CleanPeriodo(lClear, lSave) // Obtem o atual RECNO na Tabela SCT
 		if lSave 
 
 			cSql := "UPDATE SCT010 SET CT_RELAUTO = '0' WHERE CT_FILIAL > ' ' AND CT_RELAUTO = '9' AND CT_DATA BETWEEN '" + CPERINI + "' AND '" + CPERFIM + "'  "
-			Conout('IMPMETAS : ' + PadR('Limpando Periodo: ' + CPERINI + " - "+ CPERFIM, 100 ) + Dtoc(ddatabase) + " " + time() )
+			Conout('IMPMETAS : ' + PadR('Salvando Periodo: ' + CPERINI + " - "+ CPERFIM, 100 ) + Dtoc(ddatabase) + " " + time() )
 
 		Else 
 
 			cSql := "DELETE SCT010 WHERE CT_FILIAL > ' ' AND CT_RELAUTO = '9' AND CT_DATA BETWEEN '" + CPERINI + "' AND '" + CPERFIM + "' "
-			Conout('IMPMETAS : ' + PadR('Salvando Periodo: ' + CPERINI + " - "+ CPERFIM, 100 ) + Dtoc(ddatabase) + " " + time() )
+			Conout('IMPMETAS : ' + PadR('Removendo Periodo: ' + CPERINI + " - "+ CPERFIM, 100 ) + Dtoc(ddatabase) + " " + time() )
 			
 		EndIf
 
