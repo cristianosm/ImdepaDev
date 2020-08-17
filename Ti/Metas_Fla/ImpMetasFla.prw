@@ -42,8 +42,8 @@
 #Define CANO         Alltrim( cValToChar( YEAR( dDatabase ) ) )
 
 // Parametros Limpar ou Salvar MEta Antiga no Periodo
-#Define CLEAR 	.T.   // Define se vai ser feito alguma limpeza com a META Antiga... 
-#Define SAVE 	.T.	  // Define se Salva a Meta Antiga como Ct_RELAUTO = 0 an invés de remover os registros... 
+#Define CLEAR 	.F.   // Define se vai ser feito alguma limpeza com a META Antiga... 
+#Define SAVE 	.F.	  // Define se Salva a Meta Antiga como Ct_RELAUTO = 0 an invés de remover os registros... 
 
 // Parametro Local dos Arquivos 
 #Define _DIRFILE "C:\protheus\metas\2020\"
@@ -335,12 +335,13 @@ Static Function ImpFile(cFile, nTamFile) // Importa Arquivo
 	Local 	aLinha  := {}	//| Recebe a Linha em formato de Array 
 //	Local 	aLin 	:= {}  // Recebe Linha em Array 
 	Local   nLPerc 	:= 0   // Numero Atual de Linhas Percorridas 
-	Local   nTLin   := 101 /// Tamanho Medio da linha baseado em mil Linhas (Bytes)
+	Local   nTLin   := 73 /// Tamanho Medio da linha baseado em mil Linhas (Bytes)
 	Local   nQLIns  := 0	//| Quantidades de Linhas para o Insert 
 	Local 	TLFile  := Round( nTamFile / nTLin , 0 )
 	Local 	nShow	:= NLPSHOW
 	Local 	nNext	:= nShow
 	Local 	cNomeF	:= cFile //Substr(cFile,23)
+	Local 	nF_VALOR:= 0
 	Private cDataMeta	:= ""
 	
 	Conout('IMPMETAS : ' + PadR('Iniciando Importacao do Arquivo : ' + cNomeF + ' Recno: ' + ToC(nRecno), TPADR ) + Dtoc(ddatabase) + " " + time() )
@@ -350,39 +351,36 @@ Static Function ImpFile(cFile, nTamFile) // Importa Arquivo
 
 	While !FT_FEOF()
 		
-		
 		nLPerc += 1 //| Numero Atual de Linhas Percorridas
 		
 		//|Salva o Buffer de Linha em Array
 		cLinha 	:= StrTran(FT_FREADLN(),'"',"") //| Retira as aspas duplas da String
-		aLinha 	:= StrTokArr(cLinha,";") 	//| Converte a Linha para Array
-		
-		//VarInfo('',aLinha,0,.F.,.T.)
+		aLinha 	:= StrTokArr(cLinha,";") 		//| Converte a Linha para Array
 
 		//| Validacoes Diversas para Efetuar o Salto de Linha
-		//| Valida ANO Metas	
-		//If CANO <> Substr(StrTran(aLinha[F_DATA],'-',''),1,4) .Or. Val(StrTran(aLinha[F_QUANT],',','.')) == 0
-		If Val( ( aLinha[F_VALOR] ) ) == 0
-			//| Estes Casos Deve Desconsiderar o Registro 
-		Else
-	
-			If TLININS == nQLIns
-				SendInsert() 	//| Envia ao Banco o Inseert
-				nQLIns 	:= 0		//| Quantidade de Linhas a serem inseridas por vez 
-				cInsLin := ""
-			EndIf
+		If Len( aLinha ) >= F_MARGEM // Tamanho do Array Linha deve Cobrir Posições Pré-Defnidas ... 
 			
-			nQLIns += 1 //| Quantidade de Linhas a serem inseridas por vez 
+			nF_VALOR := Val( StrTran( aLinha[F_VALOR]  , ',', '.', ) )
+			
+			If nF_VALOR > 0.00 	// Valores Coluna VALOR_META deve ser maior que ZERO pra ser Importado...
+
+				If TLININS == nQLIns
+					SendInsert() 		//| Envia ao Banco o Inseert
+					nQLIns 	:= 0		//| Quantidade de Linhas a serem inseridas por vez 
+					cInsLin := ""
+				EndIf
+			
+				nQLIns += 1 //| Quantidade de Linhas a serem inseridas por vez 
 		
-			MntLinIns(aLinha, nQLIns) // Monta a Linha do Insert
-				
+				MntLinIns(aLinha, nQLIns) // Monta a Linha do Insert
+			
+			EndIf	
 		Endif		
 
 		//| Apresenta Mensagens do Status e posicao do Processamento
 		If( nNext == nLPerc )
 	
 			Conout('IMPMETAS : ' + PadR("Linha: "+ToC(nLPerc)+" de "+ToC(TLFile)+" File: "+cNomeF  + ' U.Recno: ' + ToC(nRecno-1), TPADR ) + Dtoc(ddatabase) + " " + time() )
-	
 			nNext += nShow
 
 		elseIf( TLFile == nLPerc )
@@ -416,15 +414,8 @@ Static Function MntLinIns(aLinha, nQLIns) // Monta a Linha do Insert
 	Local cDoc 		:= ""  //| Numero Documento 
 	Local cSeq 		:= ""  //| Sequencia do Documento
 	Local cDescMetas:= ""  //| Descricao das Metas
-	//Local cDataMeta := ""  //| Data da Meta
 	Local cFilGer	:= ""  //| Filial do Gerente
 	Local lAchou	:= .F. //| Se encontrou a Filial do Gerente 
-	//Local cCliente	:= ""  //| Monta codigo do Cliente
-	//Local cLojaCli	:= ""  //| Monta Loja do Cliente
-	//Local cQuant 	:= StrTran(aLinha[F_QUANT],',','.') //
-	//Local cValor 	:= StrTran(aLinha[F_VALOR],',','.') //
-	//Local nPMGM3	:= 0 	//| Percentual Meta GM3
-	//Local cPMGM3	:= '0'
 	
 	/// Tratamento Para Encontrar Filial do Gerente a ser utilizada na Meta
 	lAchou := HMGet( oHashFG, aLinha[F_VEND], @cFilGer )
