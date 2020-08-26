@@ -154,7 +154,8 @@ Static Function Verifica(oProcess, lEnd)
 			EndIf
 
 			If Select(x2Alias) > 0
-				DbCloseArea(x2Alias)
+				DbSelectArea(x2Alias)
+				DbCloseArea()
 			EndIf
 
 		EndIf
